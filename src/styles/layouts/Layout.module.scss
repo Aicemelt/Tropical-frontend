@@ -1,0 +1,27 @@
+@import "../global";
+
+.leftLayout {
+  width: 33.33%;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.rightLayout {
+  width: 62%;
+  background: red;
+}
+
+@media (max-width: 1200px) {
+
+}
+
+@media (max-width: 768px) {
+  .leftLayout {
+    width: 100%;
+  }
+
+  .rightLayout {
+    width: 100%;
+  }
+}

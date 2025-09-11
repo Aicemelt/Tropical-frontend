@@ -1,0 +1,23 @@
+@import "../global";
+
+.logo {
+  width: 48px;
+  height: 48px;
+  background-image: url("../../asset/tropical-bird.png");
+  background-size: contain;
+  margin-bottom: var(--text-2xl);
+}
+
+.title {
+  font-size: var(--text-3xl);
+  font-weight: var(--font-regular);
+
+  .userName {
+    font-weight: var(--font-extrabold);
+  }
+}
+
+.desc {
+  padding-top: var(--text-xs);
+  color: var(--text-secondary);
+}
