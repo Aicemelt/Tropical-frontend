@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from './Header.module.scss';
+import styles from '../../styles/components/Header.module.scss';
 
 const {logo, title, userName, desc} = styles;
 

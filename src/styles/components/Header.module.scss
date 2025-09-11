@@ -1,9 +1,10 @@
-@import "../../App.css";
+@import "../global";
 
 .logo {
   width: 48px;
   height: 48px;
-  background-color: var(--bg-teritary);
+  background-image: url("../../asset/tropical-bird.png");
+  background-size: contain;
   margin-bottom: var(--text-2xl);
 }
 
