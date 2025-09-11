@@ -1,10 +1,24 @@
 @import "../App.css";
 
 .leftLayout {
-  width: 400px;
+  width: 33.33%;
 }
 
 .rightLayout {
-  width: 744px;
+  width: 62%;
   background: red;
+}
+
+@media (max-width: 1200px) {
+
+}
+
+@media (max-width: 768px) {
+  .leftLayout {
+    width: 100%;
+  }
+
+  .rightLayout {
+    width: 100%;
+  }
 }
