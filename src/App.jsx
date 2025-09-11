@@ -1,12 +1,15 @@
 import './App.css'
+import RightLayout from "./layouts/RightLayout.jsx";
+import LeftLayout from "./layouts/LeftLayout.jsx";
 
 function App() {
 
   return (
     <>
-<h1>ㅎㅇ</h1>
+        <LeftLayout/>
+        <RightLayout/>
     </>
   )
 }
 
-export default App
+export default App;
