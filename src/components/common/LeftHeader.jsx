@@ -3,7 +3,7 @@ import styles from '../../styles/components/Header.module.scss';
 
 const {logo, title, userName, desc} = styles;
 
-const Header = () => {
+const LeftHeader = () => {
     return (
         <div>
             <h1 className={logo}></h1>
@@ -13,4 +13,4 @@ const Header = () => {
     );
 };
 
-export default Header;
+export default LeftHeader;
