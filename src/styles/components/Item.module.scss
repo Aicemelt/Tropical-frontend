@@ -1,0 +1,12 @@
+.item {
+  padding: 16px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-content: center;
+
+  input[type="checkbox"] {
+    width: 24px;
+    height: 24px;
+  }
+}

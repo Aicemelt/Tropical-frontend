@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
-import {dropdownBtn, on} from '../../styles/components/Header.module.scss';
+import  styles from '../../styles/components/Header.module.scss';
+import {Link} from "react-router-dom";
 
 const RightHeader = () => {
 
@@ -16,12 +17,18 @@ const RightHeader = () => {
             {/*  헤더 텍스트는 동적으로 변경  */}
                 Calender
             </h3>
-            <button className={dropdownBtn} type={"button"} onClick={handleMenu}></button>
+            <button className={`${styles.dropdownBtn}`} type={"button"} onClick={handleMenu}></button>
             <nav style={isBlock ? {display: "block"} : {display: "none"}}>
                 <ul>
-                    <li className={on}>Calender</li>
-                    <li>Todo</li>
-                    <li>Bucket List</li>
+                    <li className={`${styles.on}`}>
+                        <Link to={''} className={`${styles.navLink}`}>Calender</Link>
+                    </li>
+                    <li>
+                        <Link to={''} className={`${styles.navLink}`}>Todo</Link>
+                    </li>
+                    <li>
+                        <Link to={''} className={`${styles.navLink}`}>Bucket List</Link>
+                    </li>
                 </ul>
             </nav>
         </header>

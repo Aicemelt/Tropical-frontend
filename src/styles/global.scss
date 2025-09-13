@@ -91,13 +91,15 @@ ul {
 
 button {
   cursor: pointer;
+  border: 0;
+  background-color: #000;
+  color: var(--white)
 }
 
 #root {
   width: 1200px;
   display: flex;
   margin: 60px auto 0;
-  overflow-y: hidden;
   max-height: 100vh;
   flex-direction: row;
   gap: 4.67%;
@@ -112,8 +114,8 @@ button {
 @media (max-width: 768px) {
   #root {
     flex-direction: column;
-    overflow-y: auto;
     padding: 0 16px;
     gap: 36px;
+    height: auto;
   }
 }
