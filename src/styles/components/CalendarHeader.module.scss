@@ -1,0 +1,39 @@
+.calendarHeader {
+  font-family: var(--font-english);
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding-bottom: 36px;
+  font-size: var(--text-xl);
+
+  .btnArea {
+
+    button {
+      width: 36px;
+      height: 36px;
+      background-color: transparent;
+    }
+
+    .prevBtn{
+      background-image: url("../../asset/prev.png");
+      position: relative;
+      margin-right: 16px;
+
+      &::after {
+        content: '';
+        display: block;
+        position: absolute;
+        width: 1px;
+        height: 16px;
+        background-color: #BEBEBE;
+        top: 50%;
+        transform: translateY(-50%);
+        right: -8px;
+      }
+    }
+    .nextBtn {
+      background-image: url("../../asset/next.png");
+    }
+
+  }
+}

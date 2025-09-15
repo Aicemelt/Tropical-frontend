@@ -1,0 +1,41 @@
+.gridArea {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-family: var(--font-english);
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    justify-content: space-between;
+
+    .weekday,
+    .day {
+      font-size: var(--text-sm);
+      text-align: center;
+    }
+
+    .weekday {
+      color: var(--text-disabled);
+    }
+
+    .day {
+      display: flex;
+      justify-content: center;
+      height: 72px;
+      padding-top: 8px;
+      color: var(--text-primary);
+      font-weight: var(--font-medium);
+      font-size: var(--text-base);
+      font-family: var(--font-english);
+      background-color: transparent;
+
+      &:hover {
+        background-color: #BEBEBE;
+        border-radius: 12px;
+      }
+    }
+
+  }
+}
