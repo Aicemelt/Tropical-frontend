@@ -5,6 +5,17 @@
   display: flex;
   flex-direction: column;
   gap: 24px;
+
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    background-color: #fff;
+    align-items: flex-start;
+    gap: 0;
+  }
 }
 
 .rightLayout {
@@ -12,6 +23,19 @@
   display: flex;
   flex-direction: column;
   gap: 24px;
+  height: 100vh;
+
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background-color: #fff;
+  }
+}
+
+.leftLayout, .rightLayout {
+  height: calc(100vh - 60px);
+  overflow-y: auto;
 }
 
 @media (max-width: 1200px) {
@@ -19,11 +43,9 @@
 }
 
 @media (max-width: 768px) {
-  .leftLayout {
-    width: 100%;
-  }
 
-  .rightLayout {
+  .leftLayout, .rightLayout {
     width: 100%;
+    height: auto;
   }
 }

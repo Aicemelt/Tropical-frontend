@@ -77,6 +77,8 @@ body {
   margin: 0;
   padding: 0;
   font-size: 16px;
+  height: 100vh;
+  overflow: hidden;
 }
 
 .en {
@@ -99,8 +101,8 @@ button {
 #root {
   width: 1200px;
   display: flex;
-  margin: 60px auto 120px;
-  max-height: 100vh;
+  margin: 0 auto;
+  padding: 60px 0 0;
   flex-direction: row;
   gap: 4.67%;
 }
@@ -112,9 +114,14 @@ button {
 }
 
 @media (max-width: 768px) {
+  body {
+    height: auto;
+    overflow-y: auto;
+  }
+
   #root {
     flex-direction: column;
-    padding: 0 16px;
+    padding: 40px 16px;
     gap: 36px;
     height: auto;
   }

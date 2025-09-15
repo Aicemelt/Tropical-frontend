@@ -12,3 +12,18 @@
     border-radius: var(--text-base) var(--text-base)  0 var(--text-base);
   }
 }
+
+@media (max-width: 768px) {
+  .container {
+    position: relative;
+    flex-direction: row;
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    flex-wrap: nowrap;
+
+    li {
+      flex: 0 0 auto;
+    }
+  }
+}
