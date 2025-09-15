@@ -5,6 +5,7 @@ const TodoList = () => {
     return (
         <div>
             <TodoItem />
+            <TodoItem />
         </div>
     );
 };

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styles from '../../styles/components/Item.module.scss';
 
-const TodoItem = () => {
+const BucketItem = () => {
     const [expanded, setExpanded] = useState(false);
     const [isEdit, setIsEdit] = useState(false);
     const [isFinish, setIsFinish] = useState(false);
@@ -24,11 +24,11 @@ const TodoItem = () => {
             <div className={styles.checkboxArea}>
                 <input
                     type="checkbox"
-                    id={`todo-${1}`}
+                    id={`bucket-${1}`}
                     checked={isFinish}
                     onChange={(e) => setIsFinish(e.target.checked)}
                 />
-                <label htmlFor={`todo-${1}`}></label>
+                <label htmlFor={`bucket-${1}`}></label>
             </div>
 
             <div className={`${styles.textArea} ${expanded ? styles.open : ''}`}>
@@ -63,4 +63,4 @@ const TodoItem = () => {
     );
 };
 
-export default TodoItem;
+export default BucketItem;
