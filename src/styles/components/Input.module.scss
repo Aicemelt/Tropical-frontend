@@ -1,3 +1,5 @@
+@use '../global';
+
 .addBtn {
   width: 100%;
   padding: 16px 16px 16px 56px;
@@ -51,21 +53,16 @@
       flex-direction: row;
       gap: 10px;
 
-      input[type="date"] {
-        position: relative;
-        padding: 4px 8px;
-        border-radius: 50%;
-      }
-
       .btn{
         padding: 8px 16px;
         border-radius: 4px;
         font-size: var(--text-sm);
       }
-      .cancelBtn {
-
+      .btnCancel {
+        background-color: #F0F0F0;
+        color: var(--text-primary);
       }
-      .submitBtn {
+      .btnSubmit {
 
       }
 

@@ -1,12 +1,106 @@
 .item {
-  padding: 16px;
+  padding: 16px 80px 16px 16px;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   align-content: center;
+  border-radius: 8px;
+  position: relative;
 
   input[type="checkbox"] {
+    display: none;
+    opacity: 0;
+  }
+
+  label {
+    cursor: pointer;
+    position: absolute;
+    left: 16px;
+    top: 19px;
     width: 24px;
     height: 24px;
+    border: 1px solid #bbb;
+    border-radius: 6px;
+    background: #fff;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+  }
+
+  input[type="checkbox"]:checked + label {
+    background: #000;
+    border-color: #000;
+  }
+
+  input[type="checkbox"]:checked + label::after {
+    content: '';
+    display: block;
+    width: 16px;
+    height: 16px;
+    background-image: url("../../asset/check.png");
+    position: absolute;
+    top: 50%;
+    left: 4px;
+    transform: translateY(-50%);
+  }
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+  }
+
+  .text {
+    padding-left: 32px;
+    cursor: pointer;
+    font-size: var(--text-base);
+    color: var(--text-primary);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .btnArea {
+    position: absolute;
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    right: 16px;
+
+    button {
+      width: 24px;
+      height: 24px;
+      background-color: transparent;
+      display: none;
+    }
+    .editBtn {
+      background-image: url("../../asset/edit.png");
+    }
+    .deleteBtn {
+      background-image: url("../../asset/delete.png");
+    }
+  }
+
+  &:hover .btnArea button{
+    display: block;
+  }
+
+  &.finish {
+    .text {
+      text-decoration: line-through;
+      color: var(--text-disabled);
+    }
+
+    input[type="checkbox"]:checked + label {
+      background: var(--bg-teritary);
+      border-color: var(--bg-teritary);
+    }
+
+  }
+
+  &.open .text{
+    -webkit-line-clamp: unset;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: unset;
   }
 }

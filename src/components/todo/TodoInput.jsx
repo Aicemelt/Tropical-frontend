@@ -1,6 +1,7 @@
 import React, {useRef} from 'react';
 import styles from '../../styles/components/Input.module.scss';
 import {Form} from "react-router-dom";
+import DatePicker from "../common/DatePicker.jsx";
 
 const TodoInput = () => {
 
@@ -23,7 +24,7 @@ const TodoInput = () => {
                 >
                 </textarea>
                 <div className={styles.btnContainer}>
-                    <input type="date" className={styles.dateInput}/>
+                    <DatePicker />
                     <div className={styles.btnArea}>
                         <button className={`${styles.btn} ${styles.btnCancel}`}>취소</button>
                         <button className={`${styles.btn} ${styles.btnSubmit}`}>등록</button>
