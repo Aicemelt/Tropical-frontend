@@ -1,0 +1,47 @@
+.day {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  height: 72px;
+  padding-top: 8px;
+  gap: 4px;
+  color: var(--text-primary);
+  font-weight: var(--font-medium);
+  font-size: var(--text-base);
+  font-family: var(--font-english);
+  background-color: transparent;
+  border-radius: 12px;
+
+  &:hover {
+    background-color: #BEBEBE;
+  }
+
+  &.today {
+    background-color: #7B7B7B;
+    color: #fff;
+  }
+
+  .dataArea {
+    display: flex;
+    width: 100%;
+    gap: 4px;
+    flex-direction: row;
+    justify-content: center;
+
+    .data {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: #000;
+
+      &.schedule {
+        background-color: var(--primary);
+      }
+
+      &.diary {
+        background-color: var(--secondary);
+      }
+    }
+  }
+
+}

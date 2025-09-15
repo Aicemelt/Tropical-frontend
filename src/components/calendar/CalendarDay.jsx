@@ -1,10 +1,17 @@
-import React from 'react';
+import styles from '../../styles/components/CalendarDay.module.scss'
 
-const CalendarDay = () => {
+const CalendarDay = ({key, day, date, hasSchedule, hasDiary}) => {
+
+    const today = date.getDate();
+
     return (
-        <div>
-
-        </div>
+        <button key={key} className={`${styles.day} ${ day === today ? styles.today : ''}`}>
+            {day}
+            <span className={`${styles.dataArea}`}>
+            { hasSchedule && <span className={`${styles.data} ${styles.schedule}`}></span>  }
+            { hasDiary && <span className={`${styles.data} ${styles.diary}`}></span> }
+            </span>
+        </button>
     );
 };
 
