@@ -1,7 +1,7 @@
 import React from 'react';
 import styles from '../../styles/components/Buttons.module.scss';
 
-const Buttons = () => {
+const CalendarButtons = () => {
     return (
         <div className={`${styles.btnArea}`}>
             <button className={`${styles.addScheduleBtn}`}>새로운 일정 추가하기</button>
@@ -10,4 +10,4 @@ const Buttons = () => {
     );
 };
 
-export default Buttons;
+export default CalendarButtons;

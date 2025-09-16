@@ -1,12 +1,16 @@
 import React from 'react';
 import Calendar from "../components/calendar/Calendar.jsx";
-import Buttons from "../components/common/Buttons.jsx";
+import CalendarButtons from "../components/calendar/CalendarButtons.jsx";
+import ScheduleSection from "../components/schedule/ScheduleSection.jsx";
+import DiarySection from "../components/diary/DiarySection.jsx";
 
 const CalendarPage = () => {
     return (
         <>
             <Calendar />
-            <Buttons />
+            <CalendarButtons />
+            <ScheduleSection />
+            <DiarySection />
         </>
     );
 };
