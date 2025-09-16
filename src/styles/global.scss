@@ -80,8 +80,8 @@ body {
   padding: 0;
   font-size: 16px;
   height: 100vh;
-  overflow: hidden;
 }
+
 
 .en {
   font-family: var(--font-english);
@@ -101,17 +101,19 @@ button {
 }
 
 :focus {
-  outline: 2px solid #0077FF;
+  // outline: 2px solid #0077FF;
   border-radius: 4px;
 }
 
 #root {
-  width: 1200px;
-  display: flex;
+  width: 100%;
+  max-width: 1200px;
   margin: 0 auto;
+  display: flex;
   padding: 60px 0 0;
   flex-direction: row;
   gap: 4.67%;
+  position: relative;
 }
 
 @media (max-width: 1200px) {

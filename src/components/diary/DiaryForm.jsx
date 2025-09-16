@@ -2,7 +2,7 @@ import React, {useRef, useState} from 'react';
 import styles from '../../styles/components/Form.module.scss';
 import {Form} from "react-router-dom";
 
-const DiaryForm = () => {
+const DiaryForm = ({onClose}) => {
     const emotions = [
         { value: "JOY", label: "기쁨" },
         { value: "SADNESS", label: "슬픔" },
@@ -32,7 +32,7 @@ const DiaryForm = () => {
     const scrollHeightRef = useRef();
     const handleTextarea = () => {
         if(scrollHeightRef.current) {
-            scrollHeightRef.current.style.height = 'auto';
+            scrollHeightRef.current.style.maxHeight = '480px';
             scrollHeightRef.current.style.height = scrollHeightRef.current.scrollHeight + 'px';
         }
     }
@@ -41,7 +41,7 @@ const DiaryForm = () => {
         <Form>
             <div className={styles.titleArea}>
                 <input type={"text"} className={styles.title} placeholder={'일기 제목을 입력하세요...'}/>
-                <button className={styles.closeBtn} onClick={''}></button>
+                <button className={styles.closeBtn} onClick={onClose}></button>
             </div>
             <div className={`${styles.inputArea}`}>
                 <div>

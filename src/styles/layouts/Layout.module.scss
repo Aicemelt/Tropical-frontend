@@ -1,10 +1,14 @@
 @use "../global";
 
 .leftLayout {
+  position: absolute;
+  left: 0;
+  top: 60px;
   width: 33.33%;
   display: flex;
   flex-direction: column;
   gap: 24px;
+
 
   header {
     position: sticky;
@@ -16,26 +20,43 @@
     align-items: flex-start;
     gap: 0;
   }
+  .container {
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
 }
 
 .rightLayout {
+  position: absolute;
+  right: 0;
+  top: 60px;
   width: 62%;
+  height: 100vh;
   display: flex;
   flex-direction: column;
-  gap: 24px;
-  height: 100vh;
 
   header {
     position: sticky;
     top: 0;
     z-index: 10;
     background-color: #fff;
+    padding-bottom: 24px;
+  }
+
+  .container {
+    overflow-y: auto;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding-bottom: 60px;
   }
 }
 
 .leftLayout, .rightLayout {
   height: calc(100vh - 60px);
-  overflow-y: auto;
 }
 
 @media (max-width: 1200px) {
@@ -45,7 +66,9 @@
 @media (max-width: 768px) {
 
   .leftLayout, .rightLayout {
+    position: inherit;
     width: 100%;
     height: auto;
+    top: 0;
   }
 }

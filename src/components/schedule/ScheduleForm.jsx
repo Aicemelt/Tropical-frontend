@@ -2,7 +2,7 @@ import React, {useRef, useState} from 'react';
 import {Form} from "react-router-dom";
 import styles from '../../styles/components/Form.module.scss';
 
-const ScheduleForm = () => {
+const ScheduleForm = ({onClose}) => {
 
     const timeRef = useRef();
     const dateRef = useRef();
@@ -32,7 +32,7 @@ const ScheduleForm = () => {
         <Form>
             <div className={styles.titleArea}>
                 <input type={"text"} className={styles.title} placeholder={'일정 제목을 입력하세요...'}/>
-                <button className={styles.closeBtn} onClick={''}></button>
+                <button className={styles.closeBtn} onClick={onClose}></button>
             </div>
             <div className={`${styles.inputArea}`}>
                 <div className={`${styles.grid2}`}>
