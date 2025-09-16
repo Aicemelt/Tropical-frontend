@@ -4,7 +4,7 @@ import { tips } from '../../styles/components/Tips.module.scss'
 const Tips = () => {
     return (
         <div className={tips}>
-            tips!
+            스몰토크 활용 팁!
         </div>
     );
 };

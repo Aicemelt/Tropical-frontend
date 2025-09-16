@@ -1,0 +1,76 @@
+@use '../global';
+
+.addBtn {
+  width: 100%;
+  padding: 16px 16px 16px 56px;
+  border: none;
+  border-radius: 8px;
+  font-size: var(--text-lg);
+  color: var(--text-secondary);
+  text-align: left;
+  position: relative;
+  background-color: var(--bg-teritary);
+
+  &::after {
+    content: '';
+    display: block;
+    width: 32px;
+    height: 32px;
+    background-image: url("../../asset/plus-32.png");
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    left: 16px;
+  }
+}
+
+.inputForm {
+  width: 100%;
+  background-color: var(--bg-teritary);
+  border-radius: 8px;
+
+  textarea {
+    width: 100%;
+    border: none;
+    background-color: var(--bg-teritary);
+    padding: 24px 16px 16px 16px;
+    border-radius: 8px 8px 0 0;
+    min-height: 208px;
+    font-size: var(--text-lg);
+    color: var(--text-secondary);
+    font-family: var(--font-korean);
+    resize: none;
+  }
+
+  .btnContainer {
+    display: flex;
+    padding: 16px;
+    flex-direction: row;
+    justify-content: space-between;
+
+    .btnArea {
+      display: flex;
+      flex-direction: row;
+      gap: 10px;
+
+      .btn{
+        padding: 8px 16px;
+        border-radius: 4px;
+        font-size: var(--text-sm);
+      }
+      .btnCancel {
+        background-color: #F0F0F0;
+        color: var(--text-primary);
+      }
+      .btnSubmit {
+
+      }
+
+    }
+
+    &.flexEnd {
+      justify-content: flex-end;
+    }
+  }
+
+}

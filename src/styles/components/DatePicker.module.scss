@@ -1,0 +1,45 @@
+.dateWrapper {
+  position: relative;          /* overlay 위치 기준 */
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  background: #d9d9d9;
+  border-radius: 999px;
+  cursor: pointer;
+  user-select: none;
+  color: var(--text-primary);
+}
+
+.text {
+  font-family: var(--font-english);
+  font-size: var(--text-sm);
+  position: relative;
+  padding-left: 24px;
+  font-weight: var(--font-medium);
+
+  &::before{
+    content: '';
+    display: block;
+    width: 20px;
+    height: 20px;
+    background-image: url("../../asset/date.png");
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    left: 0;
+  }
+}
+
+.overlayInput {
+  position: absolute;
+  inset: 0;              /* top/right/bottom/left 모두 0 → 라벨 전체 덮기 */
+  width: 100%;
+  height: 100%;
+  opacity: 0;            /* 보이진 않지만 */
+  z-index: 2;            /* 최상단으로 */
+  border: 0;
+  margin: 0;
+  padding: 0;
+  cursor: pointer;
+}

@@ -8,6 +8,12 @@ const SmallTalkList = () => {
             <li>
                 <SmallTalkItem />
             </li>
+            <li>
+                <SmallTalkItem />
+            </li>
+            <li>
+                <SmallTalkItem />
+            </li>
         </ul>
     );
 };

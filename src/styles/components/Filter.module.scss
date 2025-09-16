@@ -1,0 +1,46 @@
+@use '../global';
+
+.tabList {
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+}
+
+.tab {
+  border: 0;
+  font-size: var(--text-xl);
+  background: transparent;
+  text-align: center;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  color: var(--text-secondary);
+
+  span {
+    font-family: var(--font-english);
+    font-size: var(--text-sm);
+    padding: 2px 8px;
+    background-color: var(--bg-teritary);
+    color: var(--white);
+    border-radius: 10px;
+    margin: 2px 0 0 8px;
+  }
+
+  &:nth-child(1)::after {
+    content: '';
+    display: block;
+    width: 1px;
+    height: 16px;
+    background-color: #9E9E9E;
+    margin-left: 16px;
+  }
+
+  &.on {
+    font-weight: var(--font-medium);
+    color: var(--text-primary);
+
+    span {
+      background-color: #000;
+    }
+  }
+}

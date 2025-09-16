@@ -1,6 +1,8 @@
-@import "../global";
+@use "../global";
 
 .tips {
   background-color: #FAFAFA;
   border: 1px dashed var(--text-disabled);
+  border-radius: 8px;
+  padding: var(--text-xs);
 }

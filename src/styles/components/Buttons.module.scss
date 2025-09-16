@@ -1,0 +1,39 @@
+.btnArea {
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+
+  button {
+    height: 72px;
+    padding: 20px;
+    border-radius: 16px;
+    width: 100%;
+    text-align: left;
+    font-size: var(--text-lg);
+    font-weight: var(--font-regular);
+
+    &::before {
+      content: '';
+      display: inline-block;
+      width: 32px;
+      height: 32px;
+      vertical-align: middle;
+      margin-right: 8px;
+      margin-top: -3px;
+    }
+
+    &.addScheduleBtn {
+      background-color: #9E9E9E;
+
+      &::before {
+        background-image: url("../../asset/plus-32-w.png");
+      }
+    }
+
+    &.addDiaryBtn {
+      &::before {
+        background-image: url("../../asset/pencil-32.png");
+      }
+    }
+  }
+}
