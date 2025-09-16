@@ -72,5 +72,18 @@ header {
   }
   .on {
     font-weight: var(--font-bold);
+
+    &:after {
+      content: '';
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      vertical-align: middle;
+      padding-left: 8px;
+      background-image: url("../../asset/arrow-20.png");
+      background-repeat: no-repeat;
+      background-position: center;
+      pointer-events: none;
+    }
   }
 }
