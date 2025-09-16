@@ -9,6 +9,8 @@ const router = createBrowserRouter([
         path: '/',
         element: <RootLayout />,
         errorElement: <div>에러페이지입니다?</div>,
+        /*loader: userDataLoader, // 로더 생성 후 연결
+        id: 'user-token-data',*/ // 토큰
         children: [
             {
                 index: true,

@@ -65,6 +65,8 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  outline: none;
+  border: none;
 }
 
 body {
@@ -96,6 +98,11 @@ button {
   border: 0;
   background-color: #000;
   color: var(--white)
+}
+
+:focus {
+  outline: 2px solid #0077FF;
+  border-radius: 4px;
 }
 
 #root {
