@@ -1,0 +1,24 @@
+.item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-radius: 16px;
+  padding: 20px;
+  background-color: #EAEAEA;
+
+  .time {
+    width: fit-content;
+    font-family: var(--font-english);
+    color: #fff;
+    background-color: var(--primary);
+    padding: 4px 8px;
+    font-size: var(--text-sm);
+    border-radius: 12.5px;
+  }
+
+  p {
+    font-size: var(--text-xl);
+    font-weight: var(--font-semibold);
+    cursor: pointer;
+  }
+}

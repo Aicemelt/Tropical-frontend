@@ -5,7 +5,7 @@
   height: 72px;
   padding-top: 8px;
   gap: 4px;
-  color: var(--text-primary);
+  color: var(--text-muted);
   font-weight: var(--font-medium);
   font-size: var(--text-base);
   font-family: var(--font-english);
@@ -14,6 +14,15 @@
 
   &:hover {
     background-color: #BEBEBE;
+  }
+
+  &:focus,
+  &:active {
+    border-radius: 12px;
+  }
+
+  &.currentMonth {
+    color: var(--text-primary);
   }
 
   &.today {
@@ -32,7 +41,6 @@
       width: 8px;
       height: 8px;
       border-radius: 50%;
-      background-color: #000;
 
       &.schedule {
         background-color: var(--primary);

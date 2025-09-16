@@ -61,6 +61,10 @@ header {
     box-shadow: 0 4px 25px rgba(0, 0, 0, 0.1);
     z-index: 1;
 
+    ul {
+      gap: 8px;
+    }
+
     .navLink {
       text-decoration: none;
       color: var(--text-primary);
@@ -68,5 +72,18 @@ header {
   }
   .on {
     font-weight: var(--font-bold);
+
+    &:after {
+      content: '';
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      vertical-align: middle;
+      padding-left: 8px;
+      background-image: url("../../asset/arrow-20.png");
+      background-repeat: no-repeat;
+      background-position: center;
+      pointer-events: none;
+    }
   }
 }

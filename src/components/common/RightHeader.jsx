@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import  styles from '../../styles/components/Header.module.scss';
-import {Link} from "react-router-dom";
+import {Link, NavLink} from "react-router-dom";
 
 const RightHeader = () => {
 
@@ -20,14 +20,14 @@ const RightHeader = () => {
             <button className={`${styles.dropdownBtn}`} type={"button"} onClick={handleMenu}></button>
             <nav style={isBlock ? {display: "block"} : {display: "none"}}>
                 <ul>
-                    <li className={`${styles.on}`}>
-                        <Link to={''} className={`${styles.navLink}`}>Calender</Link>
+                    <li>
+                        <NavLink to={'/'} className={({isActive}) => isActive ? `${styles.navLink} ${styles.on}` : styles.navLink}>Calender</NavLink>
                     </li>
                     <li>
-                        <Link to={''} className={`${styles.navLink}`}>Todo</Link>
+                        <NavLink to={'/todo'} className={({isActive}) => isActive ? `${styles.navLink} ${styles.on}` : styles.navLink}>Todo</NavLink>
                     </li>
                     <li>
-                        <Link to={''} className={`${styles.navLink}`}>Bucket List</Link>
+                        <NavLink to={'/bucket'} className={({isActive}) => isActive ? `${styles.navLink} ${styles.on}` : styles.navLink}>Bucket List</NavLink>
                     </li>
                 </ul>
             </nav>

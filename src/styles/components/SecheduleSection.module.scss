@@ -1,0 +1,28 @@
+h4 {
+  font-size: var(--text-2xl);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .badge {
+    font-size: var(--text-sm);
+    font-weight: var(--font-semibold);
+    color: #fff;
+    padding: 2px 8px;
+    background-color: #000;
+    border-radius: 10.5px;
+  }
+
+  .toggleBtn {
+    width: 24px;
+    height: 24px;
+    background-color: transparent;
+    background-image: url("../../asset/arrow-24.png");
+    margin-left: auto;
+
+    &.open {
+      transform: rotate(180deg);
+    }
+  }
+
+}

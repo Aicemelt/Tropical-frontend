@@ -1,0 +1,29 @@
+.backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;  /* 100vw가 아닌 100%로 */
+  height: 100%;  /* 100vh가 아닌 100%로 */
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  z-index: 1001;
+  background-color: #fff;
+  padding: 24px;
+  border-radius: 24px;
+}
+
+@media (max-width: 768px) {
+  .modal {
+    width: 90%;
+  }
+}
