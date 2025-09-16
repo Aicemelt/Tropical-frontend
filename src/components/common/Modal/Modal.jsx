@@ -2,6 +2,8 @@ import React from 'react';
 import styles from '../../../styles/components/Modal.module.scss';
 import ScheduleForm from "../../schedule/ScheduleForm.jsx";
 import DiaryForm from "../../diary/DiaryForm.jsx";
+import ReactDom from "react-dom";
+import Portal from "./Portal.jsx";
 
 const BackDrop = () => {
     return (
@@ -9,14 +11,25 @@ const BackDrop = () => {
     )
 }
 
+const ModalContent = () => {
+    return (
+        <div className={`${styles.modal}`}>
+            <DiaryForm />
+            {/*<ScheduleForm />*/}
+        </div>
+    )
+}
+
 const Modal = () => {
     return (
         <div>
-            <div className={`${styles.backdrop}`}></div>
-            <div className={`${styles.modal}`}>
-                <DiaryForm />
-                {/*<ScheduleForm />*/}
-            </div>
+            <Portal destId='backdrop'>
+                <BackDrop />
+            </Portal>
+
+            <Portal destId='modal'>
+                <ModalContent />
+            </Portal>
         </div>
     );
 };
