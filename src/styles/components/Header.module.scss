@@ -61,6 +61,10 @@ header {
     box-shadow: 0 4px 25px rgba(0, 0, 0, 0.1);
     z-index: 1;
 
+    ul {
+      gap: 8px;
+    }
+
     .navLink {
       text-decoration: none;
       color: var(--text-primary);

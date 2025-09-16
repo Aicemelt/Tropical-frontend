@@ -16,13 +16,13 @@
     background-color: #BEBEBE;
   }
 
+  &.currentMonth {
+    color: var(--text-primary);
+  }
+
   &.today {
     background-color: #7B7B7B;
     color: #fff;
-  }
-
-  &.currentMonth {
-    color: var(--text-primary);
   }
 
   .dataArea {

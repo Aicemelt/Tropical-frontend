@@ -84,7 +84,7 @@ const CalendarGrid = () => {
                     </div>
                 ))}
             </div>
-            <div className={`${styles.grid} ${totalRows ===  6 ? styles.sixGrid : styles.fiveGrid}`}>
+            <div className={`${styles.grid}`}>
                 {days.map((day, index) =>
                     /*<button key={index} className={`${styles.day}`}>
                         {day}

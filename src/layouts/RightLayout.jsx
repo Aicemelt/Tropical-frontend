@@ -10,12 +10,14 @@ const RightLayout = () => {
     return (
         <div className={rightLayout}>
             <RightHeader />
-            --- calender ---
+            {/*--- calender ---
             <CalendarPage />
             --- todo ---
             <TodoPage />
             --- bucket ---
-            <BucketPage />
+            <BucketPage />*/}
+            {/* 모달 완성 후   outlet 으로 변경*/}
+            <Outlet />
         </div>
     );
 };

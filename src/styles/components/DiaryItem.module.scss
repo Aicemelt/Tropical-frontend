@@ -1,0 +1,55 @@
+.diary {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-radius: 16px;
+  padding: 20px;
+  background-color: #EAEAEA;
+
+  .infoArea {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    align-items: center;
+
+    span {
+      font-size: var(--text-lg);
+      font-weight: var(--font-semibold);
+    }
+
+    // 감정 아이콘 사용 시 아래 클래스 사용
+    // 아이콘은 tossFace 이모지 아이콘을 사용했습니다.
+
+    .emotion {
+      width: 40px;
+      height: 40px;
+
+      &.joy {
+        background-image: url("../../asset/joy.png");
+      }
+
+      &.sadness {
+        background-image: url("../../asset/sadness.png");
+      }
+
+      &.anger {
+        background-image: url("../../asset/anger.png");
+      }
+
+      &.calm {
+        background-image: url("../../asset/calm.png");
+      }
+
+      &.anxiety {
+        background-image: url("../../asset/anxiety.png");
+      }
+
+    }
+  }
+
+  p {
+    font-size: var(--text-xl);
+    font-weight: var(--font-semibold);
+  }
+
+}

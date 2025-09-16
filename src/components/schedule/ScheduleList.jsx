@@ -1,10 +1,17 @@
 import React from 'react';
+import ScheduleItem from "./ScheduleItem.jsx";
+import styles from '../../styles/components/ScheduleList.module.scss';
 
 const ScheduleList = () => {
     return (
-        <div>
-
-        </div>
+        <ul>
+           <li>
+               <ScheduleItem />
+           </li>
+            <li>
+                <ScheduleItem />
+            </li>
+        </ul>
     );
 };
 

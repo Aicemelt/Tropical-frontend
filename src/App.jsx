@@ -1,17 +1,13 @@
 import './styles/global.scss';
 import RightLayout from "./layouts/RightLayout.jsx";
 import LeftLayout from "./layouts/LeftLayout.jsx";
-import {BrowserRouter} from "react-router-dom";
+import {BrowserRouter, RouterProvider} from "react-router-dom";
+import router from "./routes/route-config.jsx";
 
 function App() {
 
   return (
-    <>
-        <BrowserRouter >
-            <LeftLayout/>
-            <RightLayout/>
-        </BrowserRouter>
-    </>
+      <RouterProvider router={router} />
   )
 }
 
