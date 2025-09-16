@@ -16,7 +16,7 @@ const ScheduleForm = () => {
     };
 
     const formatTime = () => {
-        if (!time) return "--:--";
+        if (!time) return "-- --:--";
 
         const [hourStr, minute] = time.split(":");
         let hour = parseInt(hourStr, 10);
@@ -65,7 +65,8 @@ const ScheduleForm = () => {
                 </div>
             </div>
             <div className={`${styles.btnArea}`}>
-                <button className={styles.addBtn}>추가하기</button>
+                <button className={styles.editBtn}>수정하기</button>
+                <button className={styles.actionBtn}>추가하기</button>
             </div>
         </Form>
     );

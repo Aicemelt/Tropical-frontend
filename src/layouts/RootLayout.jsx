@@ -7,7 +7,8 @@ import Modal from "../components/common/Modal/Modal.jsx";
 const RootLayout = () => {
     return (
         <>
-            <Modal />
+            {/* 모달  */}
+            { <Modal/> }
             <LeftLayout />
             <RightLayout />
         </>

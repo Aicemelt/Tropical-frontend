@@ -75,6 +75,7 @@
     background-color: transparent;
     font-size: var(--text-base);
     height: 120px;
+    resize: none;
   }
 
   input[type="text"] {
@@ -90,12 +91,21 @@
   display: flex;
   flex-direction: row;
   justify-content: flex-end;
+  gap: 16px;
 
-  .addBtn {
-    font-size: var(--text-base);
+  button {
     padding: 12px;
     border-radius: 16px;
+    font-size: var(--text-base);
+
+    &.actionBtn {
+    }
+
+    &.editBtn {
+      background-color: #9E9E9E;
+    }
   }
+
 }
 
 .dateWrapper {
@@ -123,4 +133,19 @@
   margin: 0;
   padding: 0;
   cursor: pointer;
+}
+
+select {
+  background-color: transparent;
+  font-size: var(--text-base);
+  appearance: none;
+  color: #7b7b7b;
+
+  &.selected {
+    color: var(--text-primary);
+  }
+}
+
+select::-ms-expand {
+  display: none; /* IE, Edge */
 }
