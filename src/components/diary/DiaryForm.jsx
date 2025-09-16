@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useRef, useState} from 'react';
 import styles from '../../styles/components/Form.module.scss';
 import {Form} from "react-router-dom";
 
@@ -29,6 +29,14 @@ const DiaryForm = () => {
         setSelectedEmotion(e.target.value);
     }
 
+    const scrollHeightRef = useRef();
+    const handleTextarea = () => {
+        if(scrollHeightRef.current) {
+            scrollHeightRef.current.style.height = 'auto';
+            scrollHeightRef.current.style.height = scrollHeightRef.current.scrollHeight + 'px';
+        }
+    }
+
     return (
         <Form>
             <div className={styles.titleArea}>
@@ -38,7 +46,7 @@ const DiaryForm = () => {
             <div className={`${styles.inputArea}`}>
                 <div>
                     <span className={styles.label}>일기 내용</span>
-                    <textarea placeholder={'오늘의 일기를 작성해보세요'}></textarea>
+                    <textarea placeholder={'오늘의 일기를 작성해보세요'} ref={scrollHeightRef} onInput={handleTextarea}></textarea>
                 </div>
                 <div className={`${styles.grid2}`}>
                     <div>
