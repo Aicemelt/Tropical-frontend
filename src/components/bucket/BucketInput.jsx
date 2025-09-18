@@ -1,16 +1,14 @@
 import React, { useRef, useState, useEffect } from 'react';
 import styles from '../../styles/components/Input.module.scss';
 import { useBucketApi } from '../../hooks/bucket/useBucketApi.js';
-import { useBucketStore } from '../../store/bucketStore.js';
 
 const BucketInput = () => {
     const scrollHeightRef = useRef();
-    const formRef = useRef(); // 폼 전체를 감싸는 ref 추가
+    const formRef = useRef();
     const [content, setContent] = useState("");
     const [isInputOpen, setIsInputOpen] = useState(false);
 
-    const { createBucket } = useBucketApi();
-    const isLoading = useBucketStore(state => state.isLoading);
+    const { createBucket, isLoading } = useBucketApi();
 
     useEffect(() => {
         // 입력창이 열렸을 때만 이벤트 리스너 추가

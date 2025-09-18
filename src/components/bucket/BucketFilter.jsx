@@ -5,6 +5,8 @@ import { useBucketStore } from '../../store/bucketStore.js';
 const BucketFilter = () => {
     // 필터는 "진행 중"과 "완료됨" 두 가지로 제한
     const filters = ["진행 중", "완료됨"];
+
+    // Todo 방식과 동일하게 store에서 직접 가져오기
     const { currentFilter, setCurrentFilter, getFilterCounts } = useBucketStore();
     const filterCounts = getFilterCounts();
 

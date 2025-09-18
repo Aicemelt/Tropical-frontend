@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import styles from '../../styles/components/Item.module.scss';
 import inputStyles from '../../styles/components/Input.module.scss';
 import { useBucketApi } from "../../hooks/bucket/useBucketApi.js";
-import { useBucketStore } from "../../store/bucketStore.js";
 
 const BucketItem = ({ bucket }) => {
     const [expanded, setExpanded] = useState(false);
@@ -10,10 +9,14 @@ const BucketItem = ({ bucket }) => {
     const [content, setContent] = useState(bucket.content);
 
     const textareaRef = useRef();
-    const formRef = useRef(); // 폼 전체를 감싸는 ref 추가
+    const formRef = useRef();
 
-    const { deleteBucket, toggleCompleteBucket, updateBucket } = useBucketApi();
-    const isLoading = useBucketStore(state => state.isLoading);
+    const { deleteBucket, toggleCompleteBucket, updateBucket, isLoading } = useBucketApi();
+
+    // content 상태를 bucket.content와 동기화 (Todo 방식과 동일)
+    useEffect(() => {
+        setContent(bucket.content);
+    }, [bucket.content]);
 
     useEffect(() => {
         if (isEditMode) {

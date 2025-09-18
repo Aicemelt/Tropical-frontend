@@ -10,6 +10,7 @@ const TodoInput = ({
                        onClose = null
                    }) => {
     const scrollHeightRef = useRef();
+    const formRef = useRef(); // 폼 요소 참조 추가
     const [content, setContent] = useState("");
     const [dueDate, setDueDate] = useState("");
     const [isInputOpen, setIsInputOpen] = useState(false);
@@ -33,6 +34,27 @@ const TodoInput = ({
             }, 0);
         }
     }, [isEditMode, isOpen]);
+
+    // 외부 클릭 시 창 닫기 (수정 모드와 새 할일 생성 모드 둘 다)
+    useEffect(() => {
+        if ((isEditMode && isOpen) || (!isEditMode && isInputOpen)) {
+            const handleClickOutside = (event) => {
+                if (formRef.current && !formRef.current.contains(event.target)) {
+                    handleCancel();
+                }
+            };
+
+            // 약간의 딜레이를 주어 현재 클릭 이벤트가 완료된 후에 리스너 추가
+            const timeoutId = setTimeout(() => {
+                document.addEventListener('mousedown', handleClickOutside);
+            }, 100);
+
+            return () => {
+                clearTimeout(timeoutId);
+                document.removeEventListener('mousedown', handleClickOutside);
+            };
+        }
+    }, [isEditMode, isOpen, isInputOpen]);
 
     // 외부에서 제어하는 isOpen 상태 (수정 모드용)
     const inputOpen = isEditMode ? isOpen : isInputOpen;
@@ -103,7 +125,11 @@ const TodoInput = ({
         if (!inputOpen || !editTodo) return null;
 
         return (
-            <form className={`${styles.inputForm}`} onSubmit={handleSubmit}>
+            <form
+                ref={formRef}
+                className={`${styles.inputForm}`}
+                onSubmit={handleSubmit}
+            >
                 <textarea
                     ref={scrollHeightRef}
                     placeholder={"할 일 내용을 입력하세요"}
@@ -149,7 +175,11 @@ const TodoInput = ({
                     새 할 일 추가하기
                 </button>
             ) : (
-                <form className={`${styles.inputForm}`} onSubmit={handleSubmit}>
+                <form
+                    ref={formRef}
+                    className={`${styles.inputForm}`}
+                    onSubmit={handleSubmit}
+                >
                     <textarea
                         ref={scrollHeightRef}
                         placeholder={"새 할 일 추가하기"}

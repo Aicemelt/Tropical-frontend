@@ -39,7 +39,7 @@ export const useBucketStore = create((set, get) => ({
         )
     })),
 
-    // 클라이언트 측에서 필터링된 버킷리스트 반환
+    // 클라이언트 측에서 필터링된 버킷리스트 반환 (Todo 방식과 동일)
     getFilteredBuckets: () => {
         const { buckets, currentFilter } = get();
         if (currentFilter === "완료됨") {
@@ -50,7 +50,7 @@ export const useBucketStore = create((set, get) => ({
         return buckets;
     },
 
-    // 필터 카운트 계산
+    // 필터 카운트 계산 (Todo 방식과 동일)
     getFilterCounts: () => {
         const { buckets } = get();
         const counts = {

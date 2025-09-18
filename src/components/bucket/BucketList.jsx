@@ -5,6 +5,7 @@ import BucketItem from "./BucketItem.jsx";
 import { useBucketStore } from '../../store/bucketStore.js';
 
 const BucketList = () => {
+    // Todo 방식과 동일하게 store 함수를 직접 사용
     const { getFilteredBuckets } = useBucketStore();
     const filteredBuckets = getFilteredBuckets();
 
@@ -14,7 +15,6 @@ const BucketList = () => {
 
     return (
         <div>
-            {/* key prop에 고유 ID를 할당 */}
             {filteredBuckets.map((bucket) => (
                 <BucketItem key={bucket.bucketId} bucket={bucket} />
             ))}

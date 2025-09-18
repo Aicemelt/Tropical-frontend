@@ -7,7 +7,7 @@ import BucketInput from "../components/bucket/BucketInput.jsx";
 import { useBucketApi } from '../hooks/bucket/useBucketApi.js';
 import { useBucketStore } from '../store/bucketStore.js';
 
-const BucketPage = () => {
+const BucketPage = React.memo(() => {
     // API 훅에서 getAllBuckets만 가져옴
     const { getAllBuckets } = useBucketApi();
 
@@ -18,7 +18,7 @@ const BucketPage = () => {
     // 컴포넌트가 처음 렌더링될 때만 모든 버킷리스트를 가져옴
     useEffect(() => {
         getAllBuckets();
-    }, []);
+    }, []); // 빈 의존성 배열로 변경
 
     if (isLoading) return <div>로딩 중...</div>;
     if (error) return <div>에러 발생: {error}</div>;
@@ -30,6 +30,8 @@ const BucketPage = () => {
             <BucketList />
         </>
     );
-};
+});
+
+BucketPage.displayName = 'BucketPage';
 
 export default BucketPage;
