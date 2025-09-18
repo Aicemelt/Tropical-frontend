@@ -8,10 +8,9 @@ import react from '@vitejs/plugin-react';
  *
  * @see {@link https://vite.dev/config/} Vite 공식 설정 문서
  *
- * @author 왕택준 (TJ)
- * @since 0.1.0
- * @created 2025-09-12
- * @version 0.1.0
+ * @author 왕택준
+ * @version 0.1.
+ * @since 2025.09.14
  */
 export default defineConfig({
   /**
@@ -60,7 +59,7 @@ export default defineConfig({
        *
        * @type {ProxyOptions}
        */
-      '/api': {
+      '/api/v1': {
         /** @type {string} 백엔드 서버 주소 */
         target: 'http://localhost:9005',
         /** @type {boolean} origin 헤더를 target 주소로 변경 (CORS 해결) */
