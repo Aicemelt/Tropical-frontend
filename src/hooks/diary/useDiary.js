@@ -65,7 +65,6 @@ export const useDiary = () => {
 
     // 조회 함수들
     getDiaryByDate: getDiaryByDateFromStore,
-    getDiariesByMonth: getDiariesByMonthFromStore,
     getDiariesByEmotion,
     getDiariesByWeather,
 
@@ -81,7 +80,6 @@ export const useDiary = () => {
     clearError,
 
     // 복합 액션들
-    loadMonthDiaries,
     updateStats,
     resetStore
   } = useDiaryStore();
