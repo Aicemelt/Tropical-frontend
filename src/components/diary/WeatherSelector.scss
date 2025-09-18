@@ -1,0 +1,416 @@
+/**
+ * @fileoverview 날씨 선택 컴포넌트 스타일
+ * @description 날씨 선택 UI의 스타일 정의
+ * @author 신동준
+ * @since 2025-09-18
+ * @version 1.0.0
+ */
+
+.weather-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  &__label {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+
+    .label-required {
+      color: #ff4757;
+    }
+  }
+
+  &__options {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+
+    @media (max-width: 480px) {
+      gap: 12px;
+    }
+  }
+
+  &__selected {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    font-size: 13px;
+    color: #495057;
+
+    .selected-weather {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      .selected-icon {
+        font-size: 16px;
+      }
+    }
+
+    .clear-button {
+      background: none;
+      border: none;
+      color: #6c757d;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 4px;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background-color: #e9ecef;
+        color: #495057;
+      }
+
+      &:disabled {
+        cursor: not-allowed;
+        opacity: 0.5;
+      }
+    }
+  }
+
+  // 레이아웃 변형
+  &.vertical {
+    .weather-selector__options {
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .weather-option {
+      justify-content: flex-start;
+
+      &__content {
+        justify-content: flex-start;
+        text-align: left;
+      }
+    }
+  }
+
+  &.horizontal {
+    .weather-selector__options {
+      justify-content: center;
+    }
+  }
+
+  // 크기 변형
+  &.small {
+    .weather-option {
+      &__content {
+        padding: 8px 12px;
+        gap: 6px;
+      }
+
+      &__icon {
+        font-size: 18px;
+      }
+
+      &__label {
+        font-size: 11px;
+      }
+    }
+  }
+
+  &.medium {
+    .weather-option {
+      &__content {
+        padding: 12px 16px;
+        gap: 8px;
+      }
+
+      &__icon {
+        font-size: 20px;
+      }
+
+      &__label {
+        font-size: 12px;
+      }
+    }
+  }
+
+  &.large {
+    .weather-option {
+      &__content {
+        padding: 16px 20px;
+        gap: 10px;
+      }
+
+      &__icon {
+        font-size: 24px;
+      }
+
+      &__label {
+        font-size: 14px;
+      }
+    }
+  }
+
+  // 비활성화 상태
+  &.disabled {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+}
+
+.weather-option {
+  position: relative;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &__input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 16px;
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    background-color: #fff;
+    transition: all 0.3s ease;
+    min-width: 80px;
+    text-align: center;
+
+    &:hover {
+      border-color: #74c0fc;
+      background-color: #f8f9ff;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(116, 192, 252, 0.15);
+    }
+  }
+
+  &__icon {
+    font-size: 20px;
+    line-height: 1;
+    transition: all 0.2s ease;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+  }
+
+  &__label {
+    font-size: 12px;
+    font-weight: 500;
+    color: #495057;
+    transition: color 0.2s ease;
+    white-space: nowrap;
+  }
+
+  &__radio {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #dee2e6;
+    border-radius: 50%;
+    background-color: #fff;
+    transition: all 0.2s ease;
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: #339af0;
+      transition: transform 0.2s ease;
+    }
+  }
+
+  // 선택된 상태
+  &.selected {
+    .weather-option__content {
+      border-color: #339af0;
+      background-color: #e7f5ff;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(51, 154, 240, 0.2);
+    }
+
+    .weather-option__label {
+      color: #1864ab;
+      font-weight: 600;
+    }
+
+    .weather-option__radio {
+      border-color: #339af0;
+      background-color: #339af0;
+
+      &::after {
+        transform: translate(-50%, -50%) scale(1);
+        background-color: #fff;
+      }
+    }
+
+    &:hover {
+      .weather-option__content {
+        border-color: #228be6;
+        background-color: #d0ebff;
+      }
+    }
+  }
+
+  // 비활성화 상태
+  &.disabled {
+    cursor: not-allowed;
+
+    .weather-option__content {
+      opacity: 0.5;
+
+      &:hover {
+        transform: none;
+        box-shadow: none;
+        border-color: #e9ecef;
+        background-color: #fff;
+      }
+    }
+  }
+
+  // 포커스 상태
+  &__input:focus + &__content {
+    outline: none;
+    border-color: #339af0;
+    box-shadow: 0 0 0 3px rgba(51, 154, 240, 0.1);
+  }
+
+  // 각 날씨별 호버 효과
+  &:has(input[value="SUNNY"]) {
+    &:hover .weather-option__content {
+      border-color: #FFA500;
+      background-color: #fff8e1;
+      box-shadow: 0 4px 8px rgba(255, 165, 0, 0.15);
+    }
+
+    &.selected .weather-option__content {
+      border-color: #FF8C00;
+      background-color: #fff3e0;
+    }
+  }
+
+  &:has(input[value="CLOUDY"]) {
+    &:hover .weather-option__content {
+      border-color: #708090;
+      background-color: #f5f5f5;
+      box-shadow: 0 4px 8px rgba(112, 128, 144, 0.15);
+    }
+
+    &.selected .weather-option__content {
+      border-color: #696969;
+      background-color: #f0f0f0;
+    }
+  }
+
+  &:has(input[value="RAINY"]) {
+    &:hover .weather-option__content {
+      border-color: #4169E1;
+      background-color: #e8f4fd;
+      box-shadow: 0 4px 8px rgba(65, 105, 225, 0.15);
+    }
+
+    &.selected .weather-option__content {
+      border-color: #1e40af;
+      background-color: #dbeafe;
+    }
+  }
+
+  &:has(input[value="SNOWY"]) {
+    &:hover .weather-option__content {
+      border-color: #E0E0E0;
+      background-color: #fafafa;
+      box-shadow: 0 4px 8px rgba(224, 224, 224, 0.15);
+    }
+
+    &.selected .weather-option__content {
+      border-color: #d1d5db;
+      background-color: #f9fafb;
+    }
+  }
+
+  &:has(input[value="WINDY"]) {
+    &:hover .weather-option__content {
+      border-color: #87CEEB;
+      background-color: #f0f9ff;
+      box-shadow: 0 4px 8px rgba(135, 206, 235, 0.15);
+    }
+
+    &.selected .weather-option__content {
+      border-color: #0ea5e9;
+      background-color: #e0f2fe;
+    }
+  }
+}
+
+// 반응형 디자인
+@media (max-width: 768px) {
+  .weather-selector {
+    &__options {
+      gap: 12px;
+    }
+  }
+
+  .weather-option {
+    &__content {
+      min-width: 70px;
+      padding: 10px 14px;
+    }
+
+    &__icon {
+      font-size: 18px;
+    }
+
+    &__label {
+      font-size: 11px;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .weather-selector {
+    &__options {
+      gap: 8px;
+      justify-content: center;
+    }
+  }
+
+  .weather-option {
+    &__content {
+      min-width: 60px;
+      padding: 8px 12px;
+      gap: 6px;
+    }
+
+    &__icon {
+      font-size: 16px;
+    }
+
+    &__label {
+      font-size: 10px;
+    }
+
+    &__radio {
+      width: 14px;
+      height: 14px;
+      top: 6px;
+      right: 6px;
+
+      &::after {
+        width: 6px;
+        height: 6px;
+      }
+    }
+  }
+}

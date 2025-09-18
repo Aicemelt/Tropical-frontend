@@ -1,0 +1,322 @@
+/**
+ * @fileoverview 감정 선택 컴포넌트 스타일
+ * @description 감정 선택 UI의 스타일 정의
+ * @author 신동준
+ * @since 2025-09-18
+ * @version 1.0.0
+ */
+
+.emotion-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  &__label {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+
+    .label-required {
+      color: #ff4757;
+    }
+  }
+
+  &__options {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+
+    @media (max-width: 480px) {
+      gap: 8px;
+    }
+  }
+
+  &__selected {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    font-size: 13px;
+    color: #495057;
+
+    .clear-button {
+      background: none;
+      border: none;
+      color: #6c757d;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 4px;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background-color: #e9ecef;
+        color: #495057;
+      }
+
+      &:disabled {
+        cursor: not-allowed;
+        opacity: 0.5;
+      }
+    }
+  }
+
+  // 크기 변형
+  &.small {
+    .emotion-option {
+      width: 50px;
+      height: 50px;
+
+      &__icon {
+        .emotion-image, .emotion-emoji {
+          width: 24px;
+          height: 24px;
+          font-size: 20px;
+        }
+      }
+
+      &__label {
+        font-size: 11px;
+      }
+    }
+  }
+
+  &.medium {
+    .emotion-option {
+      width: 70px;
+      height: 70px;
+
+      &__icon {
+        .emotion-image, .emotion-emoji {
+          width: 32px;
+          height: 32px;
+          font-size: 24px;
+        }
+      }
+
+      &__label {
+        font-size: 12px;
+      }
+    }
+  }
+
+  &.large {
+    .emotion-option {
+      width: 90px;
+      height: 90px;
+
+      &__icon {
+        .emotion-image, .emotion-emoji {
+          width: 40px;
+          height: 40px;
+          font-size: 32px;
+        }
+      }
+
+      &__label {
+        font-size: 14px;
+      }
+    }
+  }
+
+  // 비활성화 상태
+  &.disabled {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+}
+
+.emotion-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 8px;
+  border: 2px solid #e9ecef;
+  border-radius: 12px;
+  background-color: #fff;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  min-width: 70px;
+
+  &:hover {
+    border-color: #4dabf7;
+    background-color: #f8f9ff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(77, 171, 247, 0.15);
+  }
+
+  &:focus {
+    outline: none;
+    border-color: #4dabf7;
+    box-shadow: 0 0 0 3px rgba(77, 171, 247, 0.1);
+  }
+
+  &.selected {
+    border-color: #4dabf7;
+    background-color: #e7f5ff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(77, 171, 247, 0.2);
+
+    &:hover {
+      border-color: #339af0;
+      background-color: #d0ebff;
+    }
+  }
+
+  &.disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+
+    &:hover {
+      transform: none;
+      box-shadow: none;
+      border-color: #e9ecef;
+      background-color: #fff;
+    }
+  }
+
+  &__icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .emotion-image {
+      width: 32px;
+      height: 32px;
+      object-fit: contain;
+      transition: all 0.2s ease;
+    }
+
+    .emotion-emoji {
+      font-size: 24px;
+      line-height: 1;
+      transition: all 0.2s ease;
+    }
+  }
+
+  &__label {
+    font-size: 12px;
+    font-weight: 500;
+    color: #495057;
+    text-align: center;
+    line-height: 1.2;
+    transition: color 0.2s ease;
+  }
+
+  &__check {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    font-size: 14px;
+    font-weight: bold;
+    background-color: #fff;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  // 각 감정별 호버 효과
+  &[aria-label*="기쁨"]:hover {
+    border-color: #FFD700;
+    background-color: #fffbf0;
+    box-shadow: 0 4px 12px rgba(255, 215, 0, 0.15);
+  }
+
+  &[aria-label*="슬픔"]:hover {
+    border-color: #4682B4;
+    background-color: #f0f4f8;
+    box-shadow: 0 4px 12px rgba(70, 130, 180, 0.15);
+  }
+
+  &[aria-label*="분노"]:hover {
+    border-color: #DC143C;
+    background-color: #fdf2f2;
+    box-shadow: 0 4px 12px rgba(220, 20, 60, 0.15);
+  }
+
+  &[aria-label*="불안"]:hover {
+    border-color: #9370DB;
+    background-color: #f8f4ff;
+    box-shadow: 0 4px 12px rgba(147, 112, 219, 0.15);
+  }
+
+  &[aria-label*="평온"]:hover {
+    border-color: #32CD32;
+    background-color: #f0fff0;
+    box-shadow: 0 4px 12px rgba(50, 205, 50, 0.15);
+  }
+}
+
+// 반응형 디자인
+@media (max-width: 768px) {
+  .emotion-selector {
+    &__options {
+      gap: 8px;
+    }
+  }
+
+  .emotion-option {
+    min-width: 60px;
+    padding: 10px 6px;
+    gap: 6px;
+
+    &__icon {
+      .emotion-image, .emotion-emoji {
+        width: 28px;
+        height: 28px;
+        font-size: 22px;
+      }
+    }
+
+    &__label {
+      font-size: 11px;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .emotion-selector {
+    &__options {
+      gap: 6px;
+    }
+  }
+
+  .emotion-option {
+    min-width: 50px;
+    padding: 8px 4px;
+    gap: 4px;
+
+    &__icon {
+      .emotion-image, .emotion-emoji {
+        width: 24px;
+        height: 24px;
+        font-size: 20px;
+      }
+    }
+
+    &__label {
+      font-size: 10px;
+    }
+
+    &__check {
+      width: 16px;
+      height: 16px;
+      font-size: 12px;
+      top: 4px;
+      right: 4px;
+    }
+  }
+}
