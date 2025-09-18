@@ -18,7 +18,8 @@ const TodoFilter = () => {
                     onClick={() => setCurrentFilter(f)}
                 >
                     {f}
-                    <span>
+                    <span className=
+                              {`${f === "미완료" && filterCounts[f] > 0 ? styles.warning : ''}`}>
                         {filterCounts[f] || 0}
                     </span>
                 </button>
