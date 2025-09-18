@@ -388,7 +388,7 @@ export const generateEmotionStats = (diaries) => {
 
   // 일기별로 감정 카운트
   diaries.forEach(diary => {
-    if (diary.emotion && stats.hasOwnProperty(diary.emotion)) {
+    if (diary.emotion && Object.prototype.hasOwnProperty.call(stats, diary.emotion)) {
       stats[diary.emotion]++;
     }
   });
