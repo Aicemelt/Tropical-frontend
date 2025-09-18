@@ -12,6 +12,11 @@ const TodoItem = ({ todo }) => {
     const textareaRef = useRef();
     const { updateTodo, deleteTodo, completeTodo } = useTodosApi();
 
+    // todo.isCompleted가 변경될 때 로컬 상태도 동기화
+    useEffect(() => {
+        setIsFinish(todo.isCompleted);
+    }, [todo.isCompleted]);
+
     // 수정 모드 textarea 자동 높이 조절
     useEffect(() => {
         if (textareaRef.current) {
@@ -21,27 +26,55 @@ const TodoItem = ({ todo }) => {
     }, [text, isEdit]);
 
     // 체크박스 상태 변경 핸들러
-    const handleCheckboxChange = (e) => {
+    const handleCheckboxChange = async (e) => {
         const newIsFinish = e.target.checked;
-        setIsFinish(newIsFinish);
-        completeTodo(todo.todoId, newIsFinish);
+        setIsFinish(newIsFinish); // 즉시 UI 업데이트
+
+        try {
+            await completeTodo(todo.todoId, newIsFinish);
+        } catch (error) {
+            console.error("완료 상태 변경 실패:", error);
+            // 실패 시 원래 상태로 되돌리기
+            setIsFinish(!newIsFinish);
+            alert("완료 상태 변경에 실패했습니다.");
+        }
     };
 
     // 할 일 삭제 핸들러
-    const handleDelete = () => {
-        deleteTodo(todo.todoId);
+    const handleDelete = async () => {
+        try {
+            await deleteTodo(todo.todoId);
+        } catch (error) {
+            console.error("삭제 실패:", error);
+            alert("할 일 삭제에 실패했습니다.");
+        }
     };
 
     // 수정 완료 핸들러
-    const handleUpdate = () => {
-        setIsEdit(false);
-        updateTodo(todo.todoId, text, todo.dueDate);
+    const handleUpdate = async () => {
+        if (text.trim() === '') {
+            alert("할 일 내용을 입력해주세요.");
+            setText(todo.content); // 원래 내용으로 복원
+            return;
+        }
+
+        try {
+            setIsEdit(false);
+            await updateTodo(todo.todoId, text, todo.dueDate);
+        } catch (error) {
+            console.error("수정 실패:", error);
+            setText(todo.content); // 실패 시 원래 내용으로 복원
+            alert("할 일 수정에 실패했습니다.");
+        }
     };
 
     // 수정 버튼 클릭 핸들러
     const handleEditClick = (e) => {
         e.stopPropagation();
         setIsEdit(!isEdit);
+        if (!isEdit) {
+            setText(todo.content); // 수정 모드 진입 시 현재 내용으로 초기화
+        }
     };
 
     return (

@@ -10,7 +10,8 @@ export const useTodosApi = () => {
         setTodos,
         addTodo: addTodoToStore,
         removeTodo: removeTodoFromStore,
-        updateTodo: updateTodoInStore
+        updateTodo: updateTodoInStore,
+        completeTodo: completeTodoInStore
     } = useTodoStore();
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -55,30 +56,52 @@ export const useTodosApi = () => {
         }
     };
 
-    // ... 나머지 함수들 (createTodo, updateTodo 등)은 변경 없이 동일합니다.
     const createTodo = async (content, dueDate) => {
         const newTodo = await callApi(API_BASE_URL, 'POST', { content, dueDate });
         addTodoToStore(newTodo);
         return newTodo;
     };
+
     const getAllTodos = async () => {
         const todos = await callApi(API_BASE_URL, 'GET');
         setTodos(todos);
         return todos;
     };
+
     const deleteTodo = async (todoId) => {
         await callApi(`${API_BASE_URL}/${todoId}`, 'DELETE');
         removeTodoFromStore(todoId);
     };
 
-    // ...
+    const updateTodo = async (todoId, content, dueDate) => {
+        const updatedTodo = await callApi(`${API_BASE_URL}/${todoId}`, 'PUT', {
+            content,
+            dueDate
+        });
+        updateTodoInStore(updatedTodo);
+        return updatedTodo;
+    };
+
+    const completeTodo = async (todoId, isCompleted) => {
+        try {
+            const updatedTodo = await callApi(`${API_BASE_URL}/${todoId}/complete`, 'PUT', {
+                isCompleted: isCompleted
+            });
+            completeTodoInStore(todoId, isCompleted);
+            return updatedTodo;
+        } catch (error) {
+            console.error("완료 상태 변경 실패:", error);
+            throw error;
+        }
+    };
 
     return {
         createTodo,
         getAllTodos,
-        //...
+        updateTodo,
+        deleteTodo,
+        completeTodo,
         isLoading,
-        error,
-        deleteTodo
+        error
     };
 };

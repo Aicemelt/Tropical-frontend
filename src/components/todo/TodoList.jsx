@@ -3,15 +3,16 @@ import TodoItem from "./TodoItem.jsx";
 import useTodoStore from "../../store/todoStore.js";
 
 const TodoList = () => {
-    const { todos } = useTodoStore();
+    const { getFilteredTodos } = useTodoStore();
+    const filteredTodos = getFilteredTodos();
 
-    if (todos.length === 0) {
+    if (filteredTodos.length === 0) {
         return <div className="no-todos">할 일이 없습니다.</div>;
     }
 
     return (
         <div>
-            {todos.map((todo) => (
+            {filteredTodos.map((todo) => (
                 <TodoItem key={todo.todoId} todo={todo} />
             ))}
         </div>
