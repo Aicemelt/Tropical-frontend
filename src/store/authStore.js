@@ -1,14 +1,12 @@
 /**
- * @fileoverview 인증 상태 전역 스토어 (Zustand)
+ * @fileoverview 인증 상태 전역 스토어 (Zustand) - 정상 동작 버전
  * @description 로그인/인증 관련 전역 상태를 관리합니다.
- *              /auth/status 결과를 반영하거나, 로그인/로그아웃 시 갱신됩니다.
- *              컴포넌트 어디서든 useAuthStore()로 접근할 수 있습니다.
  * @author 왕택준
  * @version 0.1
  * @since 2025-09-18
  */
 
-import { create } from 'zustand';
+import {create} from 'zustand';
 
 /**
  * useAuthStore
@@ -35,12 +33,17 @@ const useAuthStore = create((set) => ({
      * 인증 상태를 부분적으로 업데이트
      * @param {Object} partial - 병합할 상태 조각
      */
-    setAuthState: (partial) => set((s) => ({ ...s, ...partial })),
+    setAuthState: (partial) => set((state) => ({...state, ...partial})),
 
     /**
      * 인증 상태를 초기화 (로그아웃 시 사용)
      */
-    reset: () => set({ loading: false, authenticated: false, user: null, nextStep: 'login' }),
+    reset: () => set({
+        loading: false,
+        authenticated: false,
+        user: null,
+        nextStep: 'login'
+    }),
 }));
 
 export default useAuthStore;

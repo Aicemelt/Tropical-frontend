@@ -9,12 +9,12 @@
  * @since 2025.09.18
  */
 
-import { createBrowserRouter } from "react-router-dom";
+import {createBrowserRouter} from "react-router-dom";
 import RootLayout from "../layouts/RootLayout.jsx";
-import WelcomePage from "../pages/WelcomePage.jsx";
-import LoginPage from "../pages/LoginPage.jsx";
-import SignupPage from "../pages/SignupPage.jsx";
-import OnboardingPage from "../pages/OnboardingPage.jsx";
+import WelcomePage from '../pages/WelcomePage.jsx';
+import OnboardingPage from '../pages/OnboardingPage.jsx';
+// import LoginPage from "../pages/LoginPage.jsx";
+// import SignupPage from "../pages/SignupPage.jsx";
 import CalendarPage from "../pages/CalendarPage.jsx";
 import TodoPage from "../pages/TodoPage.jsx";
 import BucketPage from "../pages/BucketPage.jsx";
@@ -32,19 +32,19 @@ const router = createBrowserRouter([
             // ================================
             {
                 index: true,
-                element: <WelcomePage />  // 첫 진입점을 WelcomePage로 변경
+                element: <WelcomePage/>  // 첫 진입점을 WelcomePage로 변경
             },
-            {
-                path: 'login',
-                element: <LoginPage />
-            },
-            {
-                path: 'signup',
-                element: <SignupPage />
-            },
+            // {
+            //     path: 'login',
+            //     element: <LoginPage/>
+            // },
+            // {
+            //     path: 'signup',
+            //     element: <SignupPage/>
+            // },
             {
                 path: 'onboarding',
-                element: <OnboardingPage />
+                element: <OnboardingPage/>
             },
 
             // ================================
@@ -70,23 +70,23 @@ const router = createBrowserRouter([
             // ================================
             {
                 path: 'dashboard',
-                element: <ProtectedRoute><RootLayout /></ProtectedRoute>,
+                element: <ProtectedRoute><RootLayout/></ProtectedRoute>,
                 children: [
                     {
                         index: true,
-                        element: <CalendarPage />  // 대시보드 기본 페이지
+                        element: <CalendarPage/>  // 대시보드 기본 페이지
                     },
                     {
                         path: 'calendar',
-                        element: <CalendarPage />
+                        element: <CalendarPage/>
                     },
                     {
                         path: 'todo',
-                        element: <TodoPage />
+                        element: <TodoPage/>
                     },
                     {
                         path: 'bucket',
-                        element: <BucketPage />
+                        element: <BucketPage/>
                     }
                 ]
             },
