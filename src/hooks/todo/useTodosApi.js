@@ -2,7 +2,7 @@ import { useState } from 'react';
 import useTodoStore from "../../store/todoStore.js";
 
 // 테스트용 JWT 토큰
-const TEST_TOKEN ="eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiZW1haWwiOiJwYWNrODQ0N0BnbWFpbC5jb20iLCJ0b2tlblR5cGUiOiJBQ0NFU1MiLCJpYXQiOjE3NTgxOTM0MjIsImV4cCI6MTc1ODIwMjQyMn0.j_X31zxAGXyyCdDIoGFKkYWxKErFP4nGUmeY7Foh7cw";
+const TEST_TOKEN ="eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiZW1haWwiOiJwYWNrODQ0N0BnbWFpbC5jb20iLCJ0b2tlblR5cGUiOiJBQ0NFU1MiLCJpYXQiOjE3NTgyMDczNDMsImV4cCI6MTc1ODIxNjM0M30.zQ46KkVJsk0rTcqaM1UH29KRRMvDYlO4swgEQuJE_d0";
 const API_BASE_URL = "http://localhost:9005/api/v1/todos";
 
 export const useTodosApi = () => {
