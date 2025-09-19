@@ -20,7 +20,7 @@
     font-family: var(--font-english);
     font-size: var(--text-sm);
     padding: 2px 8px;
-    background-color: var(--bg-teritary);
+    background-color: #777; // 기존 var(--bg-teritary)에서 더 진한 색으로 변경
     color: var(--white);
     border-radius: 10px;
     margin: 2px 0 0 8px;
