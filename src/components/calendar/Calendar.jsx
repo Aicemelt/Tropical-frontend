@@ -1,10 +1,20 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, {useEffect, useMemo, useRef, useState} from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import koLocale from '@fullcalendar/core/locales/ko';
-import { holidayService } from '../../services/holidayService.js';
+import {holidayService} from '../../services/holidayService.js';
 import styles from "../../styles/components/Calendar.module.scss";
+
+/**
+ * 로컬 날짜를 YYYY-MM-DD 형식으로 변환 (UTC 시간대 이슈 방지)
+ */
+const toLocalISODate = (d) => {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+};
 
 // Backend HolidayResponse → FullCalendar 이벤트 매핑
 function mapHoliday(items = []) {
@@ -13,14 +23,25 @@ function mapHoliday(items = []) {
         title: holiday.nameKo ?? holiday.name ?? '공휴일',
         start: holiday.date,
         allDay: true,
-        display: 'background',
-        backgroundColor: 'rgba(255, 107, 53, 0.12)',
+        display: 'block', // background에서 block으로 변경
+        backgroundColor: 'rgba(255, 107, 53, 0.15)',
         borderColor: '#FF6B35',
-        className: 'tropical-holiday-bg'
+        textColor: '#FF6B35',
+        className: 'holiday-event',
+        // 공휴일 스타일 설정
+        extendedProps: {
+            isHoliday: true
+        }
     }));
 }
 
-export default function Calendar() {
+export default function Calendar({onDateClick}) {
+    // 테스트용 기본 콜백 (prop으로 전달되지 않은 경우)
+    const defaultDateClickHandler = (dateInfo) => {
+        console.log(`기본 클릭 핸들러 호출:`, dateInfo);
+        alert(`클릭된 날짜: ${dateInfo.iso} (${dateInfo.year}년 ${dateInfo.month}월 ${dateInfo.day}일)`);
+    };
+
     const calRef = useRef(null);
     const cacheRef = useRef(new Map());
 
@@ -39,6 +60,7 @@ export default function Calendar() {
     const [holidayEvents, setHolidayEvents] = useState([]);
     const [selectedYear, setSelectedYear] = useState(today.getFullYear());
     const [selectedMonth, setSelectedMonth] = useState(today.getMonth() + 1);
+    const [selectedDate, setSelectedDate] = useState(null); // 선택된 날짜 추가
 
     // ref 초기값 설정
     useEffect(() => {
@@ -47,7 +69,7 @@ export default function Calendar() {
     }, [selectedYear, selectedMonth]);
 
     const eventSources = useMemo(() => [
-        { id: 'holidays', events: holidayEvents },
+        {id: 'holidays', events: holidayEvents},
     ], [holidayEvents]);
 
     // 공휴일 로딩
@@ -88,8 +110,6 @@ export default function Calendar() {
 
         setYear(y);
         setMonth(m);
-        //setSelectedYear(y);
-        //setSelectedMonth(m);
 
         // ref도 동기화
         yearRef.current = y;
@@ -112,6 +132,89 @@ export default function Calendar() {
         }, 0);
     };
 
+    // 날짜 클릭/더블클릭 핸들러
+    const handleDateClick = (info) => {
+        console.log(`날짜 클릭됨:`, info.date);
+
+        const dateInfo = {
+            date: info.date,
+            iso: toLocalISODate(info.date),
+            year: info.date.getFullYear(),
+            month: info.date.getMonth() + 1,
+            day: info.date.getDate()
+        };
+
+        console.log(`처리된 날짜 정보:`, dateInfo);
+
+        // 클릭된 날짜 선택 (테두리 표시용)
+        setSelectedDate(dateInfo.iso);
+
+        try {
+            // 1. 외부 컴포넌트로 콜백 전달 (팀원이 사용)
+            if (onDateClick && typeof onDateClick === 'function') {
+                console.log(`onDateClick 콜백 호출`);
+                onDateClick(dateInfo);
+            } else {
+                console.log(`onDateClick 콜백이 없음 - 기본 핸들러 사용`);
+                console.log(`선택된 날짜: ${dateInfo.iso} (${dateInfo.year}년 ${dateInfo.month}월 ${dateInfo.day}일)`);
+            }
+
+            // 2. CustomEvent 발행 (기존 방식 유지)
+            window.dispatchEvent(
+                new CustomEvent("calendar:dateClick", {
+                    detail: dateInfo
+                })
+            );
+            console.log(`CustomEvent 발행 완료`);
+        } catch (e) {
+            console.warn("calendar:dateClick 이벤트 처리 실패:", e);
+        }
+    };
+
+    // 더블클릭 핸들러 - 해당 월로 이동
+    const handleDateDoubleClick = (info) => {
+        console.log(`날짜 더블클릭됨:`, info.date);
+
+        const clickedYear = info.date.getFullYear();
+        const clickedMonth = info.date.getMonth() + 1;
+
+        // 현재 보고 있는 월과 다르면 해당 월로 이동
+        if (clickedYear !== year || clickedMonth !== month) {
+            setSelectedYear(clickedYear);
+            setSelectedMonth(clickedMonth);
+            yearRef.current = clickedYear;
+            monthRef.current = clickedMonth;
+
+            // 즉시 이동
+            doMove(clickedYear, clickedMonth);
+
+            console.log(`${clickedYear}년 ${clickedMonth}월로 이동`);
+        } else {
+            console.log(`이미 해당 월을 보고 있습니다.`);
+        }
+
+        // 더블클릭한 날짜 선택
+        const dateInfo = {
+            date: info.date,
+            iso: toLocalISODate(info.date),
+            year: clickedYear,
+            month: clickedMonth,
+            day: info.date.getDate()
+        };
+        setSelectedDate(dateInfo.iso);
+
+        // CustomEvent도 발행
+        try {
+            window.dispatchEvent(
+                new CustomEvent("calendar:dateDoubleClick", {
+                    detail: dateInfo
+                })
+            );
+        } catch (e) {
+            console.warn("calendar:dateDoubleClick 이벤트 처리 실패:", e);
+        }
+    };
+
     // 최초 로드
     useEffect(() => {
         loadHolidays(year, month);
@@ -131,7 +234,7 @@ export default function Calendar() {
                         yearRef.current = newYear;
                     }}
                 >
-                    {Array.from({ length: maxYear - minYear + 1 }, (_, i) => minYear + i).map((y) => (
+                    {Array.from({length: maxYear - minYear + 1}, (_, i) => minYear + i).map((y) => (
                         <option key={y} value={y}>{y}년</option>
                     ))}
                 </select>
@@ -145,7 +248,7 @@ export default function Calendar() {
                         monthRef.current = newMonth; // 간단명확
                     }}
                 >
-                    {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
+                    {Array.from({length: 12}, (_, i) => i + 1).map((m) => (
                         <option key={m} value={m}>{m}월</option>
                     ))}
                 </select>
@@ -161,6 +264,19 @@ export default function Calendar() {
                 >
                     오늘
                 </button>
+
+                {/* 범례 */}
+                <div className={styles.legend}>
+                    <span className={styles.legendItem}>
+                        <i className={styles.legendHoliday}></i> 공휴일
+                    </span>
+                    <span className={styles.legendItem}>
+                        <i className={styles.legendSchedule}></i> 일정
+                    </span>
+                    <span className={styles.legendItem}>
+                        <i className={styles.legendDiary}></i> 일기
+                    </span>
+                </div>
             </div>
 
             <FullCalendar
@@ -169,16 +285,49 @@ export default function Calendar() {
                 initialView="dayGridMonth"
                 locales={[koLocale]}
                 locale="ko"
-                headerToolbar={{ left: 'prev,next', center: 'title', right: '' }}
+                headerToolbar={{left: 'prev,next', center: 'title', right: ''}}
                 height="auto"
                 dayMaxEventRows={3}
                 eventSources={eventSources}
                 datesSet={handleDatesSet}
-                dayCellClassNames={(arg) => {
-                    const d = arg.date.getDay();
-                    if (d === 0) return [styles.sundayCell];
-                    if (d === 6) return [styles.saturdayCell];
+                dateClick={handleDateClick} // 클릭 이벤트 추가
+                // 더블클릭 처리를 위한 커스텀 핸들러
+                eventClassNames={(arg) => {
+                    // 이벤트가 아닌 날짜 셀에 더블클릭 이벤트를 추가하기 위해
+                    // dayCellDidMount를 사용하여 처리합니다
                     return [];
+                }}
+                dayCellDidMount={(arg) => {
+                    // 더블클릭 이벤트 리스너 추가
+                    arg.el.addEventListener('dblclick', () => {
+                        handleDateDoubleClick({date: arg.date});
+                    });
+                }}
+                dayCellClassNames={(arg) => {
+                    const classes = [];
+                    const d = arg.date.getDay();
+                    const dateStr = toLocalISODate(arg.date);
+
+                    // 요일별 클래스
+                    if (d === 0) classes.push(styles.sundayCell);
+                    if (d === 6) classes.push(styles.saturdayCell);
+
+                    // 선택된 날짜 클래스
+                    if (selectedDate === dateStr) {
+                        classes.push(styles.selectedDateCell);
+                    }
+
+                    return classes;
+                }}
+                eventDidMount={(info) => {
+                    // 공휴일 이벤트 스타일 커스터마이징
+                    if (info.event.extendedProps?.isHoliday) {
+                        info.el.style.fontSize = '11px';
+                        info.el.style.fontWeight = '500';
+                        info.el.style.padding = '1px 4px';
+                        info.el.style.borderRadius = '3px';
+                        info.el.style.margin = '1px 0';
+                    }
                 }}
             />
         </div>
