@@ -1,22 +1,46 @@
 import React, { useState, useEffect } from 'react';
 import styles from '../../styles/components/Header.module.scss';
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 
 const RightHeader = () => {
-
+    const location = useLocation();
     const [isBlock, setIsBlock] = useState(false);
 
-    // 새로고침 시 헤더 이름을 저장하기 위해 localStorage 사용
-    // 1. 초기값 설정: localStorage에서 값을 불러오거나, 없으면 기본값 "Calender" 사용
+    // 경로에 따른 헤더 이름 매핑
+    const pathToHeaderName = {
+        '/dashboard': 'Calender',
+        '/todo': 'Todo',
+        '/bucket': 'Bucket List',
+        '/dashboard/calendar': 'Calender'
+    };
+
+    // 초기값 설정: 현재 경로를 우선으로 하고, 없으면 localStorage 값 사용
     const [headerName, setHeaderName] = useState(() => {
+        const currentPath = location.pathname;
+        const headerFromPath = pathToHeaderName[currentPath];
         const savedName = localStorage.getItem('headerName');
-        return savedName ? savedName : "Calender";
+
+        // 현재 경로에 해당하는 헤더 이름이 있으면 그것을 사용
+        if (headerFromPath) {
+            localStorage.setItem('headerName', headerFromPath); // localStorage 동기화
+            return headerFromPath;
+        }
+        // 없으면 저장된 값이나 기본값 사용
+        return savedName || "Calender";
     });
 
-    // 2. side effect: headerName이 변경될 때마다 localStorage에 저장
+    // headerName이 변경될 때마다 localStorage에 저장
     useEffect(() => {
         localStorage.setItem('headerName', headerName);
     }, [headerName]);
+
+    // 경로가 변경될 때마다 헤더 이름 동기화
+    useEffect(() => {
+        const headerFromPath = pathToHeaderName[location.pathname];
+        if (headerFromPath && headerFromPath !== headerName) {
+            setHeaderName(headerFromPath);
+        }
+    }, [location.pathname]);
 
     const handleMenu = e => {
         e.preventDefault();
@@ -24,8 +48,8 @@ const RightHeader = () => {
     }
 
     const handleHeaderChange = (name) => {
-        setHeaderName(name); // 헤더 이름 상태 업데이트
-        setIsBlock(false); // 메뉴 닫기
+        setHeaderName(name);
+        setIsBlock(false);
     }
 
     return (
@@ -38,7 +62,7 @@ const RightHeader = () => {
                 <ul>
                     <li>
                         <NavLink
-                            to={'/'}
+                            to={'/dashboard'}
                             className={({isActive}) => isActive ? `${styles.navLink} ${styles.on}` : styles.navLink}
                             onClick={() => handleHeaderChange('Calender')}
                         >

@@ -77,10 +77,6 @@ const router = createBrowserRouter([
                         element: <CalendarPage/>  // 대시보드 기본 페이지
                     },
                     {
-                        path: 'calendar',
-                        element: <CalendarPage/>
-                    },
-                    {
                         path: 'todo',
                         element: <TodoPage/>
                     },
