@@ -261,16 +261,6 @@ const DiarySection = ({
       </h4>
 
       <div className={styles.headerActions}>
-        <button
-          className={styles.refreshBtn}
-          onClick={handleRefresh}
-          disabled={loading}
-          aria-label="새로고침"
-          title="새로고침"
-        >
-          🔄
-        </button>
-
         {showAddButton && selectedDate && (
           <button
             className={styles.addBtn}
@@ -291,15 +281,26 @@ const DiarySection = ({
    */
   const renderError = () => (
     <div className={styles.error}>
-      <p className={styles.errorMessage}>
-        {internalError || error}
-      </p>
+      <div className={styles.errorContent}>
+        <div className={styles.errorIcon}>
+          ⚠️
+        </div>
+        <div className={styles.errorText}>
+          <h5 className={styles.errorTitle}>문제가 발생했습니다</h5>
+          <p className={styles.errorMessage}>
+            {internalError || error}
+          </p>
+        </div>
+      </div>
       <button
         className={styles.retryBtn}
         onClick={handleRefresh}
         disabled={loading}
       >
-        다시 시도
+        <span className={styles.retryIcon}>↻</span>
+        <span className={styles.retryText}>
+          {loading ? '다시 시도 중...' : '다시 시도'}
+        </span>
       </button>
     </div>
   );

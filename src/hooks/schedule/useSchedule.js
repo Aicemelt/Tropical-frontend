@@ -212,6 +212,17 @@ export const useSchedule = () => {
   }, [withLoading]);
 
   /**
+   * @description 특정 날짜 일정 조회 함수 (별칭)
+   * @author 신동준
+   * @since 2025-09-19
+   * @param {string} date - 조회할 날짜 (YYYY-MM-DD 형식)
+   * @returns {Promise<Array>} 해당 날짜의 일정 배열
+   */
+  const getSchedulesByDate = useCallback(async (date) => {
+    return fetchSchedulesByDate(date);
+  }, [fetchSchedulesByDate]);
+
+  /**
    * @description 현재 일정 목록을 FullCalendar 이벤트 형식으로 변환
    * @author 신동준
    * @since 2025-09-17

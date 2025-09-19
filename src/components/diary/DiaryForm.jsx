@@ -153,8 +153,10 @@ const DiaryForm = ({
   const validateForm = useCallback(() => {
     const newErrors = {};
 
-    // 제목 검증 (선택사항이지만 입력 시 길이 제한)
-    if (formData.title && formData.title.length > 100) {
+    // 제목 검증 (필수로 변경)
+    if (!formData.title.trim()) {
+      newErrors.title = '제목을 입력해주세요.';
+    } else if (formData.title.length > 100) {
       newErrors.title = '제목은 100자 이내로 입력해주세요.';
     }
 
@@ -170,7 +172,12 @@ const DiaryForm = ({
       newErrors.emotion = '감정을 선택해주세요.';
     }
 
-    // 날짜 검증
+    // 날씨 검증 (필수로 추가)
+    if (!formData.weather) {
+      newErrors.weather = '날씨를 선택해주세요.';
+    }
+
+    // 날짜 검증 (필수)
     if (!formData.date) {
       newErrors.date = '날짜를 선택해주세요.';
     } else {
@@ -259,6 +266,8 @@ const DiaryForm = ({
         title: formData.title.trim() || `${formData.date} 일기`
       };
 
+      console.log('📔 일기 저장 시도:', diaryData);
+
       if (mode === 'edit' && initialData?.id) {
         await updateDiary(initialData.id, diaryData);
       } else {
@@ -272,11 +281,29 @@ const DiaryForm = ({
       onClose();
     } catch (error) {
       console.error('일기 저장 실패:', error);
+
+      // API 에러 정보 추출
+      const apiError = error.apiError || {};
+      let errorMessage = '일기 저장에 실패했습니다.';
+
+      if (apiError.status === 401) {
+        errorMessage = '로그인이 필요합니다. 다시 로그인해주세요.';
+      } else if (apiError.status === 422) {
+        errorMessage = '입력 데이터를 확인해주세요.';
+      } else if (apiError.status === 500) {
+        errorMessage = '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
+      } else if (error.message?.includes('Network')) {
+        errorMessage = '네트워크 연결을 확인해주세요.';
+      } else if (apiError.message) {
+        errorMessage = apiError.message;
+      }
+
       if (onError) {
         onError(error);
       }
+
       setErrors({
-        submit: '일기 저장에 실패했습니다. 다시 시도해주세요.'
+        submit: errorMessage
       });
     }
   }, [formData, mode, initialData, validateForm, createDiary, updateDiary, onSuccess, onError, onClose]);
@@ -334,7 +361,7 @@ const DiaryForm = ({
           ref={titleRef}
           type="text"
           className={`${styles.title} ${errors.title ? styles.error : ''}`}
-          placeholder="일기 제목 (선택사항)"
+          placeholder="일기 제목을 입력하세요..."
           value={formData.title}
           onChange={(e) => handleFieldChange('title', e.target.value)}
           disabled={mode === 'view'}
@@ -383,11 +410,14 @@ const DiaryForm = ({
 
         {/* 날씨 선택 */}
         <div>
-          <span className={styles.label}>날씨</span>
+          <span className={styles.label}>
+            날씨 <span className={styles.required}>*</span>
+          </span>
           <WeatherSelector
             selectedWeather={formData.weather}
             onWeatherSelect={handleWeatherSelect}
             disabled={mode === 'view'}
+            error={!!errors.weather}
           />
           {renderError('weather')}
         </div>

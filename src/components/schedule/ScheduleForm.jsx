@@ -127,6 +127,78 @@ const ScheduleForm = ({
     }
   }, [mode, initialData, selectedDate]);
 
+  // ================================
+  // 유효성 검사 함수
+  // ================================
+
+  /**
+   * @description 폼 데이터 유효성 검사
+   * @returns {Object} 에러 객체
+   */
+  const validateForm = useCallback(() => {
+    const newErrors = {};
+
+    // 제목 검증
+    if (!formData.title.trim()) {
+      newErrors.title = '일정 제목을 입력해주세요.';
+    } else if (formData.title.length > 100) {
+      newErrors.title = '제목은 100자 이내로 입력해주세요.';
+    }
+
+    // 시작 날짜 검증 (빈 문자열도 체크)
+    if (!formData.startDate || formData.startDate.trim() === '') {
+      newErrors.startDate = '시작 날짜를 선택해주세요.';
+    }
+
+    // 종료 날짜 검증 (빈 문자열도 체크)
+    if (!formData.endDate || formData.endDate.trim() === '') {
+      newErrors.endDate = '종료 날짜를 선택해주세요.';
+    } else if (formData.startDate && formData.startDate.trim() !== '' && formData.endDate < formData.startDate) {
+      newErrors.endDate = '종료 날짜는 시작 날짜보다 이후여야 합니다.';
+    }
+
+    // 시간 검증 (종일이 아닐 때)
+    if (!formData.isAllDay) {
+      if (!formData.startTime || formData.startTime.trim() === '') {
+        newErrors.startTime = '시작 시간을 선택해주세요.';
+      }
+
+      if (!formData.endTime || formData.endTime.trim() === '') {
+        newErrors.endTime = '종료 시간을 선택해주세요.';
+      }
+
+      // 시간 순서 검증 (모든 필드가 유효할 때만)
+      if (formData.startDate && formData.endDate && formData.startTime && formData.endTime &&
+          formData.startDate.trim() !== '' && formData.endDate.trim() !== '' &&
+          formData.startTime.trim() !== '' && formData.endTime.trim() !== '') {
+
+        const startDateTime = new Date(`${formData.startDate} ${formData.startTime}`);
+        const endDateTime = new Date(`${formData.endDate} ${formData.endTime}`);
+
+        if (endDateTime <= startDateTime) {
+          newErrors.endTime = '종료 시간은 시작 시간보다 이후여야 합니다.';
+        }
+      }
+    }
+
+    // 메모 길이 검증
+    if (formData.memo && formData.memo.length > 500) {
+      newErrors.memo = '메모는 500자 이내로 입력해주세요.';
+    }
+
+    // 장소 길이 검증
+    if (formData.location && formData.location.length > 100) {
+      newErrors.location = '장소는 100자 이내로 입력해주세요.';
+    }
+
+    // 참여자 길이 검증
+    if (formData.participants && formData.participants.length > 200) {
+      newErrors.participants = '참여자는 200자 이내로 입력해주세요.';
+    }
+
+    return newErrors;
+  }, [formData]);
+
   /**
    * @description 폼 제출 핸들러
    */
@@ -161,6 +233,8 @@ const ScheduleForm = ({
         date: formData.startDate // API 호환성을 위한 date 필드 추가
       };
 
+      console.log('일정 저장 시도:', scheduleData);
+
       if (mode === 'edit' && initialData?.id) {
         await updateSchedule(initialData.id, scheduleData);
       } else {
@@ -174,14 +248,32 @@ const ScheduleForm = ({
       onClose();
     } catch (error) {
       console.error('일정 저장 실패:', error);
+
+      // API 에러 정보 추출
+      const apiError = error.apiError || {};
+      let errorMessage = '일정 저장에 실패했습니다.';
+
+      if (apiError.status === 401) {
+        errorMessage = '로그인이 필요합니다. 다시 로그인해주세요.';
+      } else if (apiError.status === 422) {
+        errorMessage = '입력 데이터를 확인해주세요.';
+      } else if (apiError.status === 500) {
+        errorMessage = '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
+      } else if (error.message?.includes('Network')) {
+        errorMessage = '네트워크 연결을 확인해주세요.';
+      } else if (apiError.message) {
+        errorMessage = apiError.message;
+      }
+
       if (onError) {
         onError(error);
       }
+
       setErrors({
-        submit: '일정 저장에 실패했습니다. 다시 시도해주세요.'
+        submit: errorMessage
       });
     }
-  }, [formData, mode, initialData, createSchedule, updateSchedule, onSuccess, onError, onClose]);
+  }, [formData, mode, initialData, validateForm, createSchedule, updateSchedule, onSuccess, onError, onClose]);
 
   /**
    * @description 키보드 단축키 이벤트 리스너
@@ -209,70 +301,6 @@ const ScheduleForm = ({
       titleRef.current?.focus();
     }, 100);
   }, []);
-
-  // ================================
-  // 유효성 검사 함수
-  // ================================
-
-  /**
-   * @description 폼 데이터 유효성 검사
-   * @returns {Object} 에러 객체
-   */
-  const validateForm = useCallback(() => {
-    const newErrors = {};
-
-    // 제목 검증
-    if (!formData.title.trim()) {
-      newErrors.title = '일정 제목을 입력해주세요.';
-    } else if (formData.title.length > 100) {
-      newErrors.title = '제목은 100자 이내로 입력해주세요.';
-    }
-
-    // 시작 날짜 검증
-    if (!formData.startDate) {
-      newErrors.startDate = '시작 날짜를 선택해주세요.';
-    }
-
-    // 종료 날짜 검증
-    if (!formData.endDate) {
-      newErrors.endDate = '종료 날짜를 선택해주세요.';
-    } else if (formData.startDate && formData.endDate < formData.startDate) {
-      newErrors.endDate = '종료 날짜는 시작 날짜보다 이후여야 합니다.';
-    }
-
-    // 시간 검증 (종일이 아닐 때)
-    if (!formData.isAllDay) {
-      if (!formData.startTime) {
-        newErrors.startTime = '시작 시간을 선택해주세요.';
-      }
-
-      if (formData.startTime && formData.endTime) {
-        const startDateTime = new Date(`${formData.startDate} ${formData.startTime}`);
-        const endDateTime = new Date(`${formData.endDate} ${formData.endTime}`);
-
-        if (endDateTime <= startDateTime) {
-          newErrors.endTime = '종료 시간은 시작 시간보다 이후여야 합니다.';
-        }
-      }
-    }
-
-    // 메모 길이 검증
-    if (formData.memo && formData.memo.length > 500) {
-      newErrors.memo = '메모는 500자 이내로 입력해주세요.';
-    }
-
-    // 장소 길이 검증
-    if (formData.location && formData.location.length > 100) {
-      newErrors.location = '장소는 100자 이내로 입력해주세요.';
-    }
-
-    // 참여자 길이 검증
-    if (formData.participants && formData.participants.length > 200) {
-      newErrors.participants = '참여자는 200자 이내로 입력해주세요.';
-    }
-
-    return newErrors;
-  }, [formData]);
 
   /**
    * @description 실시간 유효성 검사 업데이트
@@ -635,3 +663,4 @@ ScheduleForm.defaultProps = {
 };
 
 export default ScheduleForm;
+

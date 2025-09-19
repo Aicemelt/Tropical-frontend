@@ -28,16 +28,32 @@ export const scheduleApi = {
    * @since 2025-09-17
    * @param {Object} scheduleData - 일정 데이터
    * @param {string} scheduleData.title - 일정 제목
-   * @param {string} scheduleData.memo - 일정 메모
-   * @param {string} scheduleData.scheduleDate - 일정 날짜 (YYYY-MM-DD)
+   * @param {string} scheduleData.startDate - 시작 날짜 (YYYY-MM-DD)
+   * @param {string} scheduleData.endDate - 종료 날짜 (YYYY-MM-DD)
    * @param {string} scheduleData.startTime - 시작 시간 (HH:MM)
    * @param {string} scheduleData.endTime - 종료 시간 (HH:MM)
+   * @param {boolean} scheduleData.isAllDay - 종일 일정 여부
    * @param {string} scheduleData.location - 장소
-   * @param {string} scheduleData.attendees - 참여자
+   * @param {string} scheduleData.participants - 참여자
+   * @param {string} scheduleData.memo - 메모
    * @returns {Promise<Object>} 생성된 일정 데이터
    */
   create: async (scheduleData) => {
-    const response = await apiMethods.post('/schedules', scheduleData);
+    // 백엔드 API에 맞게 데이터 변환
+    const apiData = {
+      title: scheduleData.title,
+      memo: scheduleData.memo || '',
+      scheduleDate: scheduleData.startDate || scheduleData.date, // 호환성을 위해 여러 필드 지원
+      startTime: scheduleData.isAllDay ? null : scheduleData.startTime,
+      endTime: scheduleData.isAllDay ? null : scheduleData.endTime,
+      location: scheduleData.location || '',
+      attendees: scheduleData.participants || scheduleData.attendees || '',
+      isAllDay: scheduleData.isAllDay || false
+    };
+
+    console.log('📅 일정 생성 API 호출:', apiData);
+    const response = await apiMethods.post('/schedules', apiData);
+    console.log('📅 일정 생성 응답:', response.data);
     return response.data;
   },
 
@@ -49,7 +65,9 @@ export const scheduleApi = {
    * @returns {Promise<Object>} 일정 데이터
    */
   getById: async (scheduleId) => {
+    console.log('📅 일정 조회 API 호출:', scheduleId);
     const response = await apiMethods.get(`/schedules/${scheduleId}`);
+    console.log('📅 일정 조회 응답:', response.data);
     return response.data;
   },
 
@@ -62,7 +80,21 @@ export const scheduleApi = {
    * @returns {Promise<Object>} 수정된 일정 데이터
    */
   update: async (scheduleId, scheduleData) => {
-    const response = await apiMethods.put(`/schedules/${scheduleId}`, scheduleData);
+    // 백엔드 API에 맞게 데이터 변환
+    const apiData = {
+      title: scheduleData.title,
+      memo: scheduleData.memo || '',
+      scheduleDate: scheduleData.startDate || scheduleData.date,
+      startTime: scheduleData.isAllDay ? null : scheduleData.startTime,
+      endTime: scheduleData.isAllDay ? null : scheduleData.endTime,
+      location: scheduleData.location || '',
+      attendees: scheduleData.participants || scheduleData.attendees || '',
+      isAllDay: scheduleData.isAllDay || false
+    };
+
+    console.log('📅 일정 수정 API 호출:', scheduleId, apiData);
+    const response = await apiMethods.put(`/schedules/${scheduleId}`, apiData);
+    console.log('📅 일정 수정 응답:', response.data);
     return response.data;
   },
 
@@ -74,7 +106,9 @@ export const scheduleApi = {
    * @returns {Promise<Object>} 삭제 결과
    */
   delete: async (scheduleId) => {
+    console.log('📅 일정 삭제 API 호출:', scheduleId);
     const response = await apiMethods.delete(`/schedules/${scheduleId}`);
+    console.log('📅 일정 삭제 응답:', response.data);
     return response.data;
   },
 
@@ -87,9 +121,11 @@ export const scheduleApi = {
    * @returns {Promise<Object>} 업데이트된 일정 데이터
    */
   toggleComplete: async (scheduleId, isCompleted) => {
+    console.log('📅 일정 완료 상태 토글 API 호출:', scheduleId, isCompleted);
     const response = await apiMethods.put(`/schedules/${scheduleId}/complete`, {
       isCompleted
     });
+    console.log('📅 일정 완료 상태 토글 응답:', response.data);
     return response.data;
   },
 
@@ -102,7 +138,9 @@ export const scheduleApi = {
    * @returns {Promise<Array>} 해당 월의 일정 배열
    */
   getByMonth: async (year, month) => {
+    console.log('📅 월별 일정 조회 API 호출:', year, month);
     const response = await apiMethods.get(`/calendar?year=${year}&month=${month}`);
+    console.log('📅 월별 일정 조회 응답:', response.data);
     return response.data.schedules || [];
   },
 
@@ -114,10 +152,23 @@ export const scheduleApi = {
    * @returns {Promise<Array>} 해당 날짜의 일정 배열
    */
   getByDate: async (date) => {
-    // date는 'YYYY-MM-DD' 형식
-    const [year, month] = date.split('-');
-    const monthData = await scheduleApi.getByMonth(year, month);
-    return monthData.filter(schedule => schedule.scheduleDate === date);
+    console.log('📅 날짜별 일정 조회 API 호출:', date);
+    try {
+      // 직접 날짜별 조회 API가 있다면 사용, 없다면 월별 조회 후 필터링
+      const response = await apiMethods.get(`/schedules/date/${date}`);
+      console.log('📅 날짜별 일정 조회 응답:', response.data);
+      return response.data;
+    } catch (error) {
+      // 날짜별 API가 없다면 월별 조회 후 필터링
+      console.log('📅 날짜별 API 없음, 월별 조회 후 필터링 사용');
+      const [year, month] = date.split('-');
+      const monthData = await scheduleApi.getByMonth(parseInt(year), parseInt(month));
+      return monthData.filter(schedule =>
+        schedule.scheduleDate === date ||
+        schedule.startDate === date ||
+        schedule.date === date
+      );
+    }
   },
 };
 
