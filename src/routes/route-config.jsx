@@ -86,54 +86,6 @@ const router = createBrowserRouter([
                     }
                 ]
             },
-
-            // ================================
-            // 호환성을 위한 레거시 라우트 (리다이렉트)
-            // ================================
-            {
-                path: 'todo',
-                element: <div>리다이렉트 중...</div>,
-                loader: () => {
-                    // /dashboard/todo로 리다이렉트
-                    throw new Response("", {
-                        status: 302,
-                        headers: {
-                            Location: "/dashboard/todo",
-                        },
-                    });
-                }
-            },
-            {
-                path: 'bucket',
-                element: <div>리다이렉트 중...</div>,
-                loader: () => {
-                    // /dashboard/bucket으로 리다이렉트
-                    throw new Response("", {
-                        status: 302,
-                        headers: {
-                            Location: "/dashboard/bucket",
-                        },
-                    });
-                }
-            },
-
-            // ================================
-            // 캘린더 호환성 리다이렉트
-            // ================================
-            {
-                path: 'calendar',
-                element: <div>리다이렉트 중...</div>,
-                loader: () => {
-                    // /dashboard/calendar로 리다이렉트
-                    throw new Response("", {
-                        status: 302,
-                        headers: {
-                            Location: "/dashboard/calendar",
-                        },
-                    });
-                }
-            },
-
             // ================================
             // 404 처리
             // ================================

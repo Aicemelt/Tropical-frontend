@@ -9,9 +9,9 @@ const RightHeader = () => {
     // 경로에 따른 헤더 이름 매핑
     const pathToHeaderName = {
         '/dashboard': 'Calender',
-        '/todo': 'Todo',
-        '/bucket': 'Bucket List',
-        '/dashboard/calendar': 'Calender'
+        '/dashboard/calendar': 'Calender',
+        '/dashboard/todo': 'Todo',
+        '/dashboard/bucket': 'Bucket List'
     };
 
     // 초기값 설정: 현재 경로를 우선으로 하고, 없으면 localStorage 값 사용
@@ -20,12 +20,10 @@ const RightHeader = () => {
         const headerFromPath = pathToHeaderName[currentPath];
         const savedName = localStorage.getItem('headerName');
 
-        // 현재 경로에 해당하는 헤더 이름이 있으면 그것을 사용
         if (headerFromPath) {
-            localStorage.setItem('headerName', headerFromPath); // localStorage 동기화
+            localStorage.setItem('headerName', headerFromPath);
             return headerFromPath;
         }
-        // 없으면 저장된 값이나 기본값 사용
         return savedName || "Calender";
     });
 
@@ -52,6 +50,16 @@ const RightHeader = () => {
         setIsBlock(false);
     }
 
+    // 경로가 정확히 일치하는지 확인하는 함수
+    const isPathMatch = (path) => {
+        if (path === '/dashboard') {
+            // dashboard 경로일 때는 정확히 일치할 때만 활성화
+            return location.pathname === '/dashboard';
+        }
+        // 다른 경로들은 그대로 처리
+        return location.pathname === path;
+    };
+
     return (
         <header>
             <h3>
@@ -63,7 +71,7 @@ const RightHeader = () => {
                     <li>
                         <NavLink
                             to={'/dashboard'}
-                            className={({isActive}) => isActive ? `${styles.navLink} ${styles.on}` : styles.navLink}
+                            className={() => isPathMatch('/dashboard') ? `${styles.navLink} ${styles.on}` : styles.navLink}
                             onClick={() => handleHeaderChange('Calender')}
                         >
                             Calender
@@ -71,8 +79,8 @@ const RightHeader = () => {
                     </li>
                     <li>
                         <NavLink
-                            to={'/todo'}
-                            className={({isActive}) => isActive ? `${styles.navLink} ${styles.on}` : styles.navLink}
+                            to={'/dashboard/todo'}
+                            className={() => isPathMatch('/dashboard/todo') ? `${styles.navLink} ${styles.on}` : styles.navLink}
                             onClick={() => handleHeaderChange('Todo')}
                         >
                             Todo
@@ -80,8 +88,8 @@ const RightHeader = () => {
                     </li>
                     <li>
                         <NavLink
-                            to={'/bucket'}
-                            className={({isActive}) => isActive ? `${styles.navLink} ${styles.on}` : styles.navLink}
+                            to={'/dashboard/bucket'}
+                            className={() => isPathMatch('/dashboard/bucket') ? `${styles.navLink} ${styles.on}` : styles.navLink}
                             onClick={() => handleHeaderChange('Bucket List')}
                         >
                             Bucket List
