@@ -1,0 +1,19 @@
+@use '../global';
+
+.section {
+  display: grid;
+  gap: 8px;
+  text-align: center;
+}
+
+.title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: .2px;
+}
+
+.subtitle {
+  margin: 0;
+  color: var(--ink-700);
+}

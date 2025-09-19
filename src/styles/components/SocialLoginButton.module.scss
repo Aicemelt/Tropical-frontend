@@ -1,0 +1,33 @@
+@use '../global';
+
+.button {
+  all: unset;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  height: 48px;
+  padding: 0 16px;
+  border-radius: 12px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, .06);
+  transition: transform .08s ease, box-shadow .2s ease;
+}
+
+.button:hover {
+  box-shadow: 0 6px 22px rgba(0, 0, 0, .08);
+}
+
+.button:active {
+  transform: translateY(1px);
+}
+
+.icon {
+  font-size: 18px;
+}
+
+.label {
+  font-weight: 700;
+}
