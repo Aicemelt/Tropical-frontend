@@ -1,9 +1,9 @@
 /**
  * @fileoverview 실서비스 최적화 쿠키 인증 API 클라이언트
- * @description 쿠키 리프레시 + UX 최적화 + 동시성 제어
+ * @description 쿠키 리프레시 + UX 최적화 + 동시성 제어 + HttpOnly 보안 강화
  * @author 왕택준
- * @version 0.1
- * @since 2025.09.18
+ * @version 0.2
+ * @since 2025.09.20
  */
 
 import axios from 'axios';
@@ -13,7 +13,7 @@ import axios from 'axios';
 // ================================
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:9005';
-export { API_BASE_URL };
+export {API_BASE_URL};
 
 export const API_ENDPOINT = `${API_BASE_URL}/api/v1`;
 
@@ -24,8 +24,8 @@ export const API_ENDPOINT = `${API_BASE_URL}/api/v1`;
  * @returns {string} OAuth 인증 URL
  */
 export function getOAuthURL(provider) {
-  const envKey = `VITE_${provider.toUpperCase()}_LOGIN_URL`;
-  return import.meta.env[envKey] || `${API_BASE_URL}/oauth2/authorization/${provider}`;
+    const envKey = `VITE_${provider.toUpperCase()}_LOGIN_URL`;
+    return import.meta.env[envKey] || `${API_BASE_URL}/oauth2/authorization/${provider}`;
 }
 
 /**
@@ -37,9 +37,9 @@ export function getOAuthURL(provider) {
  * @property {string} naver - 네이버 OAuth URL
  */
 export const OAUTH_URLS = {
-  google: getOAuthURL('google'),
-  kakao: getOAuthURL('kakao'),
-  naver: getOAuthURL('naver'),
+    google: getOAuthURL('google'),
+    kakao: getOAuthURL('kakao'),
+    naver: getOAuthURL('naver'),
 };
 
 /**
@@ -50,10 +50,10 @@ export const OAUTH_URLS = {
  * @returns {string} redirect_uri가 포함된 OAuth 시작 URL
  */
 export function getOAuthStartUrl(provider, callbackPath = '/onboarding') {
-  const baseUrl = getOAuthURL(provider);
-  const separator = baseUrl.includes('?') ? '&' : '?';
-  const redirectUri = `${location.origin}${callbackPath}`;
-  return `${baseUrl}${separator}redirect_uri=${encodeURIComponent(redirectUri)}`;
+    const baseUrl = getOAuthURL(provider);
+    const separator = baseUrl.includes('?') ? '&' : '?';
+    const redirectUri = `${location.origin}${callbackPath}`;
+    return `${baseUrl}${separator}redirect_uri=${encodeURIComponent(redirectUri)}`;
 }
 
 // ================================
@@ -72,7 +72,7 @@ let _navigate = null;
  * @param {Function} navigateFn - React Router의 navigate 함수
  */
 export function setNavigator(navigateFn) {
-  _navigate = navigateFn;
+    _navigate = navigateFn;
 }
 
 /**
@@ -82,11 +82,11 @@ export function setNavigator(navigateFn) {
  * @private
  */
 function safeNavigate(path) {
-  if (_navigate) {
-    _navigate(path);
-  } else {
-    window.location.assign(path);
-  }
+    if (_navigate) {
+        _navigate(path);
+    } else {
+        window.location.assign(path);
+    }
 }
 
 // ================================
@@ -103,12 +103,12 @@ function safeNavigate(path) {
  * @type {AxiosInstance}
  */
 const apiClient = axios.create({
-  baseURL: API_ENDPOINT,
-  timeout: 10000,
-  withCredentials: true,
-  headers: {
-    'Content-Type': 'application/json',
-  },
+    baseURL: API_ENDPOINT,
+    timeout: 10000,
+    withCredentials: true,
+    headers: {
+        'Content-Type': 'application/json',
+    },
 });
 
 // ================================
@@ -137,41 +137,47 @@ let isRefreshing = false;
 let waiters = [];
 
 /**
- * 쿠키 기반 토큰 리프레시 시도
+ * HttpOnly 쿠키 기반 토큰 리프레시 시도 (보안 강화 버전)
  *
- * 쿠키 기반에서도 명시적 리프레시 요청:
- * - 백엔드에서 새 AccessToken을 쿠키로 설정
+ * 보안 개선사항:
+ * - HttpOnly 쿠키로 JavaScript 접근 차단
+ * - XSS 공격으로부터 REFRESH_TOKEN 보호
+ * - 서버에서 쿠키 자동 처리로 코드 단순화
  * - 동시성 잠금으로 중복 요청 방지
  *
  * @returns {Promise<boolean>} 리프레시 성공 여부
  */
 async function refreshCookieToken() {
-  // 리팩토링 포인트: 이미 리프레시 중이면 대기열 추가
-  if (isRefreshing) {
-    return new Promise((resolve) => waiters.push(resolve));
-  }
+    // 리팩토링 포인트: 이미 리프레시 중이면 대기열 추가
+    if (isRefreshing) {
+        return new Promise((resolve) => waiters.push(resolve));
+    }
 
-  isRefreshing = true;
+    isRefreshing = true;
 
-  try {
-    // 쿠키 기반 리프레시 API 호출 (백엔드 스펙에 맞게 경로 수정)
-    await axios.post(`${API_ENDPOINT}/auth/token/refresh`, {}, { withCredentials: true });
+    try {
+        // HttpOnly 쿠키 기반 리프레시: 서버에서 REFRESH_TOKEN 쿠키를 직접 읽어 처리
+        // withCredentials: true로 HttpOnly 쿠키가 자동 전송됨
+        // 빈 객체 전송으로 보안성 향상 (JavaScript에서 토큰 접근 불가)
+        await axios.post(`${API_ENDPOINT}/auth/token/refresh`, {}, {
+            withCredentials: true
+        });
 
-    // 대기 중인 모든 요청에 성공 알림
-    waiters.forEach((resolve) => resolve(true));
-    return true;
+        // 대기 중인 모든 요청에 성공 알림
+        waiters.forEach((resolve) => resolve(true));
+        return true;
 
-  } catch (error) {
-    console.warn('쿠키 리프레시 실패:', error);
-    // 대기 중인 모든 요청에 실패 알림
-    waiters.forEach((resolve) => resolve(false));
-    return false;
+    } catch (error) {
+        console.warn('쿠키 리프레시 실패:', error);
+        // 대기 중인 모든 요청에 실패 알림
+        waiters.forEach((resolve) => resolve(false));
+        return false;
 
-  } finally {
-    // 리팩토링 포인트: 반드시 잠금 해제 (메모리 누수 방지)
-    waiters = [];
-    isRefreshing = false;
-  }
+    } finally {
+        // 리팩토링 포인트: 반드시 잠금 해제 (메모리 누수 방지)
+        waiters = [];
+        isRefreshing = false;
+    }
 }
 
 // ================================
@@ -186,8 +192,8 @@ async function refreshCookieToken() {
  * - 사용자가 스스로 로그인 버튼 클릭하도록 유도
  */
 function handleAuthFailure() {
-  // 리팩토링 포인트: 홈으로 이동이 더 자연스러운 UX
-  safeNavigate('/');
+    // 리팩토링 포인트: 홈으로 이동이 더 자연스러운 UX
+    safeNavigate('/');
 }
 
 /**
@@ -197,13 +203,13 @@ function handleAuthFailure() {
  * @throws {Error} 로그아웃 API 호출 실패 시
  */
 export async function logout() {
-  try {
-    await apiClient.post('/auth/logout');
-  } catch (error) {
-    console.error('로그아웃 API 호출 실패:', error);
-  } finally {
-    safeNavigate('/');
-  }
+    try {
+        await apiClient.post('/auth/logout');
+    } catch (error) {
+        console.error('로그아웃 API 호출 실패:', error);
+    } finally {
+        safeNavigate('/');
+    }
 }
 
 // ================================
@@ -219,19 +225,19 @@ export async function logout() {
  */
 apiClient.interceptors.request.use(
     (config) => {
-      // 리팩토링 포인트: 재시도 플래그 기본값 보장 (무한루프 방지)
-      if (!config.headers[RETRY_KEY]) {
-        config.headers[RETRY_KEY] = '0';
-      }
+        // 리팩토링 포인트: 재시도 플래그 기본값 보장 (무한루프 방지)
+        if (!config.headers[RETRY_KEY]) {
+            config.headers[RETRY_KEY] = '0';
+        }
 
-      if (import.meta.env.VITE_APP_DEBUG === 'true') {
-        console.log(`[API Request] ${config.method?.toUpperCase()} ${config.url}`);
-      }
-      return config;
+        if (import.meta.env.VITE_APP_DEBUG === 'true') {
+            console.log(`[API Request] ${config.method?.toUpperCase()} ${config.url}`);
+        }
+        return config;
     },
     (error) => {
-      console.error('[API Request Error]', error);
-      return Promise.reject(error);
+        console.error('[API Request Error]', error);
+        return Promise.reject(error);
     }
 );
 
@@ -250,72 +256,72 @@ apiClient.interceptors.request.use(
  */
 apiClient.interceptors.response.use(
     (response) => {
-      if (import.meta.env.VITE_APP_DEBUG === 'true') {
-        console.log(`[API Response] ${response.status} ${response.config.url}`);
-      }
-      return response;
+        if (import.meta.env.VITE_APP_DEBUG === 'true') {
+            console.log(`[API Response] ${response.status} ${response.config.url}`);
+        }
+        return response;
     },
     async (error) => {
-      const { response, request, config } = error;
+        const {response, request, config} = error;
 
-      if (response) {
-        const { status, data } = response;
-        const message = data?.message || '알 수 없는 오류';
+        if (response) {
+            const {status, data} = response;
+            const message = data?.message || '알 수 없는 오류';
 
-        // 401 Unauthorized: 쿠키 리프레시 1회 시도
-        if (status === 401) {
-          const hasRetried = config.headers[RETRY_KEY] === '1';
+            // 401 Unauthorized: 쿠키 리프레시 1회 시도
+            if (status === 401) {
+                const hasRetried = config.headers[RETRY_KEY] === '1';
 
-          if (!hasRetried) {
-            console.info('AccessToken 만료 - 쿠키 리프레시 시도');
+                if (!hasRetried) {
+                    console.info('AccessToken 만료 - 쿠키 리프레시 시도');
 
-            const refreshSuccess = await refreshCookieToken();
+                    const refreshSuccess = await refreshCookieToken();
 
-            if (refreshSuccess) {
-              // 리팩토링 포인트: 재시도 플래그 설정으로 무한루프 방지
-              config.headers[RETRY_KEY] = '1';
+                    if (refreshSuccess) {
+                        // 리팩토링 포인트: 재시도 플래그 설정으로 무한루프 방지
+                        config.headers[RETRY_KEY] = '1';
 
-              try {
-                return await apiClient.request(config);
-              } catch (retryError) {
-                console.error('리프레시 후 재시도 실패:', retryError);
-              }
+                        try {
+                            return await apiClient.request(config);
+                        } catch (retryError) {
+                            console.error('리프레시 후 재시도 실패:', retryError);
+                        }
+                    }
+                }
+
+                // 리프레시 실패 또는 재시도 실패 시 인증 실패 처리
+                console.warn('인증 완전 실패 - 홈으로 이동');
+                handleAuthFailure();
+                return Promise.reject(error);
             }
-          }
 
-          // 리프레시 실패 또는 재시도 실패 시 인증 실패 처리
-          console.warn('인증 완전 실패 - 홈으로 이동');
-          handleAuthFailure();
-          return Promise.reject(error);
+            // 403 Forbidden
+            if (status === 403) {
+                console.warn('권한 부족:', message);
+            }
+
+            // 개발환경 상세 에러 로깅
+            if (import.meta.env.VITE_APP_DEBUG === 'true') {
+                if (status === 404) {
+                    console.error('404 Not Found:', response.config.url);
+                } else if (status === 422) {
+                    console.error('422 Validation Error:', message);
+                } else if (status === 429) {
+                    console.error('429 Rate Limited');
+                } else if (status >= 500) {
+                    console.error(`Server Error [${status}]:`, message);
+                }
+            }
+
+            return Promise.reject(error);
         }
 
-        // 403 Forbidden
-        if (status === 403) {
-          console.warn('권한 부족:', message);
-        }
-
-        // 개발환경 상세 에러 로깅
-        if (import.meta.env.VITE_APP_DEBUG === 'true') {
-          if (status === 404) {
-            console.error('404 Not Found:', response.config.url);
-          } else if (status === 422) {
-            console.error('422 Validation Error:', message);
-          } else if (status === 429) {
-            console.error('429 Rate Limited');
-          } else if (status >= 500) {
-            console.error(`Server Error [${status}]:`, message);
-          }
+        // 네트워크 에러
+        if (request) {
+            console.error('네트워크 오류: 서버 연결 실패 (오프라인 또는 CORS/프록시 확인)');
         }
 
         return Promise.reject(error);
-      }
-
-      // 네트워크 에러
-      if (request) {
-        console.error('네트워크 오류: 서버 연결 실패 (오프라인 또는 CORS/프록시 확인)');
-      }
-
-      return Promise.reject(error);
     }
 );
 
@@ -344,46 +350,46 @@ export default apiClient;
  * @property {Function} delete - DELETE 요청 (데이터 삭제)
  */
 export const apiMethods = {
-  /**
-   * GET 요청 수행
-   * @param {string} url - API 엔드포인트 URL
-   * @param {Object} config - axios 설정 옵션
-   * @returns {Promise} axios 응답 Promise
-   */
-  get: (url, config = {}) => apiClient.get(url, config),
+    /**
+     * GET 요청 수행
+     * @param {string} url - API 엔드포인트 URL
+     * @param {Object} config - axios 설정 옵션
+     * @returns {Promise} axios 응답 Promise
+     */
+    get: (url, config = {}) => apiClient.get(url, config),
 
-  /**
-   * POST 요청 수행 (데이터 생성)
-   * @param {string} url - API 엔드포인트 URL
-   * @param {Object} data - 요청 데이터
-   * @param {Object} config - axios 설정 옵션
-   * @returns {Promise} axios 응답 Promise
-   */
-  post: (url, data = {}, config = {}) => apiClient.post(url, data, config),
+    /**
+     * POST 요청 수행 (데이터 생성)
+     * @param {string} url - API 엔드포인트 URL
+     * @param {Object} data - 요청 데이터
+     * @param {Object} config - axios 설정 옵션
+     * @returns {Promise} axios 응답 Promise
+     */
+    post: (url, data = {}, config = {}) => apiClient.post(url, data, config),
 
-  /**
-   * PUT 요청 수행 (데이터 전체 수정)
-   * @param {string} url - API 엔드포인트 URL
-   * @param {Object} data - 요청 데이터
-   * @param {Object} config - axios 설정 옵션
-   * @returns {Promise} axios 응답 Promise
-   */
-  put: (url, data = {}, config = {}) => apiClient.put(url, data, config),
+    /**
+     * PUT 요청 수행 (데이터 전체 수정)
+     * @param {string} url - API 엔드포인트 URL
+     * @param {Object} data - 요청 데이터
+     * @param {Object} config - axios 설정 옵션
+     * @returns {Promise} axios 응답 Promise
+     */
+    put: (url, data = {}, config = {}) => apiClient.put(url, data, config),
 
-  /**
-   * PATCH 요청 수행 (데이터 부분 수정)
-   * @param {string} url - API 엔드포인트 URL
-   * @param {Object} data - 요청 데이터
-   * @param {Object} config - axios 설정 옵션
-   * @returns {Promise} axios 응답 Promise
-   */
-  patch: (url, data = {}, config = {}) => apiClient.patch(url, data, config),
+    /**
+     * PATCH 요청 수행 (데이터 부분 수정)
+     * @param {string} url - API 엔드포인트 URL
+     * @param {Object} data - 요청 데이터
+     * @param {Object} config - axios 설정 옵션
+     * @returns {Promise} axios 응답 Promise
+     */
+    patch: (url, data = {}, config = {}) => apiClient.patch(url, data, config),
 
-  /**
-   * DELETE 요청 수행 (데이터 삭제)
-   * @param {string} url - API 엔드포인트 URL
-   * @param {Object} config - axios 설정 옵션
-   * @returns {Promise} axios 응답 Promise
-   */
-  delete: (url, config = {}) => apiClient.delete(url, config),
+    /**
+     * DELETE 요청 수행 (데이터 삭제)
+     * @param {string} url - API 엔드포인트 URL
+     * @param {Object} config - axios 설정 옵션
+     * @returns {Promise} axios 응답 Promise
+     */
+    delete: (url, config = {}) => apiClient.delete(url, config),
 };
