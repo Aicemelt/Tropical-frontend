@@ -97,11 +97,16 @@ export const WEATHER = {
 // API 엔드포인트 (Endpoints)
 // ================================
 
+/**
+ * @description 일기 API 엔드포인트 경로 상수
+ * @author 신동준
+ * @since 2025-09-18
+ */
 const DIARY_ENDPOINTS = {
-  BASE: '/diary',
-  BY_ID: (id) => `/diary/${id}`,
-  BY_MONTH: (year, month) => `/diary/month/${year}/${month}`,
-  BY_DATE: (date) => `/diary/date/${date}`,
+  BASE: '/diaries',
+  BY_ID: (id) => `/diaries/${id}`,
+  BY_MONTH: (year, month) => `/diaries/month/${year}/${month}`,
+  BY_DATE: (date) => `/diaries/date/${date}`,
 };
 
 // ================================
@@ -123,10 +128,27 @@ const DIARY_ENDPOINTS = {
  */
 export const createDiary = async (diaryData) => {
   try {
-    const response = await apiMethods.post(DIARY_ENDPOINTS.BASE, diaryData);
+    // 백엔드 API에 맞게 데이터 변환
+    const apiData = {
+      title: diaryData.title,
+      content: diaryData.content,
+      emotion: diaryData.emotion,
+      weather: diaryData.weather,
+      diaryDate: diaryData.date || diaryData.diaryDate, // 백엔드에서 diaryDate 필드를 사용할 수 있음
+      date: diaryData.date // 기존 필드도 유지
+    };
+
+    console.log('[Diary API] 일기 생성 요청 데이터:', apiData);
+    const response = await apiMethods.post(DIARY_ENDPOINTS.BASE, apiData);
+    console.log('[Diary API] 일기 생성 응답:', response.data);
     return response.data;
   } catch (error) {
     console.error('[Diary API] 일기 생성 실패:', error);
+    console.error('[Diary API] 요청 데이터:', diaryData);
+    if (error.response) {
+      console.error('[Diary API] 응답 상태:', error.response.status);
+      console.error('[Diary API] 응답 데이터:', error.response.data);
+    }
     throw error;
   }
 };

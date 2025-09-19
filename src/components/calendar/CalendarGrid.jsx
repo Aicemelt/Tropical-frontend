@@ -1,15 +1,38 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styles from '../../styles/components/CalendarGrid.module.scss';
 import CalendarDay from "./CalendarDay.jsx";
+import { useSchedule } from '../../hooks/schedule/useSchedule.js';
+import { useDiary } from '../../hooks/diary/useDiary.js';
 
 const CalendarGrid = () => {
     const weekdays = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+    const { schedules, fetchSchedulesByMonth } = useSchedule();
+    const { getDiariesByMonth } = useDiary();
+    const [diaries, setDiaries] = useState([]);
 
     const today = new Date();
     const year = today.getFullYear();
     const month = today.getMonth();
 
-    const days =[];
+    // 일정과 일기 데이터 로드
+    useEffect(() => {
+        const loadCalendarData = async () => {
+            try {
+                // 월별 일정 조회 (month는 0부터 시작하므로 +1)
+                await fetchSchedulesByMonth(year, month + 1);
+
+                // 월별 일기 조회
+                const monthDiaries = await getDiariesByMonth(year, month + 1);
+                setDiaries(monthDiaries);
+            } catch (error) {
+                console.error('캘린더 데이터 로드 실패:', error);
+            }
+        };
+
+        loadCalendarData();
+    }, [year, month, fetchSchedulesByMonth, getDiariesByMonth]);
+
+    const days = [];
 
     const firstDayWeekday = new Date(year, month, 1).getDay();
     const lastDayOfCurrentMonth = new Date(year, month + 1, 0).getDate();
@@ -59,20 +82,28 @@ const CalendarGrid = () => {
         nextMonthDay++;
     }
 
-    // 더미 데이터
-    const hasSchedule = {
-        5: true,
-        15: true,
-        20: true,
+    // 실제 데이터로 일정과 일기 체크 함수
+    const checkScheduleForDate = (day) => {
+        if (!day) return false;
+        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        return schedules.some(schedule =>
+            schedule.scheduleDate === dateStr ||
+            schedule.startDate === dateStr ||
+            schedule.date === dateStr
+        );
     };
 
-    const hasDiary = {
-        3: true,
-        15: true,
-        25: true,
+    const checkDiaryForDate = (day) => {
+        if (!day) return false;
+        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        return diaries.some(diary =>
+            diary.date === dateStr ||
+            diary.diaryDate === dateStr ||
+            (diary.createdAt && diary.createdAt.startsWith(dateStr))
+        );
     };
 
-    console.log(days)
+    console.log('📅 캘린더 데이터:', { schedules, diaries, days });
 
     return (
         <div className={`${styles.gridArea}`}>
@@ -86,15 +117,12 @@ const CalendarGrid = () => {
             </div>
             <div className={`${styles.grid}`}>
                 {days.map((day, index) =>
-                    /*<button key={index} className={`${styles.day}`}>
-                        {day}
-                    </button>*/
                     <CalendarDay
                         key={index}
                         day={day.day}
                         date={today}
-                        hasSchedule={day.isCurrentMonth && hasSchedule[day.day]}
-                        hasDiary={day.isCurrentMonth && hasDiary[day.day]}
+                        hasSchedule={day.isCurrentMonth && checkScheduleForDate(day.day)}
+                        hasDiary={day.isCurrentMonth && checkDiaryForDate(day.day)}
                         isCurrentMonth={day.isCurrentMonth}
                     />
                 )}

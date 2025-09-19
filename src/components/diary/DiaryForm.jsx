@@ -57,7 +57,7 @@ const DiaryForm = ({
   // 커스텀 훅 사용
   // ================================
 
-  const { createDiary, updateDiary, loading } = useDiary();
+  const { createDiary, updateDiary, getDiaryByDate, loading } = useDiary();
 
   // ================================
   // Ref 관리
@@ -95,6 +95,14 @@ const DiaryForm = ({
    * @description 제출 시도 상태
    */
   const [submitAttempted, setSubmitAttempted] = useState(false);
+
+  // ================================
+  // 추가 상태 관리
+  // ================================
+
+  const [currentMode, setCurrentMode] = useState(mode);
+  const [existingDiary, setExistingDiary] = useState(null);
+  const [isCheckingExisting, setIsCheckingExisting] = useState(false);
 
   // ================================
   // Effects
@@ -141,6 +149,29 @@ const DiaryForm = ({
       titleRef.current?.focus();
     }, 100);
   }, []);
+
+  /**
+   * @description 기존 일기 확인
+   */
+  useEffect(() => {
+    const checkExistingDiary = async () => {
+      if (mode === 'edit' && initialData?.date) {
+        setIsCheckingExisting(true);
+        try {
+          const diary = await getDiaryByDate(initialData.date);
+          setExistingDiary(diary);
+          setCurrentMode('edit');
+        } catch (error) {
+          console.error('기존 일기 확인 실패:', error);
+          setCurrentMode('create');
+        } finally {
+          setIsCheckingExisting(false);
+        }
+      }
+    };
+
+    checkExistingDiary();
+  }, [mode, initialData, getDiaryByDate]);
 
   // ================================
   // 유효성 검사 함수
