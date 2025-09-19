@@ -1,9 +1,14 @@
-import React, {useState} from 'react';
+import React from 'react';
 import styles from '../../styles/components/Filter.module.scss';
+import { useBucketStore } from '../../store/bucketStore.js';
 
 const BucketFilter = () => {
+    // 필터는 "진행 중"과 "완료됨" 두 가지로 제한
     const filters = ["진행 중", "완료됨"];
-    const [filter, setFilter] = useState("진행 중");
+
+    // Todo 방식과 동일하게 store에서 직접 가져오기
+    const { currentFilter, setCurrentFilter, getFilterCounts } = useBucketStore();
+    const filterCounts = getFilterCounts();
 
     return (
         <div className={`${styles.tabList}`}>
@@ -11,14 +16,13 @@ const BucketFilter = () => {
                 <button
                     key={f}
                     className={`${styles.tab} ${
-                        filter === f ? `${styles.on}` : " "
+                        currentFilter === f ? `${styles.on}` : " "
                     }`}
-                    onClick={() => setFilter(f)}
+                    onClick={() => setCurrentFilter(f)}
                 >
                     {f}
                     <span>
-                    {/*  진행 중, 완료 중 , 미완료 리스트 개수 동적 추가  */}
-                        10
+                        {filterCounts[f] || 0}
                     </span>
                 </button>
             ))}

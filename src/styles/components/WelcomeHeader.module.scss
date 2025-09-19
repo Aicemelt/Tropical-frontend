@@ -1,0 +1,53 @@
+@use '../global';
+
+.header {
+  max-width: 1120px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logoBtn {
+  all: unset;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.logoCircle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, var(--tropical-sun) 0 35%, transparent 36%),
+  radial-gradient(circle at 70% 70%, var(--tropical-palm) 0 35%, transparent 36%),
+  var(--tropical-ocean);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+}
+
+.logoText {
+  font-weight: 800;
+  letter-spacing: .2px;
+  color: var(--ink-900);
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+}
+
+.signupBtn {
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  color: var(--ink-900);
+  text-decoration: none;
+  transition: background .15s ease, box-shadow .15s ease;
+}
+
+.signupBtn:hover {
+  background: var(--bg-100);
+}
