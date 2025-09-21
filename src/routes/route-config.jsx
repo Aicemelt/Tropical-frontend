@@ -21,6 +21,7 @@ import BucketPage from "../pages/BucketPage.jsx";
 import ProtectedRoute from "../components/auth/Guards/ProtectedRoute.jsx";
 // import VerifyRequiredPage from "../pages/VerifyRequiredPage.jsx";
 // import EmailVerifiedPage from "../pages/EmailVerifiedPage.jsx";
+import PageTransition from "../components/common/PageTransition/PageTransition.jsx";
 
 const router = createBrowserRouter([
     {
@@ -32,7 +33,7 @@ const router = createBrowserRouter([
             // ================================
             {
                 index: true,
-                element: <WelcomePage/>  // 첫 진입점을 WelcomePage로 변경
+                element: <PageTransition><WelcomePage/></PageTransition>  // 첫 진입점을 WelcomePage로 변경
             },
             // {
             //     path: 'login',
@@ -44,7 +45,7 @@ const router = createBrowserRouter([
             // },
             {
                 path: 'onboarding',
-                element: <OnboardingPage/>
+                element: <PageTransition><OnboardingPage/></PageTransition>
             },
 
             // ================================
@@ -74,15 +75,15 @@ const router = createBrowserRouter([
                 children: [
                     {
                         index: true,
-                        element: <CalendarPage/>  // 대시보드 기본 페이지
+                        element: <PageTransition><CalendarPage/></PageTransition>  // 대시보드 기본 페이지
                     },
                     {
                         path: 'todo',
-                        element: <TodoPage/>
+                        element: <PageTransition><TodoPage/></PageTransition>
                     },
                     {
                         path: 'bucket',
-                        element: <BucketPage/>
+                        element: <PageTransition><BucketPage/></PageTransition>
                     }
                 ]
             },
@@ -91,7 +92,7 @@ const router = createBrowserRouter([
             // ================================
             {
                 path: '*',
-                element: <div>404 - 페이지를 찾을 수 없습니다.</div>
+                element: <PageTransition><div>404 - 페이지를 찾을 수 없습니다.</div></PageTransition>
             }
         ]
     }
