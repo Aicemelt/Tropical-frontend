@@ -2,18 +2,25 @@
 
 .section {
   display: grid;
-  gap: 8px;
+  gap: 8px; /* 6px → 8px로 약간 증가 */
   text-align: center;
+  margin-bottom: 12px; /* 8px → 12px로 약간 증가 */
+  padding-top: 8px; /* 상단 패딩 추가 (선택사항) */
 }
 
 .title {
   margin: 0;
-  font-size: 24px;
+  font-size: 24px; /* 22px → 24px로 약간 증가 */
   font-weight: 800;
-  letter-spacing: .2px;
+  letter-spacing: 0.2px;
+  color: var(--ink-900); /* 색상 명시 */
+  line-height: 1.2; /* 줄 높이 명시 */
 }
 
 .subtitle {
-  margin: 0;
   color: var(--ink-700);
+  font-size: 16px; /* 15px → 16px로 약간 증가 */
+  line-height: 1.5; /* 줄 높이 추가 */
+  max-width: 600px; /* 최대 너비 제한으로 가독성 향상 */
+  margin: 0 auto; /* 중앙 정렬 */
 }

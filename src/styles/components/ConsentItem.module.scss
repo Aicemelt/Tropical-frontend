@@ -5,17 +5,19 @@
   grid-template-columns: 20px 1fr;
   gap: 12px;
   align-items: flex-start;
+  padding: 8px 0; /* 상하 패딩 줄임 - 핵심 수정사항 */
 }
 
 .checkbox {
   width: 18px;
   height: 18px;
   margin-top: 4px;
+  accent-color: var(--tropical-coral); /* 체크박스 색상 통일 */
 }
 
 .body {
   display: grid;
-  gap: 6px;
+  gap: 4px; /* 간격 줄임 */
 }
 
 .titleRow {
@@ -23,10 +25,12 @@
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
+  margin-bottom: 2px; /* 하단 마진 줄임 */
 }
 
 .titleText {
   font-weight: 700;
+  line-height: 1.4; /* 줄 높이 조정 */
 }
 
 .required {
@@ -46,8 +50,16 @@
   display: inline-flex;
   color: var(--tropical-ocean);
   font-weight: 700;
+  font-size: 14px; /* 폰트 크기 명시 */
+  padding: 2px 0; /* 최소 패딩만 */
+  line-height: 1.2; /* 줄 높이 조정 */
 }
 
 .detailBtn:hover {
   text-decoration: underline;
+}
+
+.detailBtn:disabled {
+  color: var(--ink-400);
+  cursor: not-allowed;
 }
