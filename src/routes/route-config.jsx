@@ -33,19 +33,11 @@ const router = createBrowserRouter([
             // ================================
             {
                 index: true,
-                element: <PageTransition><WelcomePage/></PageTransition>  // 첫 진입점을 WelcomePage로 변경
+                element: <WelcomePage/>
             },
-            // {
-            //     path: 'login',
-            //     element: <LoginPage/>
-            // },
-            // {
-            //     path: 'signup',
-            //     element: <SignupPage/>
-            // },
             {
                 path: 'onboarding',
-                element: <PageTransition><OnboardingPage/></PageTransition>
+                element: <OnboardingPage/>
             },
 
             // ================================
@@ -75,15 +67,15 @@ const router = createBrowserRouter([
                 children: [
                     {
                         index: true,
-                        element: <PageTransition><CalendarPage/></PageTransition>  // 대시보드 기본 페이지
+                        element: <CalendarPage/>  // 대시보드 기본 페이지
                     },
                     {
                         path: 'todo',
-                        element: <PageTransition><TodoPage/></PageTransition>
+                        element: <TodoPage/>
                     },
                     {
                         path: 'bucket',
-                        element: <PageTransition><BucketPage/></PageTransition>
+                        element: <BucketPage/>
                     }
                 ]
             },
@@ -92,7 +84,7 @@ const router = createBrowserRouter([
             // ================================
             {
                 path: '*',
-                element: <PageTransition><div>404 - 페이지를 찾을 수 없습니다.</div></PageTransition>
+                element: <div>404 - 페이지를 찾을 수 없습니다.</div>
             }
         ]
     }
