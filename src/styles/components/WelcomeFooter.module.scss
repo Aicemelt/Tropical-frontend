@@ -1,13 +1,8 @@
-@use '../global';
-
 .footer {
-  width: 100%;
-  padding: 20px;
-  display: grid;
-  place-items: center;
-}
-
-.copy {
-  color: var(--ink-500);
-  font-size: 12px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #9ca3af;
+  font-size: 14px;
 }

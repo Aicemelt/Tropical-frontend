@@ -21,10 +21,10 @@
   --bg-modal: #fff;
 
   /* font-style */
-  --text-primary: #212121;      /* 메인 제목, 중요 텍스트 */
-  --text-secondary: #616161;    /* 일반 본문 */
-  --text-muted: #9E9E9E;        /* 보조 정보, 날짜 등 */
-  --text-disabled: #BDBDBD;     /* 비활성 상태 */
+  --text-primary: #212121; /* 메인 제목, 중요 텍스트 */
+  --text-secondary: #616161; /* 일반 본문 */
+  --text-muted: #9E9E9E; /* 보조 정보, 날짜 등 */
+  --text-disabled: #BDBDBD; /* 비활성 상태 */
 
   /* font-family */
   --font-korean: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
@@ -43,15 +43,15 @@
   --font-black: 900;
 
   /* font-size */
-  --text-xs: 0.75rem;     /* 12px */
-  --text-sm: 0.875rem;    /* 14px */
-  --text-base: 1rem;      /* 16px */
-  --text-lg: 1.125rem;    /* 18px */
-  --text-xl: 1.25rem;     /* 20px */
-  --text-2xl: 1.5rem;     /* 24px */
-  --text-3xl: 1.875rem;   /* 30px */
-  --text-4xl: 2.25rem;    /* 36px */
-  --text-5xl: 3rem;       /* 48px */
+  --text-xs: 0.75rem; /* 12px */
+  --text-sm: 0.875rem; /* 14px */
+  --text-base: 1rem; /* 16px */
+  --text-lg: 1.125rem; /* 18px */
+  --text-xl: 1.25rem; /* 20px */
+  --text-2xl: 1.5rem; /* 24px */
+  --text-3xl: 1.875rem; /* 30px */
+  --text-4xl: 2.25rem; /* 36px */
+  --text-5xl: 3rem; /* 48px */
 
   /* line-height */
   --leading-tight: 1.25;
@@ -134,4 +134,16 @@ button {
     gap: 36px;
     height: auto;
   }
+}
+
+/* === WelcomePage 전용 풀스크린 오버라이드 (조건부) === */
+body.fullscreen {
+  height: 100vh; /* iOS 등에서 100% 보장 */
+  overflow: hidden; /* 스크롤 제거 */
+}
+
+body.fullscreen #root {
+  width: 100%;
+  max-width: none; /* 1200px 제한 해제 */
+  padding: 0; /* 상단 60px 패딩 제거 */
 }

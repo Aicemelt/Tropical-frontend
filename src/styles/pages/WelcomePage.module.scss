@@ -1,18 +1,34 @@
-@use '../global';
-
+/* WelcomePage.module.scss */
 .container {
-  min-height: 100dvh;
+  /* 기존 스타일 유지 */
+  min-height: 100vh;
+  max-height: 100vh;
   display: grid;
-  grid-template-rows: auto 1fr auto;
-  background: linear-gradient(180deg, var(--bg-100) 0%, #fff 100%);
+  grid-template-rows: 64px 1fr 56px;
+  overflow: hidden;
+
+  /* 전체 화면 강제 적용 */
+  position: fixed; /* ✅ global #root 설정 무시 */
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1000;
 }
 
-.center {
-  max-width: 720px;
-  width: 100%;
-  margin: 0 auto;
-  padding: 32px 20px 24px;
+.main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  row-gap: 16px;
+  padding: 16px;
+  text-align: center;
+}
+
+.buttonStack {
+  width: 320px;
   display: grid;
-  gap: 24px;
-  place-items: center;
+  row-gap: 12px;
+  margin-top: 12px;
 }

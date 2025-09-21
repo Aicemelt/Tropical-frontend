@@ -1,0 +1,18 @@
+.naver {
+  background: #03c75a;
+  border: none;
+  color: #ffffff;
+  transition: all 0.2s ease;
+}
+
+.naver:hover {
+  background: #02b351; /* ✅ 약간 더 어두운 초록색 */
+}
+
+.naver:active {
+  background: #029944;
+}
+
+.naver :global(svg) {
+  fill: #ffffff;
+}

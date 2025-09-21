@@ -1,0 +1,27 @@
+.email {
+  width: 100%;
+  height: 48px;
+  border-radius: 8px;
+  background: #2563eb;
+  color: #fff;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.email:hover {
+  background: #1d4ed8; /* ✅ 더 어두운 파랑 */
+}
+
+.email:active {
+  background: #1e40af;
+}
+
+.email:focus {
+  outline: 2px solid #93c5fd;
+  outline-offset: 2px;
+}
