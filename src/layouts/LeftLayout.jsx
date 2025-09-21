@@ -8,8 +8,8 @@ import PageTransition from "../components/common/PageTransition/PageTransition.j
 const LeftLayout = () => {
     return (
         <div className={leftLayout}>
-            <LeftHeader />
             <PageTransition>
+            <LeftHeader />
                 <div className={container}>
                     <SmallTalkList />
                     <Tips />
