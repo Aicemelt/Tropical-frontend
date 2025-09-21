@@ -1,0 +1,203 @@
+/* src/styles/components/SignupNavigation.module.scss */
+
+.navigation {
+  padding: 20px 24px;
+  background: #f8fafc;
+  border-top: 1px solid #e5e7eb;
+  display: grid;
+  gap: 16px;
+}
+
+/* 진행률 섹션 */
+.progressSection {
+  display: grid;
+  gap: 8px;
+}
+
+.progressBar {
+  width: 100%;
+  height: 8px;
+  background: #e5e7eb;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, #fbbf24 0%, #f43f5e 100%); /* 하드코딩된 색상 */
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.progressText {
+  text-align: center;
+  font-size: 13px;
+  color: #6b7280;
+  font-weight: 600;
+}
+
+/* 버튼 컨테이너 */
+.buttonContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+/* 공통 버튼 스타일 */
+.prevBtn,
+.nextBtn,
+.submitBtn {
+  height: 48px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border: none;
+  outline: none;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 이전 버튼 */
+.prevBtn {
+  padding: 0 20px;
+  background: #f1f5f9;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+.prevBtn:hover:not(:disabled) {
+  background: #e2e8f0;
+  transform: translateY(-1px);
+}
+
+.prevBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* 다음 버튼 */
+.nextBtn {
+  flex: 1;
+  max-width: 200px;
+  margin-left: auto;
+}
+
+.nextBtn.enabled {
+  background: linear-gradient(135deg, #fbbf24 0%, #f43f5e 100%) !important; /* 하드코딩 + !important */
+  color: white !important;
+  box-shadow: 0 4px 12px rgba(244, 63, 94, 0.3) !important;
+}
+
+.nextBtn.enabled:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(244, 63, 94, 0.4);
+}
+
+.nextBtn.disabled {
+  background: #e5e7eb !important;
+  color: #9ca3af !important;
+  cursor: not-allowed;
+}
+
+/* 제출 버튼 */
+.submitBtn {
+  flex: 1;
+  max-width: 200px;
+  margin-left: auto;
+}
+
+.submitBtn.enabled {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important; /* 하드코딩 + !important */
+  color: white !important;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3) !important;
+}
+
+.submitBtn.enabled:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+}
+
+.submitBtn.disabled {
+  background: #e5e7eb !important;
+  color: #9ca3af !important;
+  cursor: not-allowed;
+}
+
+/* 버튼 아이콘 */
+.buttonIcon {
+  font-size: 16px;
+  transition: transform 0.2s ease;
+}
+
+.nextBtn.enabled:hover .buttonIcon,
+.submitBtn.enabled:hover .buttonIcon {
+  transform: translateX(2px);
+}
+
+/* 스피너 애니메이션 */
+.spinner {
+  display: inline-block;
+  animation: spin 1s linear infinite;
+  font-size: 16px;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 도움말 섹션 */
+.helpSection {
+  text-align: center;
+  margin-top: 4px;
+}
+
+.helpText {
+  margin: 0;
+  font-size: 13px;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+/* 반응형 조정 */
+@media (max-width: 480px) {
+  .navigation {
+    padding: 16px 20px;
+    gap: 12px;
+  }
+
+  .buttonContainer {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .prevBtn,
+  .nextBtn,
+  .submitBtn {
+    width: 100%;
+    max-width: none;
+    height: 44px;
+    font-size: 14px;
+  }
+
+  .buttonContainer {
+    flex-direction: row;
+  }
+
+  .prevBtn {
+    flex: 0 0 auto;
+    width: auto;
+    min-width: 80px;
+  }
+}

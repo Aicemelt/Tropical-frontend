@@ -1,0 +1,145 @@
+/* src/styles/components/SignupStep2.module.scss */
+
+.container {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.form {
+  display: grid;
+  gap: 20px;
+}
+
+/* 입력 필드 */
+.field {
+  display: grid;
+  gap: 6px;
+}
+
+.label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink-800);
+}
+
+.required {
+  color: var(--tropical-coral);
+  font-weight: 700;
+}
+
+.input {
+  width: 100%;
+  height: 44px;
+  padding: 0 12px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 15px;
+  transition: all 0.2s ease;
+  background: white;
+  box-sizing: border-box;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--tropical-coral);
+  box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.1);
+}
+
+.input.invalid {
+  border-color: #dc2626;
+  background: #fef2f2;
+}
+
+.input.invalid:focus {
+  border-color: #dc2626;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+}
+
+/* 비밀번호 필드 */
+.passwordField {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.passwordField .input {
+  padding-right: 80px;
+}
+
+.toggleBtn {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  color: var(--ink-500);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.toggleBtn:hover {
+  background: #f1f5f9;
+  color: var(--ink-700);
+}
+
+/* 필드별 에러 메시지 */
+.fieldError {
+  font-size: 13px;
+  color: #dc2626;
+  margin-top: 4px;
+}
+
+/* 유효성 검사 요약 */
+.validationSummary {
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 8px;
+}
+
+.validationTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: #d97706;
+  margin-bottom: 8px;
+}
+
+.validationList {
+  margin: 0;
+  padding-left: 16px;
+  color: #d97706;
+}
+
+.validationList li {
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+.validationList li:last-child {
+  margin-bottom: 0;
+}
+
+/* 반응형 조정 */
+@media (max-width: 480px) {
+  .form {
+    gap: 16px;
+  }
+
+  .input {
+    height: 40px;
+    font-size: 14px;
+  }
+
+  .passwordField .input {
+    padding-right: 70px;
+  }
+
+  .toggleBtn {
+    font-size: 12px;
+    padding: 3px 6px;
+  }
+}

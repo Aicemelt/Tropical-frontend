@@ -1,0 +1,152 @@
+/* src/styles/components/SignupHeader.module.scss */
+
+.header {
+  padding: 24px;
+  background: linear-gradient(135deg, #fef7f7 0%, #fff 100%);
+  border-bottom: 1px solid #f1f5f9;
+  display: grid;
+  gap: 20px;
+  text-align: center;
+}
+
+/* 단계 표시기 */
+.stepIndicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+}
+
+.step {
+  display: flex;
+  align-items: center;
+}
+
+.stepCircle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 2;
+}
+
+/* 단계별 스타일 */
+.step.pending .stepCircle {
+  background: #f1f5f9;
+  color: #64748b;
+  border: 2px solid #e2e8f0;
+}
+
+.step.active .stepCircle {
+  background: linear-gradient(135deg, var(--tropical-sun) 0%, var(--tropical-coral) 100%);
+  color: white;
+  border: 2px solid var(--tropical-coral);
+  box-shadow: 0 4px 12px rgba(244, 63, 94, 0.3);
+}
+
+.step.completed .stepCircle {
+  background: #10b981;
+  color: white;
+  border: 2px solid #10b981;
+}
+
+.stepNumber {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.checkIcon {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+/* 단계 연결선 */
+.stepLine {
+  width: 60px;
+  height: 2px;
+  background: #e2e8f0;
+  margin: 0 8px;
+  position: relative;
+  z-index: 1;
+  transition: background 0.3s ease;
+}
+
+.step.completed .stepLine {
+  background: #10b981;
+}
+
+/* 제목 섹션 */
+.titleSection {
+  display: grid;
+  gap: 8px;
+}
+
+.title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--ink-900);
+  letter-spacing: -0.5px;
+}
+
+.description {
+  margin: 0;
+  font-size: 16px;
+  color: var(--ink-600);
+  line-height: 1.5;
+}
+
+/* 단계 텍스트 */
+.stepText {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-size: 14px;
+  color: var(--ink-500);
+}
+
+.currentStep {
+  font-weight: 700;
+  color: var(--tropical-coral);
+}
+
+.separator {
+  color: var(--ink-400);
+}
+
+.totalSteps {
+  font-weight: 500;
+}
+
+/* 반응형 조정 */
+@media (max-width: 480px) {
+  .header {
+    padding: 20px;
+    gap: 16px;
+  }
+
+  .stepCircle {
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
+  }
+
+  .stepLine {
+    width: 40px;
+  }
+
+  .title {
+    font-size: 20px;
+  }
+
+  .description {
+    font-size: 14px;
+  }
+}

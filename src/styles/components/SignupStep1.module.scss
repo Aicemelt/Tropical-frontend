@@ -1,0 +1,181 @@
+/* src/styles/components/SignupStep1.module.scss */
+
+.container {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.section {
+  display: grid;
+  gap: 20px;
+}
+
+/* 약관 그룹 */
+.termsGroup {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 20px;
+  background: #fefefe;
+  transition: all 0.2s ease;
+}
+
+.termsGroup:hover {
+  border-color: #d1d5db;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* 그룹 헤더 */
+.groupHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.selectAllLabel {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  flex: 1;
+}
+
+.selectAllCheckbox {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--tropical-coral);
+}
+
+.groupTitle {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink-900);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.selectAllText {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink-600);
+}
+
+/* 배지 */
+.badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: var(--tropical-coral);
+  color: white;
+}
+
+.badge.optional {
+  background: var(--ink-300);
+  color: var(--ink-700);
+}
+
+/* 약관 목록 */
+.termsList {
+  display: grid;
+  gap: 12px;
+}
+
+.termItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 12px;
+  border-radius: 8px;
+  background: #f8fafc;
+  transition: background 0.2s ease;
+}
+
+.termItem:hover {
+  background: #f1f5f9;
+}
+
+.termLabel {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  flex: 1;
+}
+
+.termCheckbox {
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+  accent-color: var(--tropical-coral);
+}
+
+.termTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink-800);
+  line-height: 1.4;
+}
+
+.requiredMark {
+  color: var(--tropical-coral);
+  font-weight: 700;
+  margin-left: 4px;
+}
+
+/* 상세보기 버튼 */
+.detailBtn {
+  all: unset;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--tropical-coral);
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.detailBtn:hover {
+  background: rgba(244, 63, 94, 0.1);
+  text-decoration: underline;
+}
+
+/* 도움말 텍스트 */
+.helpText {
+  background: #fef3cd;
+  border: 1px solid #fbbf24;
+  color: #92400e;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  text-align: center;
+  line-height: 1.4;
+}
+
+/* 반응형 조정 */
+@media (max-width: 480px) {
+  .termsGroup {
+    padding: 16px;
+  }
+
+  .termItem {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .termLabel {
+    width: 100%;
+  }
+
+  .detailBtn {
+    align-self: flex-end;
+  }
+}

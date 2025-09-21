@@ -13,8 +13,7 @@ import {createBrowserRouter} from "react-router-dom";
 import RootLayout from "../layouts/RootLayout.jsx";
 import WelcomePage from '../pages/WelcomePage.jsx';
 import OnboardingPage from '../pages/OnboardingPage.jsx';
-// import LoginPage from "../pages/LoginPage.jsx";
-// import SignupPage from "../pages/SignupPage.jsx";
+import SignupPage from "../pages/SignupPage.jsx";
 import CalendarPage from "../pages/CalendarPage.jsx";
 import TodoPage from "../pages/TodoPage.jsx";
 import BucketPage from "../pages/BucketPage.jsx";
@@ -38,10 +37,10 @@ const router = createBrowserRouter([
             //     path: 'login',
             //     element: <LoginPage/>
             // },
-            // {
-            //     path: 'signup',
-            //     element: <SignupPage/>
-            // },
+            {
+                path: 'signup',
+                element: <SignupPage/>
+            },
             {
                 path: 'onboarding',
                 element: <OnboardingPage/>
