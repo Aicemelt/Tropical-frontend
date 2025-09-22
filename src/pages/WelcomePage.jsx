@@ -1,5 +1,5 @@
-import { useEffect } from "react";
-import { getOAuthStartUrl, API_ENDPOINT } from "../services/api";
+import {useEffect, useRef} from "react";
+import {API_ENDPOINT, getOAuthStartUrl} from "../services/api";
 import styles from "../styles/pages/WelcomePage.module.scss";
 
 // Components
@@ -13,10 +13,66 @@ import KakaoButton from "../components/welcome/KakaoButton";
 import NaverButton from "../components/welcome/NaverButton";
 
 export default function WelcomePage() {
-    // (전역 충돌 없이 풀스크린) - 이전에 안내드린 body.fullscreen 방식
+    const containerRef = useRef(null);
+    const originalRootStyle = useRef({});
+    const originalBodyStyle = useRef({});
+
     useEffect(() => {
-        document.body.classList.add("fullscreen");
-        return () => document.body.classList.remove("fullscreen");
+        const rootElement = document.getElementById('root');
+        const bodyElement = document.body;
+
+        // 원본 스타일 백업
+        if (rootElement) {
+            originalRootStyle.current = {
+                width: rootElement.style.width || '',
+                maxWidth: rootElement.style.maxWidth || '',
+                padding: rootElement.style.padding || '',
+                margin: rootElement.style.margin || '',
+                display: rootElement.style.display || '',
+                flexDirection: rootElement.style.flexDirection || '',
+                gap: rootElement.style.gap || '',
+                position: rootElement.style.position || '',
+            };
+        }
+
+        if (bodyElement) {
+            originalBodyStyle.current = {
+                height: bodyElement.style.height || '',
+                overflow: bodyElement.style.overflow || '',
+                margin: bodyElement.style.margin || '',
+                padding: bodyElement.style.padding || '',
+            };
+        }
+
+        // WelcomePage 전용 스타일 적용
+        if (rootElement) {
+            rootElement.style.width = '100%';
+            rootElement.style.maxWidth = 'none';
+            rootElement.style.padding = '0';
+            rootElement.style.margin = '0';
+            rootElement.style.display = 'block';
+            rootElement.style.flexDirection = 'unset';
+            rootElement.style.gap = 'unset';
+            rootElement.style.position = 'relative';
+        }
+
+        if (bodyElement) {
+            bodyElement.style.height = '100vh';
+            bodyElement.style.overflow = 'hidden';
+            bodyElement.style.margin = '0';
+            bodyElement.style.padding = '0';
+        }
+
+        // 정리 함수 - 컴포넌트 언마운트 시 원본 스타일 복원
+        return () => {
+            if (rootElement && originalRootStyle.current) {
+                Object.assign(rootElement.style, originalRootStyle.current);
+            }
+
+            if (bodyElement && originalBodyStyle.current) {
+                Object.assign(bodyElement.style, originalBodyStyle.current);
+            }
+        };
     }, []);
 
     // Constants
@@ -38,19 +94,19 @@ export default function WelcomePage() {
     };
 
     return (
-        <div className={styles.container}>
+        <div ref={containerRef} className={styles.container}>
             <WelcomeHeader onClickSignUp={goSignup}/>
             <main className={styles.main}>
                 <Logo/>
                 <WelcomeTagline/>
                 <div className={styles.buttonStack}>
-                    <EmailLoginButton onClick={goToLogin} />
-                    <GoogleButton onClick={() => startOAuth("google")} />
-                    <KakaoButton onClick={() => startOAuth("kakao")} />
-                    <NaverButton onClick={() => startOAuth("naver")} />
+                    <EmailLoginButton onClick={goToLogin}/>
+                    <GoogleButton onClick={() => startOAuth("google")}/>
+                    <KakaoButton onClick={() => startOAuth("kakao")}/>
+                    <NaverButton onClick={() => startOAuth("naver")}/>
                 </div>
             </main>
-            <WelcomeFooter apiEndpoint={API_ENDPOINT} />
+            <WelcomeFooter apiEndpoint={API_ENDPOINT}/>
         </div>
     );
 }
