@@ -23,13 +23,16 @@ export default defineConfig({
      */
     plugins: [
         react(),  // React 플러그인: JSX 변환, Fast Refresh(HMR), TypeScript 지원
-        svgr({
-            svgrOptions: {
-                exportType: "named",
-                namedExport: "ReactComponent"
-            },
-            include: "**/*.svg"
-        }),
+        {
+            ...svgr({
+                svgrOptions: {
+                    exportType: 'named',       // 네임드 익스포트
+                    namedExport: 'ReactComponent'
+                },
+                include: '**/*.svg'
+            }),
+            enforce: 'pre'
+        }
     ],
 
     /**
