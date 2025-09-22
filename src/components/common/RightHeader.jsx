@@ -1,22 +1,44 @@
 import React, { useState, useEffect } from 'react';
 import styles from '../../styles/components/Header.module.scss';
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 
 const RightHeader = () => {
-
+    const location = useLocation();
     const [isBlock, setIsBlock] = useState(false);
 
-    // 새로고침 시 헤더 이름을 저장하기 위해 localStorage 사용
-    // 1. 초기값 설정: localStorage에서 값을 불러오거나, 없으면 기본값 "Calender" 사용
+    // 경로에 따른 헤더 이름 매핑
+    const pathToHeaderName = {
+        '/dashboard': 'Calender',
+        '/dashboard/calendar': 'Calender',
+        '/dashboard/todo': 'Todo',
+        '/dashboard/bucket': 'Bucket List'
+    };
+
+    // 초기값 설정: 현재 경로를 우선으로 하고, 없으면 localStorage 값 사용
     const [headerName, setHeaderName] = useState(() => {
+        const currentPath = location.pathname;
+        const headerFromPath = pathToHeaderName[currentPath];
         const savedName = localStorage.getItem('headerName');
-        return savedName ? savedName : "Calender";
+
+        if (headerFromPath) {
+            localStorage.setItem('headerName', headerFromPath);
+            return headerFromPath;
+        }
+        return savedName || "Calender";
     });
 
-    // 2. side effect: headerName이 변경될 때마다 localStorage에 저장
+    // headerName이 변경될 때마다 localStorage에 저장
     useEffect(() => {
         localStorage.setItem('headerName', headerName);
     }, [headerName]);
+
+    // 경로가 변경될 때마다 헤더 이름 동기화
+    useEffect(() => {
+        const headerFromPath = pathToHeaderName[location.pathname];
+        if (headerFromPath && headerFromPath !== headerName) {
+            setHeaderName(headerFromPath);
+        }
+    }, [location.pathname]);
 
     const handleMenu = e => {
         e.preventDefault();
@@ -24,9 +46,19 @@ const RightHeader = () => {
     }
 
     const handleHeaderChange = (name) => {
-        setHeaderName(name); // 헤더 이름 상태 업데이트
-        setIsBlock(false); // 메뉴 닫기
+        setHeaderName(name);
+        setIsBlock(false);
     }
+
+    // 경로가 정확히 일치하는지 확인하는 함수
+    const isPathMatch = (path) => {
+        if (path === '/dashboard') {
+            // dashboard 경로일 때는 정확히 일치할 때만 활성화
+            return location.pathname === '/dashboard';
+        }
+        // 다른 경로들은 그대로 처리
+        return location.pathname === path;
+    };
 
     return (
         <header>
@@ -38,8 +70,8 @@ const RightHeader = () => {
                 <ul>
                     <li>
                         <NavLink
-                            to={'/'}
-                            className={({isActive}) => isActive ? `${styles.navLink} ${styles.on}` : styles.navLink}
+                            to={'/dashboard'}
+                            className={() => isPathMatch('/dashboard') ? `${styles.navLink} ${styles.on}` : styles.navLink}
                             onClick={() => handleHeaderChange('Calender')}
                         >
                             Calender
@@ -47,8 +79,8 @@ const RightHeader = () => {
                     </li>
                     <li>
                         <NavLink
-                            to={'/todo'}
-                            className={({isActive}) => isActive ? `${styles.navLink} ${styles.on}` : styles.navLink}
+                            to={'/dashboard/todo'}
+                            className={() => isPathMatch('/dashboard/todo') ? `${styles.navLink} ${styles.on}` : styles.navLink}
                             onClick={() => handleHeaderChange('Todo')}
                         >
                             Todo
@@ -56,8 +88,8 @@ const RightHeader = () => {
                     </li>
                     <li>
                         <NavLink
-                            to={'/bucket'}
-                            className={({isActive}) => isActive ? `${styles.navLink} ${styles.on}` : styles.navLink}
+                            to={'/dashboard/bucket'}
+                            className={() => isPathMatch('/dashboard/bucket') ? `${styles.navLink} ${styles.on}` : styles.navLink}
                             onClick={() => handleHeaderChange('Bucket List')}
                         >
                             Bucket List

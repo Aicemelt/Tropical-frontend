@@ -1,9 +1,8 @@
 import { useState } from 'react';
 import useTodoStore from "../../store/todoStore.js";
+import { axiosInstance } from "../../services/api.js";
 
-// 테스트용 JWT 토큰
-const TEST_TOKEN ="eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiZW1haWwiOiJwYWNrODQ0N0BnbWFpbC5jb20iLCJ0b2tlblR5cGUiOiJBQ0NFU1MiLCJpYXQiOjE3NTgyMTMyNzUsImV4cCI6MTc1ODIyMjI3NX0.r8_fRsyMmZ86_zIkw7Theqmwza7WMWsw8TqAHevHfh4";
-const API_BASE_URL = "http://localhost:9005/api/v1/todos";
+const API_BASE_URL = "/api/v1/todos";
 
 export const useTodosApi = () => {
     const {
@@ -16,42 +15,23 @@ export const useTodosApi = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
 
+    // axios 기반 API 호출 함수
     const callApi = async (url, method, body = null) => {
         setIsLoading(true);
         setError(null);
         try {
-            const options = {
+            const config = {
                 method,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${TEST_TOKEN}`
-                }
+                url,
+                data: body,
             };
-            if (body) {
-                options.body = JSON.stringify(body);
-            }
-
-            const response = await fetch(url, options);
-
-            if (response.status === 204) {
-                return null; // No Content
-            }
-
-            if (!response.ok) {
-                // HTTP 상태 코드가 401, 403, 404 등일 때
-                const errorData = await response.json().catch(() => ({}));
-                throw new Error(errorData.message || `API 호출 실패: ${response.status} ${response.statusText}`);
-            }
-
-            return await response.json();
+            const response = await axiosInstance(config);
+            return response.data;
         } catch (err) {
             console.error("API 호출 중 오류 발생:", err);
-            setError(err.message);
-            // 오류 발생 시 로딩 상태 해제
-            setIsLoading(false);
-            throw err;
+            setError(err.response?.data?.message || err.message);
+            return null;
         } finally {
-            // 성공 여부와 관계없이 로딩 상태 해제 (중요)
             setIsLoading(false);
         }
     };
@@ -63,13 +43,12 @@ export const useTodosApi = () => {
     };
 
     const getAllTodos = async () => {
-        const todos = await callApi(API_BASE_URL, 'GET');
-        setTodos(todos);
-        return todos;
+        const data = await callApi(API_BASE_URL, 'get');
+        if (data) setTodos(data);
     };
 
     const deleteTodo = async (todoId) => {
-        await callApi(`${API_BASE_URL}/${todoId}`, 'DELETE');
+        await callApi(`${API_BASE_URL}/${todoId}`, 'delete');
         removeTodoFromStore(todoId);
     };
 
