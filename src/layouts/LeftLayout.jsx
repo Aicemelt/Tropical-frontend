@@ -11,15 +11,14 @@ const LeftLayout = () => {
     const nickname = useAuthStore(state => state.user?.nickname);
 
     useEffect(() => {
+        // 페이지 열리자마자 한번 실행
         fetchSmalltalk();
-        const intervalId = setInterval(() => {
-            try {
-                fetchSmalltalk();
-                console.log("새로운 주제 로드!");
-                console.log(smallTalkData)
-            } catch (e) {
-                console.error("fetch 실패:", e);
-            }}, 180000);
+
+        const intervalId = setInterval(async () => {
+            const latestData = await fetchSmalltalk(); // fetch 후 최신 DB 데이터 받음
+            console.log("새로운 주제 로드!", latestData);
+        }, 60000); // 테스트용
+
         return () => clearInterval(intervalId);
     }, [fetchSmalltalk]);
 

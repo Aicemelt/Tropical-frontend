@@ -11,22 +11,17 @@ export const useSmalltalk = () => {
                 const data = res.data.data.topics || [];
                 setSmallTalkData(data);
                 console.log("Fetched smallTalkData:", data); // 최신 값 확인
+                return data; // 최신 데이터 반환
             } else {
                 console.warn('API 호출 실패 메시지:', res.data.message);
+                return [];
             }
         } catch (err) {
-            if (err.response) {
-                const { status, data } = err.response;
-                if (status === 401) {
-                    console.warn('로그인 필요:', data?.message);
-                } else {
-                    console.error('서버 에러:', status, data?.message);
-                }
-            } else {
-                console.error('네트워크 에러 또는 요청 실패', err);
-            }
+            console.error('fetch 실패:', err);
+            return [];
         }
     }, []);
+
 
     return { smallTalkData, fetchSmalltalk };
 };
