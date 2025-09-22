@@ -71,9 +71,42 @@ export const scheduleApi = {
     }
 
     console.log('📅 일정 생성 API 호출:', apiData);
-    const response = await apiMethods.post('/schedules', apiData);
-    console.log('📅 일정 생성 응답:', response.data);
-    return response.data;
+
+    try {
+      const response = await apiMethods.post('/schedules', apiData);
+      console.log('📅 일정 생성 응답:', response.data);
+
+      // 생성 성공 시 해당 월의 캐시에 추가
+      const scheduleDate = new Date(apiData.scheduleDate);
+      const year = scheduleDate.getFullYear();
+      const month = scheduleDate.getMonth() + 1;
+      const cacheKey = `schedules_${year}_${month}`;
+
+      try {
+        const cachedData = localStorage.getItem(cacheKey);
+        let existingSchedules = [];
+        if (cachedData) {
+          existingSchedules = JSON.parse(cachedData);
+        }
+
+        // 새 일정을 캐시에 추가
+        const newScheduleForCache = {
+          ...response.data,
+          scheduleDate: apiData.scheduleDate
+        };
+        existingSchedules.push(newScheduleForCache);
+
+        localStorage.setItem(cacheKey, JSON.stringify(existingSchedules));
+        console.log('✅ 새 일정이 캐시에 저장됨');
+      } catch (cacheError) {
+        console.warn('캐시 저장 실패:', cacheError);
+      }
+
+      return response.data;
+    } catch (error) {
+      console.error('📅 일정 생성 실패:', error);
+      throw error;
+    }
   },
 
   /**
@@ -126,9 +159,41 @@ export const scheduleApi = {
     }
 
     console.log('📅 일정 수정 API 호출:', scheduleId, apiData);
-    const response = await apiMethods.put(`/schedules/${scheduleId}`, apiData);
-    console.log('📅 일정 수정 응답:', response.data);
-    return response.data;
+
+    try {
+      const response = await apiMethods.put(`/schedules/${scheduleId}`, apiData);
+      console.log('📅 일정 수정 응답:', response.data);
+
+      // 수정 성공 시 해당 월의 캐시도 업데이트
+      const scheduleDate = new Date(apiData.scheduleDate);
+      const year = scheduleDate.getFullYear();
+      const month = scheduleDate.getMonth() + 1;
+      const cacheKey = `schedules_${year}_${month}`;
+
+      try {
+        const cachedData = localStorage.getItem(cacheKey);
+        if (cachedData) {
+          let existingSchedules = JSON.parse(cachedData);
+
+          // 기존 일정을 수정된 일정으로 교체
+          existingSchedules = existingSchedules.map(schedule =>
+            schedule.scheduleId === scheduleId
+              ? { ...response.data, scheduleDate: apiData.scheduleDate }
+              : schedule
+          );
+
+          localStorage.setItem(cacheKey, JSON.stringify(existingSchedules));
+          console.log('✅ 수정된 일정이 캐시에 반영됨');
+        }
+      } catch (cacheError) {
+        console.warn('캐시 업데이트 실패:', cacheError);
+      }
+
+      return response.data;
+    } catch (error) {
+      console.error('📅 일정 수정 실패:', error);
+      throw error;
+    }
   },
 
   /**
@@ -143,9 +208,38 @@ export const scheduleApi = {
    */
   delete: async (scheduleId) => {
     console.log('📅 일정 삭제 API 호출:', scheduleId);
-    const response = await apiMethods.delete(`/schedules/${scheduleId}`);
-    console.log('📅 일정 삭제 응답:', response.data);
-    return response.data;
+
+    try {
+      const response = await apiMethods.delete(`/schedules/${scheduleId}`);
+      console.log('📅 일정 삭제 응답:', response.data);
+
+      // 삭제 성공 시 모든 월의 캐시에서 해당 일정 제거
+      try {
+        const currentYear = new Date().getFullYear();
+        for (let month = 1; month <= 12; month++) {
+          const cacheKey = `schedules_${currentYear}_${month}`;
+          const cachedData = localStorage.getItem(cacheKey);
+          if (cachedData) {
+            let existingSchedules = JSON.parse(cachedData);
+            const filteredSchedules = existingSchedules.filter(schedule =>
+              schedule.scheduleId !== scheduleId
+            );
+
+            if (filteredSchedules.length !== existingSchedules.length) {
+              localStorage.setItem(cacheKey, JSON.stringify(filteredSchedules));
+              console.log(`✅ ${month}월 캐시에서 삭제된 일정 제거됨`);
+            }
+          }
+        }
+      } catch (cacheError) {
+        console.warn('캐시에서 삭제 실패:', cacheError);
+      }
+
+      return response.data;
+    } catch (error) {
+      console.error('📅 일정 삭제 실패:', error);
+      throw error;
+    }
   },
 
   /**
@@ -182,9 +276,91 @@ export const scheduleApi = {
    */
   getByMonth: async (year, month) => {
     console.log('📅 월별 일정 조회 API 호출:', year, month);
-    const response = await apiMethods.get(`/calendar?year=${year}&month=${month}`);
-    console.log('📅 월별 일정 조회 응답:', response.data);
-    return response.data.schedules || [];
+
+    const cacheKey = `schedules_${year}_${month}`;
+
+    try {
+      // 첫 번째 시도: 새로 추가된 월별 API 사용
+      console.log('📅 시도 1/3: /schedules/month/{year}/{month} 엔드포인트');
+      const response = await apiMethods.get(`/schedules/month/${year}/${month}`);
+      console.log('✅ 월별 API 성공:', response.data);
+      const schedules = response.data || [];
+
+      // 성공 시 로컬 스토리지에 캐시
+      localStorage.setItem(cacheKey, JSON.stringify(schedules));
+      return schedules;
+    } catch (error) {
+      console.warn('❌ 월별 API 실패 (상태:', error.response?.status, '), 전체 조회로 재시도');
+
+      try {
+        // 두 번째 시도: 전체 일정 조회 후 클라이언트에서 필터링
+        console.log('📅 시도 2/3: /schedules 전체 조회 후 필터링');
+        const response = await apiMethods.get('/schedules');
+        console.log('✅ 전체 조회 성공:', response.data);
+        const allSchedules = response.data || [];
+
+        // 클라이언트에서 월별 필터링
+        const filteredSchedules = allSchedules.filter(schedule => {
+          const scheduleDate = schedule.scheduleDate || schedule.date || schedule.startDate;
+          if (!scheduleDate) return false;
+
+          const date = new Date(scheduleDate);
+          return date.getFullYear() === year && (date.getMonth() + 1) === month;
+        });
+
+        console.log(`✅ 클라이언트 필터링 완료: ${filteredSchedules.length}개 일정`);
+
+        // 성공 시 로컬 스토리지에 캐시
+        localStorage.setItem(cacheKey, JSON.stringify(filteredSchedules));
+        return filteredSchedules;
+      } catch (secondError) {
+        console.warn('❌ 전체 조회도 실패 (상태:', secondError.response?.status, '), 로컬 캐시 확인');
+
+        // 세 번째 시도: 로컬 스토리지에서 캐시된 데이터 사용
+        try {
+          console.log('📅 시도 3/3: 로컬 스토리지 캐시 사용');
+          const cachedData = localStorage.getItem(cacheKey);
+          if (cachedData) {
+            const cachedSchedules = JSON.parse(cachedData);
+            console.log(`✅ 캐시에서 복원: ${cachedSchedules.length}개 일정 (오프라인 모드)`);
+            return cachedSchedules;
+          } else {
+            console.log('📦 캐시 데이터 없음');
+          }
+        } catch (cacheError) {
+          console.warn('❌ 캐시 읽기 실패:', cacheError);
+        }
+
+        // 모든 방법이 실패한 경우
+        console.error('❌ 모든 일정 조회 방법 실패');
+
+        // 개발 모드에서는 더미 데이터 반환
+        if (import.meta.env.DEV) {
+          console.log('🧪 개발 모드: 더미 데이터 반환');
+          const today = new Date();
+          const dummySchedules = [
+            {
+              scheduleId: 999,
+              title: '[개발모드] API 연결 테스트',
+              scheduleDate: `${year}-${month.toString().padStart(2, '0')}-21`,
+              startTime: '10:00',
+              endTime: '11:00',
+              memo: 'GET /schedules/month API 연결 테스트용 더미 데이터',
+              location: '개발 환경',
+              attendees: '',
+              isAllDay: false,
+              isCompleted: false
+            }
+          ];
+
+          // 더미 데이터도 캐시에 저장
+          localStorage.setItem(cacheKey, JSON.stringify(dummySchedules));
+          return dummySchedules;
+        }
+
+        return [];
+      }
+    }
   },
 
   /**

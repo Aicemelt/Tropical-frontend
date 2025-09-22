@@ -26,18 +26,10 @@ import { EMOTIONS, WEATHER } from '../../services/diaryApi.js';
  *
  * @param {Object} props - 컴포넌트 props
  * @param {Object} props.diary - 일기 객체
- * @param {string} props.diary.id - 일기 ID
- * @param {string} props.diary.title - 일기 제목
- * @param {string} props.diary.content - 일기 내용
- * @param {string} props.diary.emotion - 감정 (JOY, SADNESS, ANGER, ANXIETY, CALM)
- * @param {string} props.diary.weather - 날씨 (SUNNY, CLOUDY, RAINY, SNOWY, WINDY)
- * @param {string} props.diary.date - 작성 날짜
- * @param {string} props.diary.createdAt - 생성 시간
  * @param {Function} [props.onClick] - 일기 클릭 콜백
  * @param {'sidebar'|'modal'|'standalone'} [props.displayMode='standalone'] - 표시 모드
  * @param {boolean} [props.isExpanded=false] - 확장 상태
  * @param {Function} [props.onToggleExpand] - 확장 토글 콜백
- * @param {string} [props.selectedDate] - 선택된 날짜
  *
  * @returns {JSX.Element} DiaryItem 컴포넌트
  *
@@ -57,8 +49,7 @@ const DiaryItem = ({
   onClick,
   displayMode = 'standalone',
   isExpanded = false,
-  onToggleExpand,
-  selectedDate
+  onToggleExpand
 }) => {
   // ================================
   // 커스텀 훅 사용
@@ -129,7 +120,7 @@ const DiaryItem = ({
       const month = date.getMonth() + 1;
       const day = date.getDate();
       return `${month}월 ${day}일`;
-    } catch (error) {
+    } catch {
       return '';
     }
   }, [diary?.date, diary?.createdAt]);
@@ -217,8 +208,8 @@ const DiaryItem = ({
     } else if (onToggleExpand) {
       onToggleExpand();
     } else {
-      // 기본 동작: 상세보기 모달 열기
-      openModal('diary', 'view', diary);
+      // 기본 동작: 수정 모달 열기
+      openModal('diary', 'edit', diary);
     }
   }, [diary, onClick, onToggleExpand, openModal, showDeleteConfirm]);
 
@@ -464,10 +455,7 @@ DiaryItem.propTypes = {
   isExpanded: PropTypes.bool,
 
   /** 확장 토글 콜백 */
-  onToggleExpand: PropTypes.func,
-
-  /** 선택된 날짜 */
-  selectedDate: PropTypes.string
+  onToggleExpand: PropTypes.func
 };
 
 DiaryItem.defaultProps = {
@@ -475,8 +463,7 @@ DiaryItem.defaultProps = {
   onClick: null,
   displayMode: 'standalone',
   isExpanded: false,
-  onToggleExpand: null,
-  selectedDate: null
+  onToggleExpand: null
 };
 
 export default DiaryItem;

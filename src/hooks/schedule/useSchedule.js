@@ -260,23 +260,69 @@ export const useSchedule = () => {
   }, [withLoading, selectedSchedule]);
 
   /**
-   * @description 월별 일정 조회 함수 (캘린더용)
+   * 월별 일정 조회 함수 (로컬 캐시 기반)
    * @author 신동준
    * @since 2025-09-17
-   * @param {number} year - 조회할 연도 (예: 2025)
+   * @version 1.3.0 - 2025-09-21 백엔드 월별 API 없음, 로컬 캐시 기반으로 변경
+   * @param {number} year - 조회할 년도
    * @param {number} month - 조회할 월 (1-12)
-   * @returns {Promise<Array<Object>>} 해당 월의 일정 배열
-   * @throws {Error} API 호출 실패 시
+   * @returns {Promise<Array<Object>>} 월별 일정 배열
    * @example
    * const schedules = await fetchSchedulesByMonth(2025, 9);
    */
   const fetchSchedulesByMonth = useCallback(async (year, month) => {
-    return withLoading(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      console.log(`📥 일정 조회 시작: ${year}년 ${month}월 (로컬 캐시 기반)`);
+
       const monthSchedules = await scheduleApi.getByMonth(year, month);
-      setSchedules(monthSchedules);
-      return monthSchedules;
-    });
-  }, [withLoading]);
+
+      if (Array.isArray(monthSchedules)) {
+        setSchedules(monthSchedules);
+        console.log(`✅ 일정 조회 성공: ${monthSchedules.length}개`);
+      } else {
+        console.warn('⚠️ 응답이 배열이 아닙니다:', monthSchedules);
+        setSchedules([]);
+      }
+
+      return monthSchedules || [];
+    } catch (err) {
+      console.error('❌ 월별 일정 조회 실패:', err);
+
+      // 백엔드 API 없음을 사용자에게 알림
+      let errorMessage = '월별 일정 조회 기능이 아직 구현되지 않았습니다.';
+
+      if (err.response?.status === 405) {
+        errorMessage = '백엔드에 월별 조회 API가 구현되지 않았습니다. 개발 모드로 사용하세요.';
+      } else if (err.response?.status === 500) {
+        errorMessage = '서버에 일시적인 문제가 발생했습니다.';
+      } else if (err.message?.includes('Network') || err.code === 'NETWORK_ERROR') {
+        errorMessage = '네트워크 연결을 확인해주세요.';
+      }
+
+      setError(errorMessage);
+
+      // 에러 발생 시에도 더미 데이터 로드 (개발 모드)
+      if (import.meta.env.DEV) {
+        console.log('🧪 개발 모드: 에러 발생해도 더미 데이터 로드');
+        try {
+          const fallbackSchedules = await scheduleApi.getByMonth(year, month);
+          setSchedules(fallbackSchedules);
+          console.log(`📦 더미 데이터 로드 완료: ${fallbackSchedules.length}개`);
+          return fallbackSchedules;
+        } catch (fallbackError) {
+          console.warn('더미 데이터 로드도 실패:', fallbackError);
+        }
+      }
+
+      setSchedules([]);
+      return [];
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   /**
    * @description 특정 날짜 일정 조회 함수

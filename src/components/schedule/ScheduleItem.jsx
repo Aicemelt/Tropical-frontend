@@ -23,18 +23,8 @@ import { useModalStore } from "../../store/useModalStore.js";
  *
  * @param {Object} props - 컴포넌트 props
  * @param {Object} props.schedule - 일정 객체
- * @param {string} props.schedule.id - 일정 ID
- * @param {string} props.schedule.title - 일정 제목
- * @param {string} props.schedule.startTime - 시작 시간 (HH:mm 형식)
- * @param {string} props.schedule.endTime - 종료 시간 (HH:mm 형식)
- * @param {boolean} [props.schedule.isCompleted=false] - 완료 상태
- * @param {boolean} [props.schedule.isAllDay=false] - 종일 일정 여부
- * @param {string} [props.schedule.memo] - 메모
- * @param {string} [props.schedule.location] - 장소
- * @param {string} [props.schedule.participants] - 참여자
  * @param {Function} [props.onClick] - 일정 클릭 콜백
  * @param {'sidebar'|'modal'|'standalone'} [props.displayMode='standalone'] - 표시 모드
- * @param {string} [props.selectedDate] - 선택된 날짜
  *
  * @returns {JSX.Element} ScheduleItem 컴포넌트
  *
@@ -51,8 +41,7 @@ import { useModalStore } from "../../store/useModalStore.js";
 const ScheduleItem = ({
   schedule,
   onClick,
-  displayMode = 'standalone',
-  selectedDate
+  displayMode = 'standalone'
 }) => {
   // ================================
   // 커스텀 훅 사용
@@ -117,6 +106,37 @@ const ScheduleItem = ({
 
     return startTime;
   }, [schedule?.startTime, schedule?.endTime, schedule?.isAllDay]);
+
+  /**
+   * @description 날짜 정보 포맷팅
+   * @returns {string} 포맷팅된 날짜 문자열
+   */
+  const formattedDate = useMemo(() => {
+    if (!schedule?.startDate) return '';
+
+    try {
+      const formatDate = (dateStr) => {
+        const date = new Date(dateStr);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      };
+
+      const startDate = formatDate(schedule.startDate);
+
+      // 종일 일정이 아니고 종료일이 있고 시작일과 다른 경우
+      if (!schedule.isAllDay && schedule.endDate && schedule.endDate !== schedule.startDate) {
+        const endDate = formatDate(schedule.endDate);
+        return `${startDate}~${endDate}`;
+      }
+
+      // 종일 일정이거나 같은 날이거나 종료일이 없는 경우
+      return startDate;
+    } catch {
+      return '';
+    }
+  }, [schedule?.startDate, schedule?.endDate, schedule?.isAllDay]);
 
   /**
    * @description 메모 미리보기 (50자 제한)
@@ -218,8 +238,8 @@ const ScheduleItem = ({
     if (onClick) {
       onClick(schedule);
     } else {
-      // 기본 동작: 상세보기 모달 열기
-      openModal('schedule', 'view', schedule);
+      // 기본 동작: 수정 모달 열기
+      openModal('schedule', 'edit', schedule);
     }
   }, [schedule, onClick, openModal, showDeleteConfirm]);
 
@@ -318,22 +338,22 @@ const ScheduleItem = ({
    * @returns {JSX.Element|null} 메타 정보
    */
   const renderMeta = () => {
-    if (displayMode === 'sidebar' && (schedule?.location || schedule?.participants || previewMemo)) {
+    if (schedule?.location || schedule?.participants || previewMemo) {
       return (
         <div className={styles.meta}>
           {schedule.location && (
             <span className={styles.metaItem}>
-              📍 {schedule.location}
+              장소: {schedule.location}
             </span>
           )}
           {schedule.participants && (
             <span className={styles.metaItem}>
-              👥 {schedule.participants}
+              참여자: {schedule.participants}
             </span>
           )}
           {previewMemo && (
             <p className={styles.metaMemo}>
-              {previewMemo}
+              메모: {previewMemo}
             </p>
           )}
         </div>
@@ -373,9 +393,16 @@ const ScheduleItem = ({
 
         <div className={styles.content}>
           <div className={styles.header}>
-            <span className={styles.time}>
-              {formattedTime}
-            </span>
+            <div className={styles.dateTimeInfo}>
+              {formattedDate && (
+                <span className={styles.date}>
+                  날짜: {formattedDate}
+                </span>
+              )}
+              <span className={styles.time}>
+                시간: {formattedTime}
+              </span>
+            </div>
             <h4 className={styles.title}>
               {schedule.title || '제목 없음'}
             </h4>
@@ -420,17 +447,13 @@ ScheduleItem.propTypes = {
   onClick: PropTypes.func,
 
   /** 표시 모드 */
-  displayMode: PropTypes.oneOf(['sidebar', 'modal', 'standalone']),
-
-  /** 선택된 날짜 */
-  selectedDate: PropTypes.string
+  displayMode: PropTypes.oneOf(['sidebar', 'modal', 'standalone'])
 };
 
 ScheduleItem.defaultProps = {
   schedule: null,
   onClick: null,
-  displayMode: 'standalone',
-  selectedDate: null
+  displayMode: 'standalone'
 };
 
 export default ScheduleItem;

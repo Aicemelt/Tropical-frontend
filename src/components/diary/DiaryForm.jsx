@@ -112,14 +112,34 @@ const DiaryForm = ({
    * @description 초기 데이터 설정
    */
   useEffect(() => {
+    console.log('📖 DiaryForm 초기 데이터 설정:', { mode, initialData, selectedDate });
+
     if (mode === 'edit' && initialData) {
+      // ID 확인 및 로깅
+      const diaryId = initialData.id || initialData.diaryId || initialData.diary_id;
+      console.log('📖 일기 ID 확인:', {
+        id: initialData.id,
+        diaryId: initialData.diaryId,
+        diary_id: initialData.diary_id,
+        finalId: diaryId,
+        fullInitialData: initialData
+      });
+
       setFormData({
+        id: diaryId, // ID를 formData에 포함
         title: initialData.title || '',
         content: initialData.content || '',
         emotion: initialData.emotion || '',
         weather: initialData.weather || '',
-        date: initialData.date || selectedDate || new Date().toISOString().split('T')[0]
+        date: initialData.date || initialData.diaryDate || selectedDate || new Date().toISOString().split('T')[0]
       });
+
+      setExistingDiary(initialData);
+    } else if (mode === 'create' && selectedDate) {
+      setFormData(prev => ({
+        ...prev,
+        date: selectedDate
+      }));
     }
   }, [mode, initialData, selectedDate]);
 
@@ -297,16 +317,36 @@ const DiaryForm = ({
         title: formData.title.trim() || `${formData.date} 일기`
       };
 
-      console.log('📔 일기 저장 시도:', diaryData);
+      console.log('📔 일기 저장 시도:', { mode, diaryData, initialData });
 
-      if (mode === 'edit' && initialData?.id) {
-        await updateDiary(initialData.id, diaryData);
+      let result;
+      if (mode === 'edit') {
+        // ID 확인 및 전달
+        const diaryId = formData.id || initialData?.id || initialData?.diaryId || initialData?.diary_id;
+        console.log('📔 일기 수정 - ID 확인:', diaryId);
+
+        if (!diaryId) {
+          throw new Error('일기 ID가 없어서 수정할 수 없습니다.');
+        }
+
+        // ID를 diaryData에 포함해서 전달
+        const updateData = {
+          ...diaryData,
+          id: diaryId,
+          diaryId: diaryId
+        };
+
+        console.log('📔 일기 수정 데이터:', updateData);
+        result = await updateDiary(diaryId, updateData);
       } else {
-        await createDiary(diaryData);
+        console.log('📔 일기 생성 데이터:', diaryData);
+        result = await createDiary(diaryData);
       }
 
+      console.log('📔 일기 저장 성공:', result);
+
       if (onSuccess) {
-        onSuccess(diaryData);
+        onSuccess(result || diaryData);
       }
 
       onClose();
@@ -327,6 +367,8 @@ const DiaryForm = ({
         errorMessage = '네트워크 연결을 확인해주세요.';
       } else if (apiError.message) {
         errorMessage = apiError.message;
+      } else if (error.message) {
+        errorMessage = error.message;
       }
 
       if (onError) {

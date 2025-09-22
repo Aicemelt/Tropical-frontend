@@ -217,33 +217,76 @@ export const deleteDiary = async (diaryId) => {
  * @returns {Promise<Array>} 월별 일기 목록
  */
 export const getDiariesByMonth = async (year, month) => {
+  const cacheKey = `diaries_${year}_${month}`;
+
   try {
+    console.log('📖 월별 일기 조회 API 호출:', year, month);
     const response = await apiMethods.get(DIARY_ENDPOINTS.BY_MONTH(year, month));
-    return response.data || [];
+    console.log('✅ 월별 일기 조회 성공:', response.data);
+    const diaries = response.data || [];
+
+    // 성공 시 로컬 스토리지에 캐시
+    localStorage.setItem(cacheKey, JSON.stringify(diaries));
+    return diaries;
   } catch (error) {
-    console.error('[Diary API] 월별 일기 조회 실패:', error);
-    throw error;
+    console.warn('❌ 월별 일기 API 실패, 전체 조회 시도:', error.response?.status);
+
+    try {
+      // 전체 일기 조회 후 클라이언트에서 필터링
+      const response = await apiMethods.get(DIARY_ENDPOINTS.BASE);
+      const allDiaries = response.data || [];
+
+      // 클라이언트에서 월별 필터링
+      const filteredDiaries = allDiaries.filter(diary => {
+        const diaryDate = diary.diaryDate || diary.date;
+        if (!diaryDate) return false;
+
+        const date = new Date(diaryDate);
+        return date.getFullYear() === year && (date.getMonth() + 1) === month;
+      });
+
+      console.log(`✅ 일기 클라이언트 필터링 완료: ${filteredDiaries.length}개`);
+      localStorage.setItem(cacheKey, JSON.stringify(filteredDiaries));
+      return filteredDiaries;
+    } catch (secondError) {
+      console.warn('❌ 전체 일기 조회도 실패, 캐시 확인:', secondError.response?.status);
+
+      // 로컬 캐시 사용
+      try {
+        const cachedData = localStorage.getItem(cacheKey);
+        if (cachedData) {
+          const cachedDiaries = JSON.parse(cachedData);
+          console.log(`✅ 일기 캐시에서 복원: ${cachedDiaries.length}개`);
+          return cachedDiaries;
+        }
+      } catch (cacheError) {
+        console.warn('❌ 일기 캐시 읽기 실패:', cacheError);
+      }
+
+      return [];
+    }
   }
 };
 
 /**
  * @description 특정 날짜의 일기 조회
  * @author 신동준
- * @since 2025-09-18
- *
- * @param {string} date - 날짜 (YYYY-MM-DD 형식)
- * @returns {Promise<Object|null>} 해당 날짜의 일기 (없으면 null)
+ * @since 2025-09-21
+ * @param {string} date - 조회할 날짜 (YYYY-MM-DD)
+ * @returns {Promise<Object|null>} 해당 날짜의 일기 또는 null
  */
 export const getDiaryByDate = async (date) => {
   try {
+    console.log('📖 날짜별 일기 조회 API 호출:', date);
     const response = await apiMethods.get(DIARY_ENDPOINTS.BY_DATE(date));
+    console.log('✅ 날짜별 일기 조회 성공:', response.data);
     return response.data;
   } catch (error) {
     if (error.response?.status === 404) {
-      // 해당 날짜에 일기가 없는 경우
+      console.log('📖 해당 날짜에 일기 없음');
       return null;
     }
-    console.error('[Diary API] 날짜별 일기 조회 실패:', error);
+    console.error('❌ 날짜별 일기 조회 실패:', error);
     throw error;
   }
 };
