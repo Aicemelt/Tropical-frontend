@@ -36,6 +36,15 @@ export default function OnboardingPage() {
         }
     }, [nextStep]);
 
+
+    // 페이지 마운트 시에만 전역 레이아웃 무력화
+    useEffect(() => {
+        document.body.classList.add('onboarding', 'fullscreen');
+        return () => {
+            document.body.classList.remove('onboarding', 'fullscreen');
+        };
+    }, []);
+
     // 페이지 상태
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);

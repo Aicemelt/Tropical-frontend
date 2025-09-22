@@ -1,7 +1,8 @@
-// src/pages/WelcomePage.jsx
-import {useEffect} from "react";
+import { useEffect } from "react";
+import { getOAuthStartUrl, API_ENDPOINT } from "../services/api";
 import styles from "../styles/pages/WelcomePage.module.scss";
 
+// Components
 import WelcomeHeader from "../components/welcome/WelcomeHeader";
 import WelcomeFooter from "../components/welcome/WelcomeFooter";
 import Logo from "../components/welcome/Logo";
@@ -10,7 +11,6 @@ import EmailLoginButton from "../components/welcome/EmailLoginButton";
 import GoogleButton from "../components/welcome/GoogleButton";
 import KakaoButton from "../components/welcome/KakaoButton";
 import NaverButton from "../components/welcome/NaverButton";
-import {getOAuthStartUrl} from "../services/api";
 
 export default function WelcomePage() {
     // (전역 충돌 없이 풀스크린) - 이전에 안내드린 body.fullscreen 방식
@@ -19,10 +19,21 @@ export default function WelcomePage() {
         return () => document.body.classList.remove("fullscreen");
     }, []);
 
-    const goSignup = () => (window.location.href = "/signup");
+    // Constants
+    const DEFAULT_CALLBACK_PATH = "/onboarding";
+
+    // Navigation handlers
+    const goSignup = () => {
+        window.location.href = "/signup";
+    };
+
+    const goToLogin = () => {
+        window.location.href = "/login";
+    };
+
     const startOAuth = (provider) => {
-        const callback = import.meta.env.VITE_OAUTH_CALLBACK || "/onboarding";
-        const url = getOAuthStartUrl(provider, callback);
+        const callbackPath = ""; // Use empty string to default to API's callback path
+        const url = getOAuthStartUrl(provider, callbackPath);
         window.location.assign(url);
     };
 
@@ -33,13 +44,13 @@ export default function WelcomePage() {
                 <Logo/>
                 <WelcomeTagline/>
                 <div className={styles.buttonStack}>
-                    <EmailLoginButton onClick={() => (window.location.href = "/login")}/>
-                    <GoogleButton onClick={() => startOAuth("google")}/>
-                    <KakaoButton onClick={() => startOAuth("kakao")}/>
-                    <NaverButton onClick={() => startOAuth("naver")}/>
+                    <EmailLoginButton onClick={goToLogin} />
+                    <GoogleButton onClick={() => startOAuth("google")} />
+                    <KakaoButton onClick={() => startOAuth("kakao")} />
+                    <NaverButton onClick={() => startOAuth("naver")} />
                 </div>
             </main>
-            <WelcomeFooter/>
+            <WelcomeFooter apiEndpoint={API_ENDPOINT} />
         </div>
     );
 }
