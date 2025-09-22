@@ -10,10 +10,11 @@ const {logo, title, userName, desc, leftHeader} = styles;
 const LeftHeader = ({name}) => {
     const nav= useNavigate();
     const logoutHandler = async (e) => {
-        useAuthStore.setState({ user: null, isLoggedIn: false });
-        confirm("로그아웃 하시겠습니까?");
-        await logout();
-        nav('/');
+        if(confirm("로그아웃 하시겠습니까?")) {
+            useAuthStore.setState({ user: null, isLoggedIn: false });
+            await logout();
+            nav('/');
+        }
     }
     return (
         <header className={leftHeader}>

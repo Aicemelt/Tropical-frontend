@@ -19,7 +19,7 @@ const LeftLayout = () => {
                 console.log(smallTalkData)
             } catch (e) {
                 console.error("fetch 실패:", e);
-            }}, 60000);
+            }}, 180000);
         return () => clearInterval(intervalId);
     }, [fetchSmalltalk]);
 

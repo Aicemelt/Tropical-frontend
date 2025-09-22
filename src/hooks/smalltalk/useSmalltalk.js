@@ -10,6 +10,7 @@ export const useSmalltalk = () => {
             if (res.data.success) {
                 const data = res.data.data.topics || [];
                 setSmallTalkData(data);
+                console.log("Fetched smallTalkData:", data); // 최신 값 확인
             } else {
                 console.warn('API 호출 실패 메시지:', res.data.message);
             }
