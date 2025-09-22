@@ -20,7 +20,7 @@ const LeftLayout = () => {
         }, 60000); // 테스트용
 
         return () => clearInterval(intervalId);
-    }, [fetchSmalltalk]);
+    }, [fetchSmalltalk])
 
     return (
         <div className={leftLayout}>
