@@ -1,0 +1,44 @@
+@use '../global';
+
+.section {
+  display: grid;
+  gap: 12px;
+  justify-items: center;
+}
+
+.error {
+  width: 100%;
+  max-width: 720px;
+  background: #fff7ed;
+  border: 1px solid #fdba74;
+  color: #9a3412;
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 14px;
+}
+
+.submitBtn {
+  all: unset;
+  cursor: pointer;
+  height: 48px;
+  padding: 0 18px;
+  border-radius: 12px;
+  background: var(--tropical-sun);
+  color: #1f2937;
+  font-weight: 800;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, .08);
+  transition: transform .08s ease, box-shadow .2s ease;
+}
+
+.submitBtn:hover {
+  box-shadow: 0 8px 26px rgba(0, 0, 0, .10);
+}
+
+.submitBtn:active {
+  transform: translateY(1px);
+}
+
+.submitBtn:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+}

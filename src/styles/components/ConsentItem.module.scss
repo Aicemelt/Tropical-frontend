@@ -1,0 +1,53 @@
+@use '../global';
+
+.item {
+  display: grid;
+  grid-template-columns: 20px 1fr;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.checkbox {
+  width: 18px;
+  height: 18px;
+  margin-top: 4px;
+}
+
+.body {
+  display: grid;
+  gap: 6px;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.titleText {
+  font-weight: 700;
+}
+
+.required {
+  color: var(--tropical-coral);
+  font-weight: 800;
+  margin-left: 4px;
+}
+
+.version {
+  color: var(--ink-500);
+  font-size: 12px;
+}
+
+.detailBtn {
+  all: unset;
+  cursor: pointer;
+  display: inline-flex;
+  color: var(--tropical-ocean);
+  font-weight: 700;
+}
+
+.detailBtn:hover {
+  text-decoration: underline;
+}
