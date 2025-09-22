@@ -24,7 +24,7 @@
 
 .progressFill {
   height: 100%;
-  background: linear-gradient(90deg, #fbbf24 0%, #f43f5e 100%); /* 하드코딩된 색상 */
+  background: linear-gradient(90deg, #f4a261 0%, #e76f51 100%);
   border-radius: 4px;
   transition: width 0.3s ease;
 }
@@ -90,14 +90,14 @@
 }
 
 .nextBtn.enabled {
-  background: linear-gradient(135deg, #fbbf24 0%, #f43f5e 100%) !important; /* 하드코딩 + !important */
+  background: linear-gradient(135deg, #f4a261 0%, #e76f51 100%) !important;
   color: white !important;
-  box-shadow: 0 4px 12px rgba(244, 63, 94, 0.3) !important;
+  box-shadow: 0 4px 12px rgba(231, 111, 81, 0.3) !important;
 }
 
 .nextBtn.enabled:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(244, 63, 94, 0.4);
+  box-shadow: 0 8px 20px rgba(231, 111, 81, 0.4);
 }
 
 .nextBtn.disabled {
@@ -114,14 +114,14 @@
 }
 
 .submitBtn.enabled {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important; /* 하드코딩 + !important */
+  background: linear-gradient(135deg, #52b788 0%, #40916c 100%) !important;
   color: white !important;
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3) !important;
+  box-shadow: 0 4px 12px rgba(82, 183, 136, 0.3) !important;
 }
 
 .submitBtn.enabled:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+  box-shadow: 0 8px 20px rgba(82, 183, 136, 0.4);
 }
 
 .submitBtn.disabled {

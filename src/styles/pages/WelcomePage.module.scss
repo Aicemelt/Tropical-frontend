@@ -1,4 +1,5 @@
-/* WelcomePage.module.scss */
+/* WelcomePage.module.scss - 배경 색상 옵션들 */
+
 .container {
   /* 기존 스타일 유지 */
   min-height: 100vh;
@@ -6,14 +7,27 @@
   display: grid;
   grid-template-rows: 64px 1fr 56px;
   overflow: hidden;
-
-  /* 전체 화면 강제 적용 */
-  position: fixed; /* ✅ global #root 설정 무시 */
+  position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
   z-index: 1000;
+
+  /* 트로피컬 배경 옵션 1: 오렌지-핑크 그라데이션 */
+  //background: linear-gradient(135deg, #ff9a56 0%, #ff6b95 100%);
+
+  /* 또는 옵션 2: 오렌지-퍼플 그라데이션 */
+  /* background: linear-gradient(135deg, #ff9a56 0%, #667eea 100%); */
+
+  /* 또는 옵션 3: 따뜻한 썬셋 느낌 */
+  /* background: linear-gradient(135deg, #ffeaa7 0%, #fd79a8 50%, #a29bfe 100%); */
+
+  /* 또는 옵션 4: 자연스러운 트로피컬 */
+  /* background: linear-gradient(135deg, #74b9ff 0%, #00cec9 50%, #55a3ff 100%); */
+
+  /* 또는 옵션 5: 심플한 오렌지 톤 */
+  background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
 }
 
 .main {

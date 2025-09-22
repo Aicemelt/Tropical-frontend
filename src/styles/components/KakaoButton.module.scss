@@ -1,18 +1,9 @@
+/* Kakao.module.scss */
 .kakao {
-  background: #fee500;
-  border: none;
-  color: rgba(0, 0, 0, 0.85);
-  transition: all 0.2s ease;
+  background-color: #fee500 !important;
+  color: #ffffff;
 }
 
 .kakao:hover {
-  background: #fdd835; /* ✅ 약간 더 어두운 노란색 */
-}
-
-.kakao:active {
-  background: #f9a825;
-}
-
-.kakao :global(svg) {
-  fill: #000000;
+  background: #fdd835 !important;
 }

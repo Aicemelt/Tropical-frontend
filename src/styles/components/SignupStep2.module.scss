@@ -19,11 +19,11 @@
 .label {
   font-size: 14px;
   font-weight: 600;
-  color: var(--ink-800);
+  color: #1f2937;
 }
 
 .required {
-  color: var(--tropical-coral);
+  color: #e76f51;
   font-weight: 700;
 }
 
@@ -41,18 +41,18 @@
 
 .input:focus {
   outline: none;
-  border-color: var(--tropical-coral);
-  box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.1);
+  border-color: #e76f51;
+  box-shadow: 0 0 0 3px rgba(231, 111, 81, 0.1);
 }
 
 .input.invalid {
-  border-color: #dc2626;
+  border-color: #d62828;
   background: #fef2f2;
 }
 
 .input.invalid:focus {
-  border-color: #dc2626;
-  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+  border-color: #d62828;
+  box-shadow: 0 0 0 3px rgba(214, 40, 40, 0.1);
 }
 
 /* 비밀번호 필드 */
@@ -71,7 +71,7 @@
   right: 12px;
   background: none;
   border: none;
-  color: var(--ink-500);
+  color: #6b7280;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
@@ -82,20 +82,20 @@
 
 .toggleBtn:hover {
   background: #f1f5f9;
-  color: var(--ink-700);
+  color: #374151;
 }
 
 /* 필드별 에러 메시지 */
 .fieldError {
   font-size: 13px;
-  color: #dc2626;
+  color: #d62828;
   margin-top: 4px;
 }
 
 /* 유효성 검사 요약 */
 .validationSummary {
-  background: #fffbeb;
-  border: 1px solid #fde68a;
+  background: #fff8e1;
+  border: 1px solid #ffcc80;
   border-radius: 8px;
   padding: 16px;
   margin-top: 8px;
@@ -104,14 +104,14 @@
 .validationTitle {
   font-size: 14px;
   font-weight: 600;
-  color: #d97706;
+  color: #f57c00;
   margin-bottom: 8px;
 }
 
 .validationList {
   margin: 0;
   padding-left: 16px;
-  color: #d97706;
+  color: #f57c00;
 }
 
 .validationList li {

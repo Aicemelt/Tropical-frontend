@@ -1,0 +1,13 @@
+/* src/styles/pages/CalendarPage.module.scss */
+
+/* 기존 .container 규칙은 유지하시고, 아래 두 블록만 추가 */
+:global(html), :global(body) {
+  background: #fff !important;   /* ✅ 어떤 전역/잔여 영향이 있어도 흰색으로 */
+  overflow: auto !important;      /* ✅ 스크롤 잠금이 남아있던 경우 해제 */
+}
+
+.container {
+  background: #fff;
+  min-height: 100vh;
+  padding: 20px;
+}

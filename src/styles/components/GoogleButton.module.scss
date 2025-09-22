@@ -1,16 +1,12 @@
+/* GoogleButton.module.scss */
 .google {
-  background: #ffffff;
+  background-color: #ffffff !important;
   border: 1px solid #dadce0;
-  color: #3c4043;
-  transition: all 0.2s ease; /* ✅ 부드러운 전환 */
+  color: #000000;
 }
 
 .google:hover {
-  background: #f8f9fa;
-  border-color: #c0c7ce;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.google:active {
-  background: #f1f3f4;
+  background: #f8f9fa !important;
+  border-color: #c0c7ce !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
 }

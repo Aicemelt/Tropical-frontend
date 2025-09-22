@@ -1,23 +1,23 @@
-@use '../global';
+
 
 .item {
   display: grid;
   grid-template-columns: 20px 1fr;
   gap: 12px;
   align-items: flex-start;
-  padding: 8px 0; /* 상하 패딩 줄임 - 핵심 수정사항 */
+  padding: 8px 0;
 }
 
 .checkbox {
   width: 18px;
   height: 18px;
   margin-top: 4px;
-  accent-color: var(--tropical-coral); /* 체크박스 색상 통일 */
+  accent-color: #e76f51;
 }
 
 .body {
   display: grid;
-  gap: 4px; /* 간격 줄임 */
+  gap: 4px;
 }
 
 .titleRow {
@@ -25,22 +25,22 @@
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
-  margin-bottom: 2px; /* 하단 마진 줄임 */
+  margin-bottom: 2px;
 }
 
 .titleText {
   font-weight: 700;
-  line-height: 1.4; /* 줄 높이 조정 */
+  line-height: 1.4;
 }
 
 .required {
-  color: var(--tropical-coral);
+  color: #e76f51;
   font-weight: 800;
   margin-left: 4px;
 }
 
 .version {
-  color: var(--ink-500);
+  color: #6b7280;
   font-size: 12px;
 }
 
@@ -48,11 +48,11 @@
   all: unset;
   cursor: pointer;
   display: inline-flex;
-  color: var(--tropical-ocean);
+  color: #e76f51;
   font-weight: 700;
-  font-size: 14px; /* 폰트 크기 명시 */
-  padding: 2px 0; /* 최소 패딩만 */
-  line-height: 1.2; /* 줄 높이 조정 */
+  font-size: 14px;
+  padding: 2px 0;
+  line-height: 1.2;
 }
 
 .detailBtn:hover {
@@ -60,6 +60,6 @@
 }
 
 .detailBtn:disabled {
-  color: var(--ink-400);
+  color: #9ca3af;
   cursor: not-allowed;
 }
