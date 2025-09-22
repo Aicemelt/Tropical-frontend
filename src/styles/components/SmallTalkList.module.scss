@@ -3,12 +3,13 @@
 .container {
   width: 100%;
   display: flex;
+  max-height: 450px;
   flex-direction: column;
   gap: var(--text-xs);
+  overflow-y: auto;
 
   li{
     padding: var(--text-xs);
-    background-color: var(--gray);
     border-radius: var(--text-base) var(--text-base)  0 var(--text-base);
   }
 }
