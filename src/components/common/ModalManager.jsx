@@ -25,6 +25,13 @@ import DiaryForm from '../diary/DiaryForm';
  * @param {string} props.selectedDate - 선택된 날짜 (YYYY-MM-DD 형식)
  * @param {Function} props.onModalClose - 모달 닫힘 콜백
  * @param {Function} props.onEventUpdate - 이벤트 업데이트 콜백 (FullCalendar 리렌더링용)
+ * @param {Function} props.createSchedule - 일정 생성 함수
+ * @param {Function} props.updateSchedule - 일정 수정 함수
+ * @param {Function} props.deleteSchedule - 일정 삭제 함수
+ * @param {boolean} props.loading - 로딩 상태
+ * @param {Function} props.createDiary - 일기 생성 함수
+ * @param {Function} props.updateDiary - 일기 수정 함수
+ * @param {Function} props.deleteDiary - 일기 삭제 함수
  * @returns {JSX.Element} 통합 모달 매니저
  *
  * @example
@@ -33,13 +40,26 @@ import DiaryForm from '../diary/DiaryForm';
  *   selectedDate="2025-09-21"
  *   onModalClose={handleModalClose}
  *   onEventUpdate={handleEventUpdate}
+ *   createSchedule={createSchedule}
+ *   updateSchedule={updateSchedule}
+ *   deleteSchedule={deleteSchedule}
+ *   loading={loading}
  * />
  * ```
  */
 const ModalManager = ({
   selectedDate,
   onModalClose,
-  onEventUpdate
+  onEventUpdate,
+  // 일정 관리 함수들
+  createSchedule,
+  updateSchedule,
+  deleteSchedule,
+  loading,
+  // 일기 관리 함수들
+  createDiary,
+  updateDiary,
+  deleteDiary
 }) => {
   // 모달 상태 관리
   const [activeModal, setActiveModal] = useState(null);
@@ -134,29 +154,27 @@ const ModalManager = ({
   };
 
   /**
-   * 일정 생성/수정 성공 핸들러
+   * 일정 생성/수정 성공 핸들러 (중복 처리 제거)
    *
    * @param {Object} scheduleData - 일정 데이터
    */
   const handleScheduleSuccess = (scheduleData) => {
-    const action = activeModal === 'scheduleCreate' ? 'create' : 'update';
-
-    if (onEventUpdate) {
-      onEventUpdate('schedule', action, scheduleData);
-    }
+    // useSchedule에서 이미 모든 상태 관리를 완료했으므로
+    // 추가적인 onEventUpdate 호출하지 않음 (중복 방지)
+    console.log('📅 ModalManager: 일정 처리 완료, 모달 닫기만 수행');
 
     closeAllModals();
   };
 
   /**
-   * 일정 삭제 성공 핸들러
+   * 일정 삭제 성공 핸들러 (중복 처리 제거)
    *
    * @param {Object} scheduleData - 삭제된 일정 데이터
    */
   const handleScheduleDelete = (scheduleData) => {
-    if (onEventUpdate) {
-      onEventUpdate('schedule', 'delete', scheduleData);
-    }
+    // useSchedule에서 이미 모든 상태 관리를 완료했으므로
+    // 추가적인 onEventUpdate 호출하지 않음 (중복 방지)
+    console.log('📅 ModalManager: 일정 삭제 완료, 모달 닫기만 수행');
 
     closeAllModals();
   };
@@ -266,6 +284,11 @@ const ModalManager = ({
               selectedDate={modalData.selectedDate}
               onClose={closeAllModals}
               onSuccess={handleScheduleSuccess}
+              // 일정 관리 함수들
+              createSchedule={createSchedule}
+              updateSchedule={updateSchedule}
+              deleteSchedule={deleteSchedule}
+              loading={loading}
             />
           </div>
         </div>
@@ -312,6 +335,11 @@ const ModalManager = ({
               onClose={closeAllModals}
               onSuccess={handleScheduleSuccess}
               onDelete={handleScheduleDelete}
+              // 일정 관리 함수들
+              createSchedule={createSchedule}
+              updateSchedule={updateSchedule}
+              deleteSchedule={deleteSchedule}
+              loading={loading}
             />
           </div>
         </div>

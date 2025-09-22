@@ -1,85 +1,34 @@
 /**
  * @fileoverview 일정 아이템 컴포넌트
- * @description 개별 일정을 표시하고 호버 시 CRUD 액션을 제공하는 컴포넌트
+ * @description 개별 일정을 표시하고 CRUD 액션을 제공하는 컴포넌트
  * @author 신동준
- * @since 2025-09-19
- * @version 2.0.0
+ * @since 2025-09-21
+ * @version 3.0.0
  */
 
 import React, { useState, useCallback, useMemo } from 'react';
 import PropTypes from 'prop-types';
 
-// 스타일 import
-import styles from '../../styles/components/ScheduleItem.module.scss';
-
 // 훅 import
 import { useSchedule } from '../../hooks/schedule/useSchedule.js';
-import { useModalStore } from "../../store/useModalStore.js";
 
 /**
  * @component ScheduleItem
  * @description 개별 일정을 표시하는 아이템 컴포넌트
- * 완료 체크박스, 호버 시 수정/삭제 버튼, 상세 정보 표시 기능 제공
- *
- * @param {Object} props - 컴포넌트 props
- * @param {Object} props.schedule - 일정 객체
- * @param {Function} [props.onClick] - 일정 클릭 콜백
- * @param {'sidebar'|'modal'|'standalone'} [props.displayMode='standalone'] - 표시 모드
- *
- * @returns {JSX.Element} ScheduleItem 컴포넌트
- *
- * @example
- * <ScheduleItem
- *   schedule={scheduleData}
- *   onClick={handleScheduleClick}
- *   displayMode="sidebar"
- * />
- *
- * @since 2025-09-19
- * @author 신동준
+ * 깔끔한 디자인으로 삭제 버튼과 완료 토글을 텍스트 형태로 제공
  */
 const ScheduleItem = ({
   schedule,
   onClick,
   displayMode = 'standalone'
 }) => {
-  // ================================
-  // 커스텀 훅 사용
-  // ================================
-
   const { updateSchedule, deleteSchedule } = useSchedule();
-  const { openModal } = useModalStore();
 
-  // ================================
-  // 로컬 상태 관리
-  // ================================
-
-  /**
-   * @description 호버 상태
-   * @type {boolean}
-   */
   const [isHovered, setIsHovered] = useState(false);
-
-  /**
-   * @description 삭제 확인 상태
-   * @type {boolean}
-   */
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-
-  /**
-   * @description 완료 상태 업데이트 로딩
-   * @type {boolean}
-   */
   const [isUpdatingComplete, setIsUpdatingComplete] = useState(false);
 
-  // ================================
-  // 계산된 값들
-  // ================================
-
-  /**
-   * @description 시간 포맷팅
-   * @returns {string} 포맷팅된 시간 문자열
-   */
+  // 시간 포맷팅
   const formattedTime = useMemo(() => {
     if (schedule?.isAllDay) {
       return '종일';
@@ -107,80 +56,46 @@ const ScheduleItem = ({
     return startTime;
   }, [schedule?.startTime, schedule?.endTime, schedule?.isAllDay]);
 
-  /**
-   * @description 날짜 정보 포맷팅
-   * @returns {string} 포맷팅된 날짜 문자열
-   */
+  // 날짜 포맷팅 추가
   const formattedDate = useMemo(() => {
-    if (!schedule?.startDate) return '';
+    const scheduleDate = schedule?.scheduleDate || schedule?.date || schedule?.startDate;
+    if (!scheduleDate) return '';
 
     try {
-      const formatDate = (dateStr) => {
-        const date = new Date(dateStr);
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        return `${year}-${month}-${day}`;
-      };
-
-      const startDate = formatDate(schedule.startDate);
-
-      // 종일 일정이 아니고 종료일이 있고 시작일과 다른 경우
-      if (!schedule.isAllDay && schedule.endDate && schedule.endDate !== schedule.startDate) {
-        const endDate = formatDate(schedule.endDate);
-        return `${startDate}~${endDate}`;
-      }
-
-      // 종일 일정이거나 같은 날이거나 종료일이 없는 경우
-      return startDate;
+      const date = new Date(scheduleDate);
+      const month = date.getMonth() + 1;
+      const day = date.getDate();
+      const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
+      const weekday = weekdays[date.getDay()];
+      return `${month}월 ${day}일 (${weekday})`;
     } catch {
-      return '';
+      return scheduleDate;
     }
-  }, [schedule?.startDate, schedule?.endDate, schedule?.isAllDay]);
+  }, [schedule?.scheduleDate, schedule?.date, schedule?.startDate]);
 
-  /**
-   * @description 메모 미리보기 (50자 제한)
-   * @returns {string} 축약된 메모
-   */
-  const previewMemo = useMemo(() => {
-    if (!schedule?.memo) return '';
-    return schedule.memo.length > 50
-      ? `${schedule.memo.substring(0, 50)}...`
-      : schedule.memo;
-  }, [schedule?.memo]);
-
-  /**
-   * @description 아이템 CSS 클래스명 계산
-   * @returns {string} 조합된 클래스명
-   */
-  const itemClassName = useMemo(() => {
-    return [
-      styles.scheduleItem,
-      styles[`scheduleItem--${displayMode}`],
-      schedule?.isCompleted && styles['scheduleItem--completed'],
-      isHovered && styles['scheduleItem--hovered'],
-      showDeleteConfirm && styles['scheduleItem--delete-confirm']
-    ].filter(Boolean).join(' ');
-  }, [displayMode, schedule?.isCompleted, isHovered, showDeleteConfirm]);
-
-  // ================================
-  // 이벤트 핸들러
-  // ================================
-
-  /**
-   * @description 완료 상태 토글 핸들러
-   */
+  // 완료 상태 토글 핸들러 수정
   const handleCompleteToggle = useCallback(async (event) => {
     event.stopPropagation();
 
-    if (!schedule?.id || isUpdatingComplete) return;
+    const scheduleId = schedule?.id || schedule?.scheduleId || schedule?.schedule_id;
+    if (!scheduleId || isUpdatingComplete) return;
 
     try {
       setIsUpdatingComplete(true);
-      await updateSchedule(schedule.id, {
-        ...schedule,
-        isCompleted: !schedule.isCompleted
-      });
+
+      // 전역 핸들러 사용
+      if (window.handleScheduleToggle) {
+        await window.handleScheduleToggle(schedule);
+      } else {
+        // 백업: 직접 업데이트
+        const updatedSchedule = {
+          ...schedule,
+          isCompleted: !schedule.isCompleted
+        };
+
+        await updateSchedule(scheduleId, updatedSchedule);
+      }
+
     } catch (error) {
       console.error('일정 완료 상태 업데이트 실패:', error);
     } finally {
@@ -188,272 +103,356 @@ const ScheduleItem = ({
     }
   }, [schedule, updateSchedule, isUpdatingComplete]);
 
-  /**
-   * @description 수정 버튼 클릭 핸들러
-   */
+  // 수정 버튼 클릭 핸들러
   const handleEdit = useCallback((event) => {
     event.stopPropagation();
-    openModal('schedule', 'edit', schedule);
-  }, [openModal, schedule]);
+    if (window.ModalManager) {
+      window.ModalManager.openScheduleEdit(schedule);
+    }
+  }, [schedule]);
 
-  /**
-   * @description 삭제 버튼 클릭 핸들러
-   */
+  // 삭제 버튼 클릭 핸들러
   const handleDelete = useCallback((event) => {
     event.stopPropagation();
     setShowDeleteConfirm(true);
   }, []);
 
-  /**
-   * @description 삭제 확인 핸들러
-   */
+  // 삭제 확인 핸들러
   const handleConfirmDelete = useCallback(async (event) => {
     event.stopPropagation();
 
-    if (!schedule?.id) return;
+    const scheduleId = schedule?.id || schedule?.scheduleId || schedule?.schedule_id;
+    if (!scheduleId) return;
 
     try {
-      await deleteSchedule(schedule.id);
+      // IntegratedCalendar의 handleEventUpdate를 통해 삭제 워크플로우 실행
+      if (window.handleScheduleDelete) {
+        await window.handleScheduleDelete(schedule);
+      } else {
+        // 백업: 직접 삭제 (하지만 이제 사용되지 않을 예정)
+        await deleteSchedule(scheduleId);
+      }
       setShowDeleteConfirm(false);
     } catch (error) {
       console.error('일정 삭제 실패:', error);
       setShowDeleteConfirm(false);
     }
-  }, [schedule?.id, deleteSchedule]);
+  }, [schedule, deleteSchedule]);
 
-  /**
-   * @description 삭제 취소 핸들러
-   */
+  // 삭제 취소 핸들러
   const handleCancelDelete = useCallback((event) => {
     event.stopPropagation();
     setShowDeleteConfirm(false);
   }, []);
 
-  /**
-   * @description 아이템 클릭 핸들러
-   */
+  // 아이템 클릭 핸들러
   const handleItemClick = useCallback(() => {
     if (showDeleteConfirm) return;
 
     if (onClick) {
       onClick(schedule);
     } else {
-      // 기본 동작: 수정 모달 열기
-      openModal('schedule', 'edit', schedule);
+      handleEdit({ stopPropagation: () => {} });
     }
-  }, [schedule, onClick, openModal, showDeleteConfirm]);
-
-  /**
-   * @description 마우스 진입 핸들러
-   */
-  const handleMouseEnter = useCallback(() => {
-    setIsHovered(true);
-  }, []);
-
-  /**
-   * @description 마우스 이탈 핸들러
-   */
-  const handleMouseLeave = useCallback(() => {
-    setIsHovered(false);
-    if (!showDeleteConfirm) {
-      setShowDeleteConfirm(false);
-    }
-  }, [showDeleteConfirm]);
-
-  // ================================
-  // 렌더링 헬퍼 함수
-  // ================================
-
-  /**
-   * @description 완료 체크박스 렌더링
-   * @returns {JSX.Element} 체크박스
-   */
-  const renderCheckbox = () => (
-    <div className={styles.checkbox}>
-      <input
-        type="checkbox"
-        checked={schedule?.isCompleted || false}
-        onChange={handleCompleteToggle}
-        disabled={isUpdatingComplete}
-        className={styles.checkboxInput}
-        aria-label={`${schedule?.title} 완료 상태 토글`}
-      />
-      <span className={styles.checkboxMark}>
-        {schedule?.isCompleted && '✓'}
-      </span>
-    </div>
-  );
-
-  /**
-   * @description 액션 버튼들 렌더링
-   * @returns {JSX.Element} 액션 버튼들
-   */
-  const renderActions = () => {
-    if (showDeleteConfirm) {
-      return (
-        <div className={styles.deleteConfirm}>
-          <span className={styles.deleteConfirmText}>삭제하시겠습니까?</span>
-          <button
-            className={styles.confirmBtn}
-            onClick={handleConfirmDelete}
-            aria-label="삭제 확인"
-          >
-            확인
-          </button>
-          <button
-            className={styles.cancelBtn}
-            onClick={handleCancelDelete}
-            aria-label="삭제 취소"
-          >
-            취소
-          </button>
-        </div>
-      );
-    }
-
-    return (
-      <div className={`${styles.actions} ${isHovered ? styles.actionsVisible : ''}`}>
-        <button
-          className={styles.editBtn}
-          onClick={handleEdit}
-          aria-label={`${schedule?.title} 수정`}
-          title="수정"
-        >
-          ✏️
-        </button>
-        <button
-          className={styles.deleteBtn}
-          onClick={handleDelete}
-          aria-label={`${schedule?.title} 삭제`}
-          title="삭제"
-        >
-          🗑️
-        </button>
-      </div>
-    );
-  };
-
-  /**
-   * @description 메타 정보 렌더링
-   * @returns {JSX.Element|null} 메타 정보
-   */
-  const renderMeta = () => {
-    if (schedule?.location || schedule?.participants || previewMemo) {
-      return (
-        <div className={styles.meta}>
-          {schedule.location && (
-            <span className={styles.metaItem}>
-              장소: {schedule.location}
-            </span>
-          )}
-          {schedule.participants && (
-            <span className={styles.metaItem}>
-              참여자: {schedule.participants}
-            </span>
-          )}
-          {previewMemo && (
-            <p className={styles.metaMemo}>
-              메모: {previewMemo}
-            </p>
-          )}
-        </div>
-      );
-    }
-    return null;
-  };
-
-  // ================================
-  // 메인 렌더링
-  // ================================
+  }, [schedule, onClick, handleEdit, showDeleteConfirm]);
 
   if (!schedule) {
     return null;
   }
 
+  const title = schedule.title || '제목 없음';
+  const location = schedule.location;
+  const memo = schedule.memo;
+  const attendees = schedule.attendees || schedule.participants; // attendees 우선, participants 백업
+
   return (
     <div
-      className={itemClassName}
-      onClick={handleItemClick}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      data-testid="schedule-item"
-      data-schedule-id={schedule.id}
-      data-completed={schedule.isCompleted}
-      role="button"
-      tabIndex={0}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          handleItemClick();
-        }
+      style={{
+        backgroundColor: 'white',
+        borderRadius: '12px',
+        border: '1px solid #e8e8e8',
+        padding: '16px',
+        marginBottom: '8px',
+        cursor: 'pointer',
+        transition: 'all 0.2s ease',
+        boxShadow: isHovered ? '0 2px 8px rgba(0, 0, 0, 0.1)' : '0 1px 3px rgba(0, 0, 0, 0.05)',
+        opacity: schedule.isCompleted ? 0.8 : 1
       }}
+      onClick={handleItemClick}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
-      <div className={styles.main}>
-        {renderCheckbox()}
+      {/* 제목과 날짜 영역 */}
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+        marginBottom: '8px'
+      }}>
+        <h4 style={{
+          margin: 0,
+          fontSize: '16px',
+          fontWeight: '600',
+          color: '#1a1a1a',
+          lineHeight: '1.4',
+          flex: 1
+        }}>
+          {title.length > 30 ? `${title.substring(0, 30)}...` : title}
+        </h4>
 
-        <div className={styles.content}>
-          <div className={styles.header}>
-            <div className={styles.dateTimeInfo}>
-              {formattedDate && (
-                <span className={styles.date}>
-                  날짜: {formattedDate}
-                </span>
-              )}
-              <span className={styles.time}>
-                시간: {formattedTime}
-              </span>
-            </div>
-            <h4 className={styles.title}>
-              {schedule.title || '제목 없음'}
-            </h4>
-          </div>
-
-          {renderMeta()}
-        </div>
-
-        {renderActions()}
+        {formattedDate && (
+          <span style={{
+            fontSize: '12px',
+            color: '#666',
+            backgroundColor: '#f0f0f0',
+            padding: '2px 6px',
+            borderRadius: '4px',
+            marginLeft: '8px',
+            whiteSpace: 'nowrap'
+          }}>
+            {formattedDate}
+          </span>
+        )}
       </div>
 
-      {isUpdatingComplete && (
-        <div className={styles.updating}>
-          <span className={styles.updatingText}>업데이트 중...</span>
+      {/* 시간 정보 */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px',
+        marginBottom: (location || memo || attendees) ? '8px' : '12px'
+      }}>
+        <span style={{
+          fontSize: '14px',
+          color: '#666',
+          backgroundColor: '#f5f5f5',
+          padding: '4px 8px',
+          borderRadius: '4px'
+        }}>
+          ⏰ {formattedTime}
+        </span>
+      </div>
+
+      {/* 추가 정보 - 장소와 참가자를 같은 줄에 표시 */}
+      {(location || attendees || memo) && (
+        <div style={{ marginBottom: '12px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          {/* 장소와 참가자를 한 줄에 표시 */}
+          {(location || attendees) && (
+            <div style={{
+              fontSize: '14px',
+              color: '#666',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '16px',
+              flexWrap: 'wrap'
+            }}>
+              {location && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span style={{ fontSize: '16px' }}>📍</span>
+                  <span>{location.length > 20 ? `${location.substring(0, 20)}...` : location}</span>
+                </div>
+              )}
+              {attendees && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span style={{ fontSize: '16px' }}>👥</span>
+                  <span>{attendees.length > 20 ? `${attendees.substring(0, 20)}...` : attendees}</span>
+                </div>
+              )}
+            </div>
+          )}
+
+          {memo && (
+            <div style={{
+              fontSize: '14px',
+              color: '#666',
+              lineHeight: '1.4',
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: '6px'
+            }}>
+              <span style={{ fontSize: '16px' }}>💭</span>
+              <span>{memo.length > 50 ? `${memo.substring(0, 50)}...` : memo}</span>
+            </div>
+          )}
         </div>
       )}
+
+      {/* 하단 액션 영역 - iOS 스타일 */}
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingTop: '12px',
+        borderTop: '1px solid #f0f0f0'
+      }}>
+        {/* 왼쪽: 수정/삭제 버튼 - iOS 스타일 */}
+        <div style={{ display: 'flex', gap: '8px' }}>
+          {showDeleteConfirm ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <span style={{
+                fontSize: '15px',
+                color: '#8E8E93',
+                fontWeight: '500'
+              }}>정말 삭제하시겠습니까?</span>
+              <button
+                onClick={handleConfirmDelete}
+                style={{
+                  background: '#FF3B30',
+                  border: 'none',
+                  color: 'white',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  padding: '6px 12px',
+                  borderRadius: '12px',
+                  transition: 'all 0.2s ease',
+                  boxShadow: '0 1px 3px rgba(255, 59, 48, 0.3)'
+                }}
+                onMouseDown={(e) => e.target.style.transform = 'scale(0.95)'}
+                onMouseUp={(e) => e.target.style.transform = 'scale(1)'}
+                onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
+              >
+                삭제
+              </button>
+              <button
+                onClick={handleCancelDelete}
+                style={{
+                  background: '#F2F2F7',
+                  border: 'none',
+                  color: '#8E8E93',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  padding: '6px 12px',
+                  borderRadius: '12px',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseDown={(e) => e.target.style.transform = 'scale(0.95)'}
+                onMouseUp={(e) => e.target.style.transform = 'scale(1)'}
+                onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
+              >
+                취소
+              </button>
+            </div>
+          ) : (
+            <>
+              <button
+                onClick={handleEdit}
+                style={{
+                  background: '#007AFF',
+                  border: 'none',
+                  color: 'white',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  padding: '8px 16px',
+                  borderRadius: '16px',
+                  transition: 'all 0.2s ease',
+                  boxShadow: '0 2px 8px rgba(0, 122, 255, 0.25)',
+                  minWidth: '60px'
+                }}
+                onMouseDown={(e) => e.target.style.transform = 'scale(0.95)'}
+                onMouseUp={(e) => e.target.style.transform = 'scale(1)'}
+                onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
+              >
+                수정
+              </button>
+              <button
+                onClick={handleDelete}
+                style={{
+                  background: '#F2F2F7',
+                  border: 'none',
+                  color: '#FF3B30',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  padding: '8px 16px',
+                  borderRadius: '16px',
+                  transition: 'all 0.2s ease',
+                  minWidth: '60px'
+                }}
+                onMouseDown={(e) => e.target.style.transform = 'scale(0.95)'}
+                onMouseUp={(e) => e.target.style.transform = 'scale(1)'}
+                onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
+              >
+                삭제
+              </button>
+            </>
+          )}
+        </div>
+
+        {/* 오른쪽: 완료 토글 - iOS 스타일 */}
+        <button
+          onClick={handleCompleteToggle}
+          disabled={isUpdatingComplete}
+          style={{
+            background: schedule.isCompleted
+              ? 'linear-gradient(135deg, #34C759 0%, #30D158 100%)'
+              : '#F2F2F7',
+            border: 'none',
+            color: schedule.isCompleted ? 'white' : '#8E8E93',
+            cursor: isUpdatingComplete ? 'not-allowed' : 'pointer',
+            fontSize: '14px',
+            fontWeight: '600',
+            padding: '8px 16px',
+            borderRadius: '16px',
+            opacity: isUpdatingComplete ? 0.6 : 1,
+            transition: 'all 0.3s ease',
+            boxShadow: schedule.isCompleted
+              ? '0 2px 8px rgba(52, 199, 89, 0.25)'
+              : '0 1px 3px rgba(0, 0, 0, 0.1)',
+            minWidth: '80px',
+            transform: isUpdatingComplete ? 'scale(0.95)' : 'scale(1)'
+          }}
+          onMouseDown={(e) => !isUpdatingComplete && (e.target.style.transform = 'scale(0.95)')}
+          onMouseUp={(e) => !isUpdatingComplete && (e.target.style.transform = 'scale(1)')}
+          onMouseLeave={(e) => !isUpdatingComplete && (e.target.style.transform = 'scale(1)')}
+        >
+          {isUpdatingComplete ? (
+            <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span style={{
+                width: '12px',
+                height: '12px',
+                border: '2px solid currentColor',
+                borderTop: '2px solid transparent',
+                borderRadius: '50%',
+                animation: 'spin 1s linear infinite'
+              }}></span>
+              처리중
+            </span>
+          ) : (
+            <>
+              {schedule.isCompleted ? (
+                <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  ✓ 완료됨
+                </span>
+              ) : (
+                '미완료'
+              )}
+            </>
+          )}
+        </button>
+      </div>
     </div>
   );
 };
 
-// ================================
-// PropTypes 정의
-// ================================
-
 ScheduleItem.propTypes = {
-  /** 일정 객체 */
   schedule: PropTypes.shape({
-    id: PropTypes.string.isRequired,
+    id: PropTypes.string,
+    scheduleId: PropTypes.string,
+    schedule_id: PropTypes.string,
     title: PropTypes.string.isRequired,
     startTime: PropTypes.string,
     endTime: PropTypes.string,
     isCompleted: PropTypes.bool,
     isAllDay: PropTypes.bool,
     memo: PropTypes.string,
-    location: PropTypes.string,
-    participants: PropTypes.string,
-    date: PropTypes.string,
-    startDate: PropTypes.string
+    location: PropTypes.string
   }),
-
-  /** 일정 클릭 콜백 */
   onClick: PropTypes.func,
-
-  /** 표시 모드 */
   displayMode: PropTypes.oneOf(['sidebar', 'modal', 'standalone'])
 };
 
-ScheduleItem.defaultProps = {
-  schedule: null,
-  onClick: null,
-  displayMode: 'standalone'
-};
 
 export default ScheduleItem;

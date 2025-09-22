@@ -267,27 +267,43 @@ export const scheduleApi = {
    * @description 월별 일정 조회 (캘린더용)
    * @author 신동준
    * @since 2025-09-17
+   * @version 1.2.0 - 2025-09-22 강제 새로고침 기능 추가
    * @param {number} year - 조회할 연도 (예: 2025)
    * @param {number} month - 조회할 월 (1-12)
+   * @param {boolean} forceRefresh - 캐시 무시하고 강제 새로고침 여부
    * @returns {Promise<Array<Object>>} 해당 월의 일정 배열
    * @throws {Error} API 호출 실패 시
    * @example
-   * const schedules = await scheduleApi.getByMonth(2025, 9);
+   * const schedules = await scheduleApi.getByMonth(2025, 9, true); // 강제 새로고침
    */
-  getByMonth: async (year, month) => {
-    console.log('📅 월별 일정 조회 API 호출:', year, month);
+  getByMonth: async (year, month, forceRefresh = false) => {
+    console.log(`📅 월별 일정 조회 API 호출: ${year}년 ${month}월 ${forceRefresh ? '(강제 새로고침)' : '(캐시 허용)'}`);
 
     const cacheKey = `schedules_${year}_${month}`;
+
+    // 강제 새로고침 시 캐시 무효화
+    if (forceRefresh) {
+      console.log('🔄 강제 새로고침: 캐시 삭제');
+      localStorage.removeItem(cacheKey);
+    } else {
+      // 캐시에서 먼저 확인 (강제 새로고침이 아닐 때만)
+      const cachedData = localStorage.getItem(cacheKey);
+      if (cachedData) {
+        console.log('📦 캐시에서 데이터 반환');
+        return JSON.parse(cachedData);
+      }
+    }
 
     try {
       // 첫 번째 시도: 새로 추가된 월별 API 사용
       console.log('📅 시도 1/3: /schedules/month/{year}/{month} 엔드포인트');
-      const response = await apiMethods.get(`/schedules/month/${year}/${month}`);
+      const response = await apiMethods.get(`/schedules/month/${year}/${month}?timestamp=${Date.now()}`);
       console.log('✅ 월별 API 성공:', response.data);
       const schedules = response.data || [];
 
-      // 성공 시 로컬 스토리지에 캐시
+      // 성공 시 로컬 스토리지에 캐시 (강제 새로고침 여부와 관계없이)
       localStorage.setItem(cacheKey, JSON.stringify(schedules));
+      console.log(`📦 새로운 데이터 캐시 저장 완료 ${forceRefresh ? '(강제 새로고침됨)' : ''}`);
       return schedules;
     } catch (error) {
       console.warn('❌ 월별 API 실패 (상태:', error.response?.status, '), 전체 조회로 재시도');
@@ -295,7 +311,7 @@ export const scheduleApi = {
       try {
         // 두 번째 시도: 전체 일정 조회 후 클라이언트에서 필터링
         console.log('📅 시도 2/3: /schedules 전체 조회 후 필터링');
-        const response = await apiMethods.get('/schedules');
+        const response = await apiMethods.get(`/schedules?timestamp=${Date.now()}`);
         console.log('✅ 전체 조회 성공:', response.data);
         const allSchedules = response.data || [];
 
@@ -479,9 +495,8 @@ export const scheduleUtils = {
       errors.date = '일정 날짜를 선택해주세요.';
     }
 
-    if (data.startTime && data.endTime && data.startTime >= data.endTime) {
-      errors.endTime = '종료 시간은 시작 시간보다 늦어야 합니다.';
-    }
+    // 시간 검증은 서버에서만 처리하도록 클라이언트 검증 제거
+    // 클라이언트에서는 기본적인 필드 검증만 수행
 
     return {
       isValid: Object.keys(errors).length === 0,

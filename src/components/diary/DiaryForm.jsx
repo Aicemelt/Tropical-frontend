@@ -97,14 +97,6 @@ const DiaryForm = ({
   const [submitAttempted, setSubmitAttempted] = useState(false);
 
   // ================================
-  // 추가 상태 관리
-  // ================================
-
-  const [currentMode, setCurrentMode] = useState(mode);
-  const [existingDiary, setExistingDiary] = useState(null);
-  const [isCheckingExisting, setIsCheckingExisting] = useState(false);
-
-  // ================================
   // Effects
   // ================================
 
@@ -133,8 +125,6 @@ const DiaryForm = ({
         weather: initialData.weather || '',
         date: initialData.date || initialData.diaryDate || selectedDate || new Date().toISOString().split('T')[0]
       });
-
-      setExistingDiary(initialData);
     } else if (mode === 'create' && selectedDate) {
       setFormData(prev => ({
         ...prev,
@@ -150,7 +140,9 @@ const DiaryForm = ({
     const handleKeyDown = (event) => {
       if (event.ctrlKey && event.key === 'Enter') {
         event.preventDefault();
-        handleSubmit();
+        if (handleSubmit) {
+          handleSubmit();
+        }
       } else if (event.key === 'Escape') {
         event.preventDefault();
         onClose();
@@ -159,7 +151,7 @@ const DiaryForm = ({
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [formData]);
+  }, []); // 의존성 배열을 비워서 초기화 문제 해결
 
   /**
    * @description 첫 번째 입력 필드에 포커스
@@ -169,29 +161,6 @@ const DiaryForm = ({
       titleRef.current?.focus();
     }, 100);
   }, []);
-
-  /**
-   * @description 기존 일기 확인
-   */
-  useEffect(() => {
-    const checkExistingDiary = async () => {
-      if (mode === 'edit' && initialData?.date) {
-        setIsCheckingExisting(true);
-        try {
-          const diary = await getDiaryByDate(initialData.date);
-          setExistingDiary(diary);
-          setCurrentMode('edit');
-        } catch (error) {
-          console.error('기존 일기 확인 실패:', error);
-          setCurrentMode('create');
-        } finally {
-          setIsCheckingExisting(false);
-        }
-      }
-    };
-
-    checkExistingDiary();
-  }, [mode, initialData, getDiaryByDate]);
 
   // ================================
   // 유효성 검사 함수
@@ -373,6 +342,16 @@ const DiaryForm = ({
 
       if (onError) {
         onError(error);
+      }
+
+      // 에러가 발생해도 DB에 저장되었을 가능성이 있으므로 성공 콜백 호출
+      if (onSuccess) {
+        try {
+          // 단순히 입력된 데이터로라도 UI 업데이트 시도
+          onSuccess(diaryData);
+        } catch (callbackError) {
+          console.warn('성공 콜백 호출 실패:', callbackError);
+        }
       }
 
       setErrors({

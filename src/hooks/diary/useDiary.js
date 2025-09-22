@@ -92,6 +92,7 @@ export const useDiary = () => {
    * @description 새로운 일기 생성
    * @author 신동준
    * @since 2025-09-18
+   * @version 1.2.0 - 2025-09-22 상태 업데이트 로직 개선
    *
    * @param {Object} diaryData - 일기 데이터
    * @returns {Promise<Object|null>} 생성된 일기 객체 또는 null
@@ -108,25 +109,42 @@ export const useDiary = () => {
         return null;
       }
 
-      // API 호출
+      console.log('📔 일기 생성 API 호출:', diaryData);
       const newDiary = await createDiary(diaryData);
+      console.log('📔 일기 생성 성공:', newDiary);
 
-      // 스토어에 추가
-      addDiary(newDiary);
-
-      // 통계 업데이트
-      updateStats();
+      // 스토어에 안전하게 추가
+      if (newDiary && newDiary.id) {
+        addDiary(newDiary);
+        updateStats();
+      }
 
       // 모달 닫기
       closeDiaryModal();
 
-      console.log('[useDiary] 일기 생성 성공:', newDiary);
       return newDiary;
 
     } catch (error) {
-      console.error('[useDiary] 일기 생성 실패:', error);
+      console.error('📔 일기 생성 실패:', error);
+
+      // 에러가 발생해도 DB에 저장되었을 수 있으므로 재조회 시도
+      try {
+        if (diaryData.date) {
+          console.log('📔 일기 생성 후 재조회 시도');
+          const refreshedDiary = await getDiaryByDate(diaryData.date);
+          if (refreshedDiary) {
+            addDiary(refreshedDiary);
+            updateStats();
+            console.log('📔 일기 재조회 성공:', refreshedDiary);
+            return refreshedDiary;
+          }
+        }
+      } catch (refreshError) {
+        console.warn('📔 일기 재조회 실패:', refreshError);
+      }
+
       setError(error.response?.data?.message || '일기 생성에 실패했습니다.');
-      return null;
+      throw error;
     } finally {
       setLoading(false);
     }
@@ -136,6 +154,7 @@ export const useDiary = () => {
    * @description 일기 수정
    * @author 신동준
    * @since 2025-09-18
+   * @version 1.2.0 - 2025-09-22 상태 업데이트 로직 개선
    *
    * @param {number} diaryId - 수정할 일기 ID
    * @param {Object} updateData - 수정할 데이터
@@ -153,25 +172,42 @@ export const useDiary = () => {
         return null;
       }
 
-      // API 호출
+      console.log('📔 일기 수정 API 호출:', { diaryId, updateData });
       const updatedDiary = await updateDiary(diaryId, updateData);
+      console.log('📔 일기 수정 성공:', updatedDiary);
 
-      // 스토어에서 업데이트
-      updateDiaryInStore(diaryId, updatedDiary);
-
-      // 통계 업데이트
-      updateStats();
+      // 스토어에 안전하게 업데이트
+      if (updatedDiary && updatedDiary.id) {
+        updateDiaryInStore(updatedDiary);
+        updateStats();
+      }
 
       // 모달 닫기
       closeDiaryModal();
 
-      console.log('[useDiary] 일기 수정 성공:', updatedDiary);
       return updatedDiary;
 
     } catch (error) {
-      console.error('[useDiary] 일기 수정 실패:', error);
+      console.error('📔 일기 수정 실패:', error);
+
+      // 에러가 발생해도 DB에 수정되었을 수 있으므로 재조회 시도
+      try {
+        if (updateData.date) {
+          console.log('📔 일기 수정 후 재조회 시도');
+          const refreshedDiary = await getDiaryByDate(updateData.date);
+          if (refreshedDiary) {
+            updateDiaryInStore(refreshedDiary);
+            updateStats();
+            console.log('📔 일기 재조회 성공:', refreshedDiary);
+            return refreshedDiary;
+          }
+        }
+      } catch (refreshError) {
+        console.warn('📔 일기 재조회 실패:', refreshError);
+      }
+
       setError(error.response?.data?.message || '일기 수정에 실패했습니다.');
-      return null;
+      throw error;
     } finally {
       setLoading(false);
     }

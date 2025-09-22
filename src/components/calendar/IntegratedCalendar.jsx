@@ -6,12 +6,14 @@
  * @version 1.1.0
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Calendar from './Calendar';
 import ModalManager from '../common/ModalManager';
 import { createDateClickHandler } from '../common/FullCalendarAdapter';
 import { useSchedule } from '../../hooks/schedule/useSchedule';
 import { getDiariesByMonth, createDiary, updateDiary, deleteDiary } from '../../services/diaryApi';
+import ScheduleItem from '../schedule/ScheduleItem';
+import DiaryItem from '../diary/DiaryItem';
 
 /**
  * 오늘 날짜를 YYYY-MM-DD 형식으로 반환
@@ -36,7 +38,7 @@ const IntegratedCalendar = () => {
     createSchedule,
     updateSchedule,
     deleteSchedule,
-    toggleScheduleComplete
+    setSchedules
   } = useSchedule();
 
   const today = getTodayString();
@@ -44,6 +46,9 @@ const IntegratedCalendar = () => {
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth() + 1);
   const [showAllSchedules, setShowAllSchedules] = useState(false);
+
+  // 강제 리렌더링을 위한 상태 추가
+  const [forceUpdate, setForceUpdate] = useState(0);
 
   const [confirmModal, setConfirmModal] = useState({
     isOpen: false,
@@ -95,44 +100,141 @@ const IntegratedCalendar = () => {
   }, [currentYear, currentMonth]);
 
   /**
-   * 이벤트 업데이트 핸들러
+   * 이벤트 업데이트 핸들러 (중복 처리 제거)
    */
   const handleEventUpdate = useCallback(async (type, action, data) => {
     try {
       if (type === 'schedule') {
         if (action === 'create') {
-          await createSchedule(data);
+          console.log('📅 일정 생성 시작:', data);
+
+          // 날짜 필드 정규화 - 선택된 날짜로 고정
+          const normalizedData = {
+            ...data,
+            date: data.date || selectedDate,
+            startDate: data.date || selectedDate,
+            scheduleDate: data.date || selectedDate,
+            endDate: data.date || selectedDate
+          };
+
+          console.log('📅 정규화된 일정 데이터:', normalizedData);
+
+          // useSchedule에서 모든 상태 관리를 처리하므로 API 호출만
+          await createSchedule(normalizedData);
+          console.log('✅ 일정 생성 완료 (useSchedule에서 상태 관리)');
+
         } else if (action === 'update') {
           const scheduleId = data.id || data.scheduleId || data.schedule_id;
           if (!scheduleId) {
             console.error('일정 ID가 없습니다:', data);
             return;
           }
-          await updateSchedule(scheduleId, data);
+
+          console.log('📅 일정 수정 시작:', { scheduleId, data });
+
+          // 날짜 필드 정규화
+          const normalizedData = {
+            ...data,
+            date: data.date || data.startDate || data.scheduleDate,
+            startDate: data.date || data.startDate || data.scheduleDate,
+            scheduleDate: data.date || data.startDate || data.scheduleDate,
+            endDate: data.date || data.startDate || data.scheduleDate
+          };
+
+          // useSchedule에서 모든 상태 관리를 처리하므로 API 호출만
+          await updateSchedule(scheduleId, normalizedData);
+          console.log('✅ 일정 수정 완료 (useSchedule에서 상태 관리)');
+
         } else if (action === 'delete') {
           const scheduleId = data.id || data.scheduleId || data.schedule_id;
           if (!scheduleId) {
             console.error('일정 ID가 없습니다:', data);
             return;
           }
-          await deleteSchedule(scheduleId);
-        }
 
-        if (action === 'update' || action === 'delete') {
-          setTimeout(() => {
-            fetchSchedulesByMonth(currentYear, currentMonth).catch(console.error);
-          }, 300);
+          console.log('📅 일정 삭제 워크플로우 시작:', { scheduleId, data });
+
+          // 1. API를 통해 서버에서 삭제 (useSchedule은 오직 API 통신만 담당)
+          await deleteSchedule(scheduleId);
+          console.log('✅ 서버에서 일정 삭제 완료');
+
+          // 2. 삭제 성공 후 서버로부터 최신 데이터 refetch (Single Source of Truth)
+          console.log('🔄 서버로부터 최신 데이터 refetch 시작');
+          await fetchSchedulesByMonth(currentYear, currentMonth, true); // 강제 새로고침
+          console.log('✅ 일정 삭제 워크플로우 완료 - UI 갱신됨');
         }
 
       } else if (type === 'diary') {
         if (action === 'create') {
-          const result = await createDiary(data);
-          const newDiary = {
-            ...result,
+          console.log('📔 일기 생성 시작:', data);
+
+          const normalizedData = {
+            ...data,
             date: data.date || selectedDate,
             diaryDate: data.date || selectedDate
           };
-          setDiaries(prev => [...prev, newDiary]);
+
+          console.log('📔 정규화된 일기 데이터:', normalizedData);
+
+          try {
+            const result = await createDiary(normalizedData);
+
+            if (result) {
+              const newDiary = {
+                ...result,
+                date: normalizedData.date,
+                diaryDate: normalizedData.diaryDate
+              };
+
+              setDiaries(prev => {
+                const exists = prev.some(d =>
+                  (d.id && d.id === result.id) ||
+                  (d.diaryId && d.diaryId === result.diaryId) ||
+                  (d.diary_id && d.diary_id === result.diary_id)
+                );
+                if (exists) {
+                  return prev.map(d =>
+                    (d.id === result.id || d.diaryId === result.diaryId || d.diary_id === result.diary_id)
+                      ? newDiary
+                      : d
+                  );
+                }
+                return [...prev, newDiary];
+              });
+
+              console.log('✅ 일기 생성 완료 및 로컬 상태 업데이트');
+            }
+          } catch (error) {
+            // 409 에러 (중복)인 경우 기존 일기를 수정으로 처리
+            if (error.response?.status === 409) {
+              console.log('📔 해당 날짜에 일기가 이미 존재함. 수정으로 처리');
+
+              // 기존 일기 찾기
+              const existingDiary = diaries.find(diary => {
+                const diaryDate = diary.diaryDate || diary.date;
+                return diaryDate === (normalizedData.date || normalizedData.diaryDate);
+              });
+
+              if (existingDiary) {
+                // 수정으로 처리
+                const diaryId = existingDiary.id || existingDiary.diaryId || existingDiary.diary_id;
+                const updateData = {
+                  ...normalizedData,
+                  id: diaryId,
+                  diaryId: diaryId
+                };
+                console.log('📔 기존 일기 수정으로 전환:', updateData);
+                await handleEventUpdate('diary', 'update', updateData);
+                return;
+              } else {
+                // 기존 일기를 찾을 수 없으면 새로고침
+                console.warn('📔 기존 일기를 찾을 수 없어 새로고침');
+                await fetchDiariesByMonth(currentYear, currentMonth);
+              }
+            } else {
+              throw error; // 다른 에러는 그대로 throw
+            }
+          }
 
         } else if (action === 'update') {
           const diaryId = data.id || data.diaryId || data.diary_id;
@@ -141,24 +243,105 @@ const IntegratedCalendar = () => {
             return;
           }
 
-          const result = await updateDiary(diaryId, data);
-          setDiaries(prev => prev.map(d =>
-            (d.id === diaryId || d.diaryId === diaryId || d.diary_id === diaryId)
-              ? { ...result, date: data.date || selectedDate }
-              : d
-          ));
+          console.log('📔 일기 수정 시작:', { diaryId, data });
+
+          const normalizedData = {
+            ...data,
+            date: data.date || data.diaryDate,
+            diaryDate: data.date || data.diaryDate
+          };
+
+          const result = await updateDiary(diaryId, normalizedData);
+
+          if (result) {
+            setDiaries(prev => prev.map(d => {
+              const isMatch = d.id === diaryId || d.diaryId === diaryId || d.diary_id === diaryId;
+              return isMatch ? { ...result, date: normalizedData.date, diaryDate: normalizedData.diaryDate } : d;
+            }));
+
+            console.log('✅ 일기 수정 완료 및 로컬 상태 업데이트');
+          }
 
         } else if (action === 'delete') {
-          await deleteDiary(data.id || data.diaryId);
+          const diaryId = data.id || data.diaryId || data.diary_id;
+          if (!diaryId) {
+            console.error('일기 ID가 없습니다:', data);
+            return;
+          }
+
           setDiaries(prev => prev.filter(d =>
-            d.id !== data.id && d.diaryId !== data.diaryId
+            d.id !== diaryId && d.diaryId !== diaryId && d.diary_id !== diaryId
           ));
+
+          await deleteDiary(diaryId);
+          console.log('✅ 일기 삭제 완료');
         }
       }
     } catch (error) {
-      console.error('이벤트 처리 실패:', error);
+      console.error(`${type} ${action} 처리 실패:`, error);
+
+      // 에러 발생 시에만 데이터 새로고침 (최후의 수단)
+      if (type === 'schedule') {
+        console.log('📅 에러 발생으로 인한 강제 새로고침');
+        setTimeout(() => {
+          fetchSchedulesByMonth(currentYear, currentMonth).catch(console.error);
+        }, 1000);
+      } else if (type === 'diary') {
+        setTimeout(() => {
+          fetchDiariesByMonth(currentYear, currentMonth).catch(console.error);
+        }, 1000);
+      }
     }
-  }, [createSchedule, updateSchedule, deleteSchedule, fetchSchedulesByMonth, currentYear, currentMonth, selectedDate]);
+  }, [createSchedule, updateSchedule, deleteSchedule, selectedDate, currentYear, currentMonth, setDiaries, fetchSchedulesByMonth, fetchDiariesByMonth, diaries]);
+
+  // 일정 완료 토글 핸들러를 전역으로 노출
+  useEffect(() => {
+    window.handleScheduleToggle = async (schedule) => {
+      const scheduleId = schedule.id || schedule.scheduleId || schedule.schedule_id;
+      if (!scheduleId) return;
+
+      try {
+        // 즉시 로컬 상태 업데이트 (깜빡임 방지)
+        setSchedules(prev => prev.map(s =>
+          (s.id === scheduleId || s.scheduleId === scheduleId || s.schedule_id === scheduleId)
+            ? { ...s, isCompleted: !s.isCompleted }
+            : s
+        ));
+
+        // 백그라운드에서 완료 토글 전용 API 호출
+        const { scheduleApi } = await import('../../services/scheduleApi');
+        await scheduleApi.toggleComplete(scheduleId, !schedule.isCompleted);
+
+        console.log('✅ 일정 완료 상태 토글 성공 (DB 반영됨)');
+
+      } catch (error) {
+        console.error('일정 완료 상태 토글 실패:', error);
+
+        // 실패 시 상태 되돌리기
+        setSchedules(prev => prev.map(s =>
+          (s.id === scheduleId || s.scheduleId === scheduleId || s.schedule_id === scheduleId)
+            ? { ...s, isCompleted: schedule.isCompleted }
+            : s
+        ));
+      }
+    };
+
+    // 일정 삭제 핸들러 추가 - ScheduleItem에서 사용
+    window.handleScheduleDelete = async (schedule) => {
+      console.log('🎯 전역 삭제 핸들러 호출됨:', schedule);
+      await handleEventUpdate('schedule', 'delete', schedule);
+    };
+
+    window.handleDiaryDelete = async (diary) => {
+      await handleEventUpdate('diary', 'delete', diary);
+    };
+
+    return () => {
+      delete window.handleScheduleToggle;
+      delete window.handleScheduleDelete;
+      delete window.handleDiaryDelete;
+    };
+  }, [setSchedules, handleEventUpdate]);
 
   const handleModalClose = useCallback(() => {
     console.log('모달 닫힘');
@@ -183,6 +366,12 @@ const IntegratedCalendar = () => {
     loadInitialData();
   }, [fetchSchedulesByMonth, fetchDiariesByMonth, currentYear, currentMonth]);
 
+  // schedules 상태 변경 시 강제 리렌더링 트리거
+  useEffect(() => {
+    console.log('📊 schedules 상태 변경 감지:', schedules?.length || 0);
+    setForceUpdate(prev => prev + 1);
+  }, [schedules]);
+
   useEffect(() => {
     const dateObj = new Date(selectedDate);
     const newYear = dateObj.getFullYear();
@@ -194,30 +383,56 @@ const IntegratedCalendar = () => {
     }
   }, [selectedDate, currentYear, currentMonth]);
 
-  const selectedDateSchedules = schedules?.filter(schedule => {
-    const scheduleDate = schedule.scheduleDate || schedule.date || schedule.startDate;
-    return scheduleDate === selectedDate;
-  }) || [];
+  // 선택된 날짜의 일정들을 시간순으로 정렬하여 가져오기 (리렌더링 문제 해결)
+  const selectedDateSchedules = useMemo(() => {
+    console.log('🔍 selectedDateSchedules 재계산:', {
+      schedulesCount: schedules?.length || 0,
+      selectedDate,
+      schedules: schedules,
+      forceUpdate, // 강제 리렌더링 트리거
+      schedulesIds: schedules?.map(s => s.id || s.scheduleId) // ID 목록으로 변경사항 추적
+    });
 
-  const selectedDateDiary = diaries.find(diary => {
-    const diaryDate = diary.diaryDate || diary.date;
-    return diaryDate === selectedDate;
-  });
+    const filteredSchedules = schedules?.filter(schedule => {
+      const scheduleDate = schedule.scheduleDate || schedule.date || schedule.startDate;
+      return scheduleDate === selectedDate;
+    }) || [];
 
+    console.log('🔍 필터링된 일정들:', filteredSchedules.map(s => ({
+      id: s.id || s.scheduleId,
+      title: s.title,
+      date: s.scheduleDate || s.date
+    })));
+
+    // 시간순으로 정렬 (종일 일정은 맨 위, 그 다음은 시작시간 순)
+    const sortedSchedules = filteredSchedules.sort((a, b) => {
+      // 종일 일정은 맨 위로
+      if (a.isAllDay && !b.isAllDay) return -1;
+      if (!a.isAllDay && b.isAllDay) return 1;
+
+      // 둘 다 종일이거나 둘 다 시간 지정인 경우 시작시간으로 정렬
+      const aTime = a.startTime || '00:00';
+      const bTime = b.startTime || '00:00';
+      return aTime.localeCompare(bTime);
+    });
+
+    console.log('🔍 정렬된 일정들:', sortedSchedules.map(s => ({
+      id: s.id || s.scheduleId,
+      title: s.title
+    })));
+    return sortedSchedules;
+  }, [schedules, selectedDate, forceUpdate]); // forceUpdate 의존성 다시 추가
+
+  const selectedDateDiary = useMemo(() => {
+    return diaries.find(diary => {
+      const diaryDate = diary.diaryDate || diary.date;
+      return diaryDate === selectedDate;
+    });
+  }, [diaries, selectedDate]);
+
+  // 메인카드는 가장 빠른 시간의 일정
   const latestSchedule = selectedDateSchedules.length > 0 ? selectedDateSchedules[0] : null;
   const hasMoreSchedules = selectedDateSchedules.length > 1;
-
-  // 날짜 포맷 함수
-  const formatDateRange = (schedule) => {
-    const startDate = schedule.startDate?.split('T')[0] || schedule.scheduleDate || schedule.date;
-    const endDate = schedule.endDate?.split('T')[0];
-
-    if (!schedule.isAllDay && endDate && startDate !== endDate) {
-      return `${startDate}~${endDate}`;
-    }
-
-    return `${startDate}`;
-  };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', minHeight: '600px' }}>
@@ -398,509 +613,20 @@ const IntegratedCalendar = () => {
             )}
 
             {selectedDateSchedules.length > 0 ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {/* 최신 일정 카드 */}
-                {latestSchedule && (
-                  <div
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {/* 새로운 ScheduleItem 컴포넌트 사용 */}
+                {(showAllSchedules ? selectedDateSchedules : [latestSchedule]).filter(Boolean).map((schedule, index) => (
+                  <ScheduleItem
+                    key={schedule.scheduleId || schedule.id || index}
+                    schedule={schedule}
+                    displayMode="standalone"
                     onClick={() => {
                       if (window.ModalManager) {
-                        window.ModalManager.openScheduleEdit(latestSchedule);
+                        window.ModalManager.openScheduleEdit(schedule);
                       }
                     }}
-                    style={{
-                      backgroundColor: 'white',
-                      border: '1px solid #e8e8e8',
-                      borderRadius: '16px',
-                      padding: '20px',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s ease',
-                      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.06)'
-                    }}
-                  >
-                    <div style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'flex-start',
-                      marginBottom: '16px'
-                    }}>
-                      <div style={{ flex: 1 }}>
-                        <div style={{
-                          fontSize: '12px',
-                          color: '#8e8e93',
-                          fontWeight: '500',
-                          marginBottom: '4px',
-                          textTransform: 'uppercase'
-                        }}>
-                          제목
-                        </div>
-                        <div style={{
-                          fontSize: '18px',
-                          fontWeight: '600',
-                          color: '#1a1a1a',
-                          lineHeight: '1.3'
-                        }}>
-                          {latestSchedule.title}
-                        </div>
-                      </div>
-
-                      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            if (window.ModalManager) {
-                              window.ModalManager.openScheduleEdit(latestSchedule);
-                            }
-                          }}
-                          style={{
-                            backgroundColor: '#ff8f00',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '20px',
-                            padding: '6px 12px',
-                            fontSize: '12px',
-                            fontWeight: '600',
-                            cursor: 'pointer',
-                            transition: 'all 0.2s ease'
-                          }}
-                        >
-                          수정
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setConfirmModal({
-                              isOpen: true,
-                              type: 'schedule-delete',
-                              item: latestSchedule,
-                              message: `"${latestSchedule.title}" 일정을 삭제하시겠습니까?`
-                            });
-                          }}
-                          style={{
-                            backgroundColor: '#ff3b30',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '20px',
-                            padding: '6px 12px',
-                            fontSize: '12px',
-                            fontWeight: '600',
-                            cursor: 'pointer',
-                            transition: 'all 0.2s ease'
-                          }}
-                        >
-                          삭제
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* 날짜 정보 */}
-                    <div style={{ marginBottom: '12px' }}>
-                      <div style={{
-                        fontSize: '12px',
-                        color: '#8e8e93',
-                        fontWeight: '500',
-                        marginBottom: '4px',
-                        textTransform: 'uppercase'
-                      }}>
-                        날짜
-                      </div>
-                      <div style={{
-                        fontSize: '16px',
-                        color: '#1a1a1a',
-                        fontWeight: '500'
-                      }}>
-                        {formatDateRange(latestSchedule)}
-                      </div>
-                    </div>
-
-                    {/* 시간 정보 */}
-                    {(latestSchedule.startTime || latestSchedule.endTime) && (
-                      <div style={{ marginBottom: '12px' }}>
-                        <div style={{
-                          fontSize: '12px',
-                          color: '#8e8e93',
-                          fontWeight: '500',
-                          marginBottom: '4px',
-                          textTransform: 'uppercase'
-                        }}>
-                          시간
-                        </div>
-                        <div style={{
-                          fontSize: '16px',
-                          color: '#1a1a1a',
-                          fontWeight: '500'
-                        }}>
-                          {latestSchedule.startTime || '--:--'} ~ {latestSchedule.endTime || '--:--'}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* 장소 정보 */}
-                    {latestSchedule.location && (
-                      <div style={{ marginBottom: '12px' }}>
-                        <div style={{
-                          fontSize: '12px',
-                          color: '#8e8e93',
-                          fontWeight: '500',
-                          marginBottom: '4px',
-                          textTransform: 'uppercase'
-                        }}>
-                          장소
-                        </div>
-                        <div style={{
-                          fontSize: '16px',
-                          color: '#1a1a1a',
-                          fontWeight: '500'
-                        }}>
-                          {latestSchedule.location}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* 메모 정보 */}
-                    {(latestSchedule.description || latestSchedule.memo) && (
-                      <div>
-                        <div style={{
-                          fontSize: '12px',
-                          color: '#8e8e93',
-                          fontWeight: '500',
-                          marginBottom: '4px',
-                          textTransform: 'uppercase'
-                        }}>
-                          메모
-                        </div>
-                        <div style={{
-                          fontSize: '15px',
-                          color: '#1a1a1a',
-                          lineHeight: '1.5'
-                        }}>
-                          {(latestSchedule.description || latestSchedule.memo).length > 100
-                            ? (latestSchedule.description || latestSchedule.memo).substring(0, 100) + '...'
-                            : (latestSchedule.description || latestSchedule.memo)
-                          }
-                        </div>
-                      </div>
-                    )}
-
-                    {/* 참여자 정보 */}
-                    {(latestSchedule.attendees || latestSchedule.participants) && (
-                      <div>
-                        <div style={{
-                          fontSize: '12px',
-                          color: '#8e8e93',
-                          fontWeight: '500',
-                          marginBottom: '4px',
-                          textTransform: 'uppercase'
-                        }}>
-                          참여자
-                        </div>
-                        <div style={{
-                          fontSize: '15px',
-                          color: '#1a1a1a',
-                          lineHeight: '1.5'
-                        }}>
-                          {latestSchedule.attendees || latestSchedule.participants}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* 완료 토글 - 오른쪽 아래에 명확하게 배치 */}
-                    <div style={{
-                      display: 'flex',
-                      justifyContent: 'flex-end',
-                      alignItems: 'center',
-                      paddingTop: '12px',
-                      borderTop: '1px solid #f0f0f0'
-                    }}>
-                      <div style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px',
-                        padding: '8px 16px',
-                        backgroundColor: latestSchedule.isCompleted ? '#e8f5e8' : '#f8f9fa',
-                        borderRadius: '25px',
-                        border: '1px solid',
-                        borderColor: latestSchedule.isCompleted ? '#4caf50' : '#e0e0e0',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s ease'
-                      }}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        toggleScheduleComplete(
-                          latestSchedule.scheduleId || latestSchedule.id,
-                          !latestSchedule.isCompleted
-                        ).catch(error => {
-                          console.error('완료 상태 변경 실패:', error);
-                        });
-                      }}
-                      >
-                        <span style={{
-                          fontSize: '14px',
-                          fontWeight: '600',
-                          color: latestSchedule.isCompleted ? '#4caf50' : '#666'
-                        }}>
-                          {latestSchedule.isCompleted ? '완료됨' : '미완료'}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* 추가 일정 목록 - 메인 카드와 통일성 있게 세련되게 개선 */}
-                {showAllSchedules && (
-                  <div style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '8px',
-                    paddingTop: '8px'
-                  }}>
-                    {selectedDateSchedules.slice(1).map((schedule, index) => (
-                      <div
-                        key={schedule.scheduleId || schedule.id || index}
-                        onClick={() => {
-                          if (window.ModalManager) {
-                            window.ModalManager.openScheduleEdit(schedule);
-                          }
-                        }}
-                        style={{
-                          backgroundColor: 'white',
-                          border: '1px solid #e8e8e8',
-                          borderRadius: '16px',
-                          padding: '20px',
-                          cursor: 'pointer',
-                          transition: 'all 0.2s ease',
-                          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.06)'
-                        }}
-                      >
-                        {/* 상단 제목 및 버튼 영역 */}
-                        <div style={{
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'flex-start',
-                          marginBottom: '16px'
-                        }}>
-                          <div style={{ flex: 1 }}>
-                            <div style={{
-                              fontSize: '12px',
-                              color: '#8e8e93',
-                              fontWeight: '500',
-                              marginBottom: '4px',
-                              textTransform: 'uppercase'
-                            }}>
-                              제목
-                            </div>
-                            <div style={{
-                              fontSize: '18px',
-                              fontWeight: '600',
-                              color: '#1a1a1a',
-                              lineHeight: '1.3'
-                            }}>
-                              {schedule.title}
-                            </div>
-                          </div>
-
-                          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                if (window.ModalManager) {
-                                  window.ModalManager.openScheduleEdit(schedule);
-                                }
-                              }}
-                              style={{
-                                backgroundColor: '#ff8f00',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '20px',
-                                padding: '6px 12px',
-                                fontSize: '12px',
-                                fontWeight: '600',
-                                cursor: 'pointer',
-                                transition: 'all 0.2s ease'
-                              }}
-                            >
-                              수정
-                            </button>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setConfirmModal({
-                                  isOpen: true,
-                                  type: 'schedule-delete',
-                                  item: schedule,
-                                  message: `"${schedule.title}" 일정을 삭제하시겠습니까?`
-                                });
-                              }}
-                              style={{
-                                backgroundColor: '#ff3b30',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '20px',
-                                padding: '6px 12px',
-                                fontSize: '12px',
-                                fontWeight: '600',
-                                cursor: 'pointer',
-                                transition: 'all 0.2s ease'
-                              }}
-                            >
-                              삭제
-                            </button>
-                          </div>
-                        </div>
-
-                        {/* 날짜 정보 */}
-                        <div style={{ marginBottom: '12px' }}>
-                          <div style={{
-                            fontSize: '12px',
-                            color: '#8e8e93',
-                            fontWeight: '500',
-                            marginBottom: '4px',
-                            textTransform: 'uppercase'
-                          }}>
-                            날짜
-                          </div>
-                          <div style={{
-                            fontSize: '16px',
-                            color: '#1a1a1a',
-                            fontWeight: '500'
-                          }}>
-                            {formatDateRange(schedule)}
-                          </div>
-                        </div>
-
-                        {/* 시간 정보 */}
-                        {(schedule.startTime || schedule.endTime) && (
-                          <div style={{ marginBottom: '12px' }}>
-                            <div style={{
-                              fontSize: '12px',
-                              color: '#8e8e93',
-                              fontWeight: '500',
-                              marginBottom: '4px',
-                              textTransform: 'uppercase'
-                            }}>
-                              시간
-                            </div>
-                            <div style={{
-                              fontSize: '16px',
-                              color: '#1a1a1a',
-                              fontWeight: '500'
-                            }}>
-                              {schedule.startTime || '--:--'} ~ {schedule.endTime || '--:--'}
-                            </div>
-                          </div>
-                        )}
-
-                        {/* 장소 정보 */}
-                        {schedule.location && (
-                          <div style={{ marginBottom: '12px' }}>
-                            <div style={{
-                              fontSize: '12px',
-                              color: '#8e8e93',
-                              fontWeight: '500',
-                              marginBottom: '4px',
-                              textTransform: 'uppercase'
-                            }}>
-                              장소
-                            </div>
-                            <div style={{
-                              fontSize: '16px',
-                              color: '#1a1a1a',
-                              fontWeight: '500'
-                            }}>
-                              {schedule.location}
-                            </div>
-                          </div>
-                        )}
-
-                        {/* 메모 정보 */}
-                        {(schedule.description || schedule.memo) && (
-                          <div style={{ marginBottom: '12px' }}>
-                            <div style={{
-                              fontSize: '12px',
-                              color: '#8e8e93',
-                              fontWeight: '500',
-                              marginBottom: '4px',
-                              textTransform: 'uppercase'
-                            }}>
-                              메모
-                            </div>
-                            <div style={{
-                              fontSize: '15px',
-                              color: '#1a1a1a',
-                              lineHeight: '1.5'
-                            }}>
-                              {(schedule.description || schedule.memo).length > 100
-                                ? (schedule.description || schedule.memo).substring(0, 100) + '...'
-                                : (schedule.description || schedule.memo)
-                              }
-                            </div>
-                          </div>
-                        )}
-
-                        {/* 참여자 정보 추가 */}
-                        {(schedule.attendees || schedule.participants) && (
-                          <div style={{ marginBottom: '12px' }}>
-                            <div style={{
-                              fontSize: '12px',
-                              color: '#8e8e93',
-                              fontWeight: '500',
-                              marginBottom: '4px',
-                              textTransform: 'uppercase'
-                            }}>
-                              참여자
-                            </div>
-                            <div style={{
-                              fontSize: '15px',
-                              color: '#1a1a1a',
-                              lineHeight: '1.5'
-                            }}>
-                              {schedule.attendees || schedule.participants}
-                            </div>
-                          </div>
-                        )}
-
-                        {/* 완료 토글 - 오른쪽 아래에 명확하게 배치 */}
-                        <div style={{
-                          display: 'flex',
-                          justifyContent: 'flex-end',
-                          alignItems: 'center',
-                          paddingTop: '12px',
-                          borderTop: '1px solid #f0f0f0'
-                        }}>
-                          <div style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px',
-                            padding: '8px 16px',
-                            backgroundColor: schedule.isCompleted ? '#e8f5e8' : '#f8f9fa',
-                            borderRadius: '25px',
-                            border: '1px solid',
-                            borderColor: schedule.isCompleted ? '#4caf50' : '#e0e0e0',
-                            cursor: 'pointer',
-                            transition: 'all 0.2s ease'
-                          }}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            toggleScheduleComplete(
-                              schedule.scheduleId || schedule.id,
-                              !schedule.isCompleted
-                            ).catch(error => {
-                              console.error('완료 상태 변경 실패:', error);
-                            });
-                          }}
-                          >
-                            <span style={{
-                              fontSize: '14px',
-                              fontWeight: '600',
-                              color: schedule.isCompleted ? '#4caf50' : '#666'
-                            }}>
-                              {schedule.isCompleted ? '완료됨' : '미완료'}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                  />
+                ))}
               </div>
             ) : (
               !scheduleLoading && (
@@ -959,180 +685,15 @@ const IntegratedCalendar = () => {
 
             {!diaryLoading && !diaryError && (
               selectedDateDiary ? (
-                <div
+                <DiaryItem
+                  diary={selectedDateDiary}
+                  displayMode="standalone"
                   onClick={() => {
                     if (window.ModalManager) {
                       window.ModalManager.openDiaryEdit(selectedDateDiary);
                     }
                   }}
-                  style={{
-                    backgroundColor: 'white',
-                    border: '1px solid #e8e8e8',
-                    borderRadius: '16px',
-                    padding: '20px',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease',
-                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.06)'
-                  }}
-                >
-                  <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'flex-start',
-                    marginBottom: '16px'
-                  }}>
-                    <div style={{ flex: 1 }}>
-                      <div style={{
-                        fontSize: '12px',
-                        color: '#8e8e93',
-                        fontWeight: '500',
-                        marginBottom: '4px',
-                        textTransform: 'uppercase'
-                      }}>
-                        제목
-                      </div>
-                      <div style={{
-                        fontSize: '18px',
-                        fontWeight: '600',
-                        color: '#1a1a1a',
-                        lineHeight: '1.3'
-                      }}>
-                        {selectedDateDiary.title}
-                      </div>
-                    </div>
-                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (window.ModalManager) {
-                            window.ModalManager.openDiaryEdit(selectedDateDiary);
-                          }
-                        }}
-                        style={{
-                          backgroundColor: '#ff8f00',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '20px',
-                          padding: '6px 12px',
-                          fontSize: '12px',
-                          fontWeight: '600',
-                          cursor: 'pointer',
-                          transition: 'all 0.2s ease'
-                        }}
-                      >
-                        수정
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setConfirmModal({
-                            isOpen: true,
-                            type: 'diary-delete',
-                            item: selectedDateDiary,
-                            message: `"${selectedDateDiary.title}" 일기를 삭제하시겠습니까?`
-                          });
-                        }}
-                        style={{
-                          backgroundColor: '#ff3b30',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '20px',
-                          padding: '6px 12px',
-                          fontSize: '12px',
-                          fontWeight: '600',
-                          cursor: 'pointer',
-                          transition: 'all 0.2s ease'
-                        }}
-                      >
-                        삭제
-                      </button>
-                    </div>
-                  </div>
-
-                  <div style={{ marginBottom: '12px' }}>
-                    <div style={{
-                      fontSize: '12px',
-                      color: '#8e8e93',
-                      fontWeight: '500',
-                      marginBottom: '4px',
-                      textTransform: 'uppercase'
-                    }}>
-                      기분
-                    </div>
-                    <div style={{
-                      fontSize: '16px',
-                      color: '#1a1a1a',
-                      fontWeight: '500'
-                    }}>
-                      {(() => {
-                        const emotion = selectedDateDiary.emotion;
-                        const emotionData = {
-                          JOY: { label: '기쁨', emoji: '😊' },
-                          SADNESS: { label: '슬픔', emoji: '😢' },
-                          ANGER: { label: '분노', emoji: '😠' },
-                          ANXIETY: { label: '불안', emoji: '😰' },
-                          CALM: { label: '평온', emoji: '😌' }
-                        };
-                        const data = emotionData[emotion];
-                        return data ? `${data.emoji} ${data.label}` : `😌 ${emotion || '평온'}`;
-                      })()}
-                    </div>
-                  </div>
-
-                  {selectedDateDiary.weather && (
-                    <div style={{ marginBottom: '12px' }}>
-                      <div style={{
-                        fontSize: '12px',
-                        color: '#8e8e93',
-                        fontWeight: '500',
-                        marginBottom: '4px',
-                        textTransform: 'uppercase'
-                      }}>
-                        날씨
-                      </div>
-                      <div style={{
-                        fontSize: '16px',
-                        color: '#1a1a1a',
-                        fontWeight: '500'
-                      }}>
-                        {(() => {
-                          const weather = selectedDateDiary.weather;
-                          const weatherData = {
-                            SUNNY: { label: '맑음', emoji: '☀️' },
-                            CLOUDY: { label: '흐림', emoji: '☁️' },
-                            RAINY: { label: '비', emoji: '🌧️' },
-                            SNOWY: { label: '눈', emoji: '❄️' },
-                            WINDY: { label: '바람', emoji: '💨' }
-                          };
-                          const data = weatherData[weather];
-                          return data ? `${data.emoji} ${data.label}` : `☀️ ${weather || '맑음'}`;
-                        })()}
-                      </div>
-                    </div>
-                  )}
-
-                  <div>
-                    <div style={{
-                      fontSize: '12px',
-                      color: '#8e8e93',
-                      fontWeight: '500',
-                      marginBottom: '4px',
-                      textTransform: 'uppercase'
-                    }}>
-                      내용
-                    </div>
-                    <div style={{
-                      fontSize: '15px',
-                      color: '#1a1a1a',
-                      lineHeight: '1.5'
-                    }}>
-                      {selectedDateDiary.content && selectedDateDiary.content.length > 150
-                        ? selectedDateDiary.content.substring(0, 150) + '...'
-                        : selectedDateDiary.content || '내용 없음'
-                      }
-                    </div>
-                  </div>
-                </div>
+                />
               ) : (
                 <div style={{
                   textAlign: 'center',
@@ -1255,6 +816,15 @@ const IntegratedCalendar = () => {
           selectedDate={selectedDate}
           onModalClose={handleModalClose}
           onEventUpdate={handleEventUpdate}
+          // 일정 관리 함수들 전달
+          createSchedule={createSchedule}
+          updateSchedule={updateSchedule}
+          deleteSchedule={deleteSchedule}
+          loading={scheduleLoading}
+          // 일기 관리 함수들 전달
+          createDiary={createDiary}
+          updateDiary={updateDiary}
+          deleteDiary={deleteDiary}
         />
       </div>
     </div>

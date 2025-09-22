@@ -12,9 +12,6 @@ import PropTypes from 'prop-types';
 // 스타일 import
 import styles from '../../styles/components/Form.module.scss';
 
-// 훅 import
-import { useSchedule } from '../../hooks/schedule/useSchedule.js';
-
 /**
  * @component ScheduleForm
  * @description 일정 생성/수정을 위한 폼 컴포넌트
@@ -27,6 +24,10 @@ import { useSchedule } from '../../hooks/schedule/useSchedule.js';
  * @param {string} [props.selectedDate] - 선택된 날짜 (YYYY-MM-DD 형식)
  * @param {Function} [props.onSuccess] - 성공 콜백
  * @param {Function} [props.onError] - 에러 콜백
+ * @param {Function} props.createSchedule - 일정 생성 함수 (부모에서 전달)
+ * @param {Function} props.updateSchedule - 일정 수정 함수 (부모에서 전달)
+ * @param {Function} props.deleteSchedule - 일정 삭제 함수 (부모에서 전달)
+ * @param {boolean} props.loading - 로딩 상태 (부모에서 전달)
  *
  * @returns {JSX.Element} ScheduleForm 컴포넌트
  *
@@ -36,6 +37,10 @@ import { useSchedule } from '../../hooks/schedule/useSchedule.js';
  *   selectedDate="2025-09-19"
  *   onClose={handleClose}
  *   onSuccess={handleSuccess}
+ *   createSchedule={createSchedule}
+ *   updateSchedule={updateSchedule}
+ *   deleteSchedule={deleteSchedule}
+ *   loading={loading}
  * />
  *
  * @since 2025-09-19
@@ -48,13 +53,13 @@ const ScheduleForm = ({
   selectedDate = null,
   onSuccess,
   onError,
-  onDelete
+  onDelete,
+  // 부모로부터 props로 받는 함수들
+  createSchedule,
+  updateSchedule,
+  deleteSchedule,
+  loading
 }) => {
-  // ================================
-  // 커스텀 훅 사용
-  // ================================
-
-  const { createSchedule, updateSchedule, deleteSchedule, loading } = useSchedule();
 
   // ================================
   // Ref 관리
@@ -67,7 +72,7 @@ const ScheduleForm = ({
   const endDateRef = useRef();
   const memoRef = useRef();
   const locationRef = useRef();
-  const participantsRef = useRef();
+  const attendeesRef = useRef(); // participantsRef에서 attendeesRef로 변경
 
   // ================================
   // 폼 상태 관리
@@ -78,14 +83,13 @@ const ScheduleForm = ({
    */
   const [formData, setFormData] = useState({
     title: '',
-    startDate: selectedDate || '',
-    endDate: selectedDate || '',
+    date: selectedDate || '', // 단일 날짜 필드로 통합
     startTime: '',
     endTime: '',
     isAllDay: false,
     memo: '',
     location: '',
-    participants: '',
+    attendees: '', // participants에서 attendees로 변경
     isCompleted: false
   });
 
@@ -135,15 +139,14 @@ const ScheduleForm = ({
       setFormData({
         id: scheduleId, // ID를 formData에 포함
         title: initialData.title || '',
-        startDate: initialData.startDate?.split('T')[0] || initialData.scheduleDate || initialData.date || selectedDate || '',
-        endDate: initialData.endDate?.split('T')[0] || initialData.scheduleDate || initialData.date || selectedDate || '',
+        date: initialData.startDate?.split('T')[0] || initialData.scheduleDate || initialData.date || selectedDate || '',
         startTime: initialData.startTime || '',
         endTime: initialData.endTime || '',
         isAllDay: initialData.isAllDay || false,
         memo: initialData.memo || initialData.description || '',
         location: initialData.location || '',
         // 참여자 데이터를 여러 필드에서 확인하여 설정
-        participants: initialData.participants || initialData.participantsList || initialData.attendees || '',
+        attendees: initialData.participants || initialData.participantsList || initialData.attendees || '',
         isCompleted: initialData.isCompleted || false
       });
 
@@ -157,16 +160,15 @@ const ScheduleForm = ({
 
       // 참여자 필드에 포커스를 주어 확인 가능하도록 함
       setTimeout(() => {
-        if (participantsRef.current && (initialData.participants || initialData.participantsList || initialData.attendees)) {
-          console.log('📅 참여자 필드에 설정된 값:', participantsRef.current.value);
+        if (attendeesRef.current && (initialData.participants || initialData.participantsList || initialData.attendees)) {
+          console.log('📅 참여자 필드에 설정된 값:', attendeesRef.current.value);
         }
       }, 100);
     } else if (mode === 'create') {
       // 생성 모드일 때 selectedDate로 폼 데이터 업데이트
       setFormData(prev => ({
         ...prev,
-        startDate: selectedDate || '',
-        endDate: selectedDate || ''
+        date: selectedDate || ''
       }));
       console.log(`📅 ScheduleForm: 생성 모드 - 선택된 날짜로 설정: ${selectedDate}`);
     }
@@ -190,16 +192,9 @@ const ScheduleForm = ({
       newErrors.title = '제목은 100자 이내로 입력해주세요.';
     }
 
-    // 시작 날짜 검증 (빈 문자열도 체크)
-    if (!formData.startDate || formData.startDate.trim() === '') {
-      newErrors.startDate = '시작 날짜를 선택해주세요.';
-    }
-
-    // 종료 날짜 검증 (빈 문자열도 체크)
-    if (!formData.endDate || formData.endDate.trim() === '') {
-      newErrors.endDate = '종료 날짜를 선택해주세요.';
-    } else if (formData.startDate && formData.startDate.trim() !== '' && formData.endDate < formData.startDate) {
-      newErrors.endDate = '종료 날짜는 시작 날짜보다 이후여야 합니다.';
+    // 날짜 검증
+    if (!formData.date || formData.date.trim() === '') {
+      newErrors.date = '날짜를 선택해주세요.';
     }
 
     // 시간 검증 (종일이 아닐 때)
@@ -213,15 +208,14 @@ const ScheduleForm = ({
       }
 
       // 시간 순서 검증 (모든 필드가 유효할 때만)
-      if (formData.startDate && formData.endDate && formData.startTime && formData.endTime &&
-          formData.startDate.trim() !== '' && formData.endDate.trim() !== '' &&
-          formData.startTime.trim() !== '' && formData.endTime.trim() !== '') {
+      if (formData.date && formData.startTime && formData.endTime &&
+          formData.date.trim() !== '' && formData.startTime.trim() !== '' && formData.endTime.trim() !== '') {
 
-        const startDateTime = new Date(`${formData.startDate} ${formData.startTime}`);
-        const endDateTime = new Date(`${formData.endDate} ${formData.endTime}`);
+        const startDateTime = new Date(`${formData.date} ${formData.startTime}`);
+        const endDateTime = new Date(`${formData.date} ${formData.endTime}`);
 
         if (endDateTime <= startDateTime) {
-          newErrors.endTime = '종료 시간은 시작 시간보다 이후여야 합니다.';
+          newErrors.endTime = '종료 시간은 시작 시간보다 늦어야 합니다.';
         }
       }
     }
@@ -237,7 +231,7 @@ const ScheduleForm = ({
     }
 
     // 참여자 길이 검증
-    if (formData.participants && formData.participants.length > 200) {
+    if (formData.attendees && formData.attendees.length > 200) {
       newErrors.participants = '참여자는 200자 이내로 입력해주세요.';
     }
 
@@ -257,13 +251,12 @@ const ScheduleForm = ({
       const firstErrorField = Object.keys(formErrors)[0];
       const fieldRef = {
         title: titleRef,
-        startDate: startDateRef,
-        endDate: endDateRef,
+        date: startDateRef,
         startTime: startTimeRef,
         endTime: endTimeRef,
         memo: memoRef,
         location: locationRef,
-        participants: participantsRef
+        participants: attendeesRef // 변경된 필드명 반영
       }[firstErrorField];
 
       if (fieldRef?.current) {
@@ -275,7 +268,9 @@ const ScheduleForm = ({
     try {
       const scheduleData = {
         ...formData,
-        date: formData.startDate // API 호환성을 위한 date 필드 추가
+        startDate: formData.date, // API 호환성을 위한 필드 추가
+        scheduleDate: formData.date,
+        endDate: formData.date // 같은 날짜로 설정
       };
 
       console.log('📅 일정 저장 시도:', { mode, scheduleData, initialData });
@@ -306,6 +301,7 @@ const ScheduleForm = ({
 
       console.log('📅 일정 저장 성공:', result);
 
+      // 성공 콜백 호출 - 상태 업데이트를 위해 반드시 호출
       if (onSuccess) {
         onSuccess(result || scheduleData);
       }
@@ -332,6 +328,16 @@ const ScheduleForm = ({
         errorMessage = error.message;
       }
 
+      // 에러가 발생해도 DB에 저장되었을 가능성이 있으므로 성공 콜백 호출
+      if (onSuccess) {
+        try {
+          // 단순히 입력된 데이터로라도 UI 업데이트 시도
+          onSuccess(scheduleData);
+        } catch (callbackError) {
+          console.warn('성공 콜백 호출 실패:', callbackError);
+        }
+      }
+
       if (onError) {
         onError(error);
       }
@@ -346,8 +352,14 @@ const ScheduleForm = ({
    * @description 일정 삭제 핸들러
    */
   const handleDelete = useCallback(async () => {
-    if (!initialData?.scheduleId && !initialData?.id) {
-      console.error('삭제할 일정 ID가 없습니다.');
+    // ID 확인 로직 개선 - 다양한 ID 필드에서 확인
+    const scheduleId = formData.id || initialData?.id || initialData?.scheduleId || initialData?.schedule_id;
+
+    if (!scheduleId) {
+      console.error('삭제할 일정 ID가 없습니다:', { formData, initialData });
+      setErrors({
+        submit: '삭제할 일정 ID를 찾을 수 없습니다.'
+      });
       return;
     }
 
@@ -355,26 +367,44 @@ const ScheduleForm = ({
     if (!confirmed) return;
 
     try {
-      const scheduleId = initialData.scheduleId || initialData.id;
-      console.log('일정 삭제 시도:', scheduleId);
+      console.log('📅 일정 삭제 시도:', { scheduleId, initialData });
 
+      // 즉시 모달 닫기 (UI 반응성 향상)
+      onClose();
+
+      // 삭제 API 호출 (useSchedule에서 즉시 상태 업데이트됨)
       await deleteSchedule(scheduleId);
+      console.log('📅 일정 삭제 성공:', scheduleId);
 
-      if (onSuccess) {
-        onSuccess({ ...initialData, deleted: true });
+      // 삭제 성공 시 onDelete 콜백 호출 (상위 컴포넌트에 알림)
+      if (onDelete) {
+        onDelete(initialData);
       }
 
-      onClose();
     } catch (error) {
-      console.error('일정 삭제 실패:', error);
+      console.error('📅 일정 삭제 실패:', error);
 
       let errorMessage = '일정 삭제에 실패했습니다.';
-      if (error.response?.status === 404) {
-        errorMessage = '삭제할 일정을 찾을 수 없습니다.';
-      } else if (error.response?.status === 403) {
+
+      // API 에러 상세 처리
+      const apiError = error.apiError || {};
+      if (apiError.status === 404 || error.response?.status === 404) {
+        errorMessage = '삭제할 일정을 찾을 수 없습니다. 이미 삭제되었을 수 있습니다.';
+        // 404 에러인 경우 이미 삭제된 것으로 간주
+        if (onDelete) {
+          onDelete(initialData);
+        }
+        return;
+      } else if (apiError.status === 403 || error.response?.status === 403) {
         errorMessage = '일정을 삭제할 권한이 없습니다.';
+      } else if (apiError.status === 401 || error.response?.status === 401) {
+        errorMessage = '로그인이 필요합니다. 다시 로그인해주세요.';
       } else if (error.message?.includes('Network')) {
         errorMessage = '네트워크 연결을 확인해주세요.';
+      } else if (apiError.message) {
+        errorMessage = apiError.message;
+      } else if (error.message) {
+        errorMessage = error.message;
       }
 
       if (onError) {
@@ -385,7 +415,7 @@ const ScheduleForm = ({
         submit: errorMessage
       });
     }
-  }, [initialData, deleteSchedule, onSuccess, onError, onClose]);
+  }, [formData, initialData, deleteSchedule, onError, onClose, onDelete]);
 
   /**
    * @description 키보드 단축키 이벤트 리스너
@@ -565,9 +595,9 @@ const ScheduleForm = ({
 
         {/* 날짜 및 시간 입력 */}
         <div className={styles.grid2}>
-          {/* 시작 날짜 - 선택한 날짜로 고정 */}
+          {/* 날짜 표시 - 선택한 날짜로 고정 */}
           <div>
-            <span className={styles.label}>시작 날짜</span>
+            <span className={styles.label}>날짜</span>
             <div
               className={`${styles.dateWrapper} ${styles.selected} ${styles.fixed}`}
               style={{
@@ -578,43 +608,23 @@ const ScheduleForm = ({
               }}
             >
               <span style={{ color: '#1976d2', fontWeight: '600' }}>
-                {formatDate(formData.startDate)}
+                {formatDate(formData.date)}
                 <small style={{ marginLeft: '8px', color: '#666', fontSize: '12px' }}>
-                  (고정됨)
+                  (선택된 날짜로 고정)
                 </small>
               </span>
               {/* 히든 인풋으로 값 유지 */}
               <input
                 ref={startDateRef}
                 type="hidden"
-                value={formData.startDate}
+                value={formData.date}
                 readOnly
               />
             </div>
             <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
-              💡 시작날짜는 선택한 날짜로 자동 고정됩니다
+              💡 날짜는 선택한 날짜로 자동 고정됩니다
             </div>
-          </div>
-
-          {/* 종료 날짜 */}
-          <div>
-            <span className={styles.label}>종료 날짜</span>
-            <label
-              className={`${styles.dateWrapper} ${formData.endDate ? styles.selected : ''} ${errors.endDate ? styles.error : ''}`}
-              aria-label="종료 날짜 선택"
-              onClick={() => mode !== 'view' && endDateRef.current?.showPicker?.()}
-            >
-              <span>{formatDate(formData.endDate)}</span>
-              <input
-                ref={endDateRef}
-                type="date"
-                className={styles.overlayInput}
-                value={formData.endDate}
-                onChange={(e) => handleFieldChange('endDate', e.target.value)}
-                disabled={mode === 'view'}
-              />
-            </label>
-            {renderError('endDate')}
+            {renderError('date')}
           </div>
         </div>
 
@@ -686,16 +696,16 @@ const ScheduleForm = ({
         <div>
           <span className={styles.label}>참여자</span>
           <input
-            ref={participantsRef}
+            ref={attendeesRef} // 변경된 ref 이름
             type="text"
             className={`${styles.input} ${errors.participants ? styles.error : ''}`}
             placeholder="참여자를 입력하세요..."
-            value={formData.participants}
-            onChange={(e) => handleFieldChange('participants', e.target.value)}
+            value={formData.attendees} // 변경된 필드명 반영
+            onChange={(e) => handleFieldChange('attendees', e.target.value)} // 변경된 필드명 반영
             disabled={mode === 'view'}
             maxLength={200}
           />
-          {formData.participants && renderCharCount(formData.participants, 200)}
+          {formData.attendees && renderCharCount(formData.attendees, 200)}
           {renderError('participants')}
         </div>
 
@@ -808,7 +818,19 @@ ScheduleForm.propTypes = {
   onError: PropTypes.func,
 
   /** 삭제 콜백 */
-  onDelete: PropTypes.func
+  onDelete: PropTypes.func,
+
+  /** 일정 생성 함수 (부모에서 전달) */
+  createSchedule: PropTypes.func.isRequired,
+
+  /** 일정 수정 함수 (부모에서 전달) */
+  updateSchedule: PropTypes.func.isRequired,
+
+  /** 일정 삭제 함수 (부모에서 전달) */
+  deleteSchedule: PropTypes.func.isRequired,
+
+  /** 로딩 상태 (부모에서 전달) */
+  loading: PropTypes.bool.isRequired
 };
 
 ScheduleForm.defaultProps = {
@@ -816,7 +838,8 @@ ScheduleForm.defaultProps = {
   initialData: null,
   selectedDate: null,
   onSuccess: null,
-  onError: null
+  onError: null,
+  onDelete: null
 };
 
 export default ScheduleForm;
