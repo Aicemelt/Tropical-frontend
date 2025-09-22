@@ -21,6 +21,7 @@ import BucketPage from "../pages/BucketPage.jsx";
 import ProtectedRoute from "../components/auth/Guards/ProtectedRoute.jsx";
 // import VerifyRequiredPage from "../pages/VerifyRequiredPage.jsx";
 // import EmailVerifiedPage from "../pages/EmailVerifiedPage.jsx";
+import PageTransition from "../components/common/PageTransition/PageTransition.jsx";
 
 const router = createBrowserRouter([
     {
@@ -32,16 +33,8 @@ const router = createBrowserRouter([
             // ================================
             {
                 index: true,
-                element: <WelcomePage/>  // 첫 진입점을 WelcomePage로 변경
+                element: <WelcomePage/>
             },
-            // {
-            //     path: 'login',
-            //     element: <LoginPage/>
-            // },
-            // {
-            //     path: 'signup',
-            //     element: <SignupPage/>
-            // },
             {
                 path: 'onboarding',
                 element: <OnboardingPage/>
@@ -77,10 +70,6 @@ const router = createBrowserRouter([
                         element: <CalendarPage/>  // 대시보드 기본 페이지
                     },
                     {
-                        path: 'calendar',
-                        element: <CalendarPage/>
-                    },
-                    {
                         path: 'todo',
                         element: <TodoPage/>
                     },
@@ -90,37 +79,6 @@ const router = createBrowserRouter([
                     }
                 ]
             },
-
-            // ================================
-            // 호환성을 위한 레거시 라우트 (리다이렉트)
-            // ================================
-            {
-                path: 'todo',
-                element: <div>리다이렉트 중...</div>,
-                loader: () => {
-                    // /dashboard/todo로 리다이렉트
-                    throw new Response("", {
-                        status: 302,
-                        headers: {
-                            Location: "/dashboard/todo",
-                        },
-                    });
-                }
-            },
-            {
-                path: 'bucket',
-                element: <div>리다이렉트 중...</div>,
-                loader: () => {
-                    // /dashboard/bucket으로 리다이렉트
-                    throw new Response("", {
-                        status: 302,
-                        headers: {
-                            Location: "/dashboard/bucket",
-                        },
-                    });
-                }
-            },
-
             // ================================
             // 404 처리
             // ================================

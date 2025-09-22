@@ -96,7 +96,6 @@ export const WEATHER = {
 // ================================
 // API 엔드포인트 (Endpoints)
 // ================================
-
 /**
  * @description 일기 API 엔드포인트 경로 상수
  * @author 신동준

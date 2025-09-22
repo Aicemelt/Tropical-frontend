@@ -36,16 +36,28 @@ const useTodoStore = create((set, get) => ({
     getFilteredTodos: () => {
         const {todos, currentFilter} = get();
         const now = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
         switch (currentFilter) {
             case "진행 중":
-                return todos.filter(todo =>
-                    !todo.isCompleted &&
-                    (!todo.dueDate || new Date(todo.dueDate) >= now)
-                );
+                return todos.filter(todo => {
+                    if (todo.isCompleted) return false;
+                    if (!todo.dueDate) return true;
+                    const dueDate = new Date(todo.dueDate);
+                    const dueDateYMD = new Date(dueDate.getFullYear(), dueDate.getMonth(), dueDate.getDate());
+                    return dueDateYMD >= today;
+                });
             case "완료됨":
                 return todos.filter(todo => todo.isCompleted);
             case "미완료":
-                return todos.filter(todo => !todo.isCompleted && todo.dueDate && new Date(todo.dueDate) < new Date());
+                return todos.filter(todo => {
+                    if (!todo.isCompleted && todo.dueDate) {
+                        const dueDate = new Date(todo.dueDate);
+                        const dueDateYMD = new Date(dueDate.getFullYear(), dueDate.getMonth(), dueDate.getDate());
+                        return dueDateYMD < today;
+                    }
+                    return false;
+                });
             default:
                 return todos;
         }
@@ -58,16 +70,22 @@ const useTodoStore = create((set, get) => ({
         const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
         return {
-            "진행 중": todos.filter(todo =>
-                !todo.isCompleted &&
-                (!todo.dueDate || new Date(todo.dueDate) >= now)
-            ).length,
+            "진행 중": todos.filter(todo => {
+                if (todo.isCompleted) return false;
+                if (!todo.dueDate) return true;
+                const dueDate = new Date(todo.dueDate);
+                const dueDateYMD = new Date(dueDate.getFullYear(), dueDate.getMonth(), dueDate.getDate());
+                return dueDateYMD >= today;
+            }).length,
             "완료됨": todos.filter(todo => todo.isCompleted).length,
-            "미완료": todos.filter(todo =>
-                !todo.isCompleted &&
-                todo.dueDate &&
-                new Date(todo.dueDate) < today
-            ).length
+            "미완료": todos.filter(todo => {
+                if (!todo.isCompleted && todo.dueDate) {
+                    const dueDate = new Date(todo.dueDate);
+                    const dueDateYMD = new Date(dueDate.getFullYear(), dueDate.getMonth(), dueDate.getDate());
+                    return dueDateYMD < today;
+                }
+                return false;
+            }).length
         };
     }
 }));

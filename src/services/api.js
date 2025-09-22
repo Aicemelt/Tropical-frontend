@@ -8,6 +8,7 @@
 
 import axios from 'axios';
 
+
 // ================================
 // 환경 설정
 // ================================
@@ -110,6 +111,30 @@ const apiClient = axios.create({
         'Content-Type': 'application/json',
     },
 });
+
+// Axios 인스턴스 생성
+export const axiosInstance = axios.create({
+  baseURL: API_BASE_URL,
+  withCredentials: true, // 쿠키 자동 포함
+});
+
+// 요청 인터셉터: 쿠키에서 access token을 읽어 Authorization 헤더에 추가
+axiosInstance.interceptors.request.use(
+  (config) => {
+    // access_token 쿠키에서 읽기
+    const getCookie = (name) => {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop().split(';').shift();
+    };
+    const token = getCookie('access_token');
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
 // ================================
 // 쿠키 리프레시 동시성 제어
