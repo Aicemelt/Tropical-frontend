@@ -62,7 +62,7 @@ export const useBucketApi = () => {
     };
 
     const toggleCompleteBucket = async (bucketId, isCompleted) => {
-        const data = await callApi(`${API_BASE_URL}/${bucketId}/complete`, 'patch', { isCompleted });
+        const data = await callApi(`${API_BASE_URL}/${bucketId}/complete`, 'put', { isCompleted });
         if (data) toggleCompleteBucketInStore(bucketId, isCompleted);
     };
 
