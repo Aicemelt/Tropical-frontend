@@ -1,0 +1,454 @@
+/**
+ * @fileoverview DateDetailContainer 컴포넌트 스타일
+ * @description 날짜별 통합 표시 컨테이너의 반응형 스타일 정의
+ * @author 신동준
+ * @since 2025-09-19
+ * @version 1.0.0
+ */
+
+// ================================
+// 변수 정의 (Variables)
+// ================================
+
+$container-border-radius: 12px;
+$container-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+$container-shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.15);
+
+$header-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+$header-height: 80px;
+
+$button-primary: #667eea;
+$button-primary-hover: #5a67d8;
+$button-secondary: #48bb78;
+$button-secondary-hover: #38a169;
+
+$text-primary: #2d3748;
+$text-secondary: #718096;
+$text-light: #ffffff;
+
+$border-light: #e2e8f0;
+$background-light: #f7fafc;
+$background-white: #ffffff;
+
+// 반응형 브레이크포인트
+$breakpoint-tablet: 768px;
+$breakpoint-mobile: 480px;
+
+// ================================
+// 메인 컨테이너 스타일
+// ================================
+
+/**
+ * @description 날짜 상세 컨테이너 기본 스타일
+ */
+.date-detail-container {
+  background: $background-white;
+  border-radius: $container-border-radius;
+  box-shadow: $container-shadow;
+  overflow: hidden;
+  transition: box-shadow 0.3s ease, transform 0.2s ease;
+
+  &:hover {
+    box-shadow: $container-shadow-hover;
+    transform: translateY(-2px);
+  }
+
+  // ================================
+  // 표시 모드별 스타일 변형
+  // ================================
+
+  /**
+   * @description 사이드바 모드 스타일
+   */
+  &--sidebar {
+    width: 100%;
+    max-width: 400px;
+    height: 100vh;
+    border-radius: 0;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+
+    &:hover {
+      transform: none;
+    }
+
+    .date-detail-container__header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .date-detail-container__content {
+      height: calc(100vh - #{$header-height});
+      overflow-y: auto;
+    }
+  }
+
+  /**
+   * @description 모달 모드 스타일
+   */
+  &--modal {
+    width: 90vw;
+    max-width: 600px;
+    max-height: 80vh;
+    border-radius: $container-border-radius;
+
+    .date-detail-container__content {
+      max-height: calc(80vh - #{$header-height});
+      overflow-y: auto;
+    }
+  }
+
+  /**
+   * @description 독립 실행 모드 스타일
+   */
+  &--standalone {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+}
+
+// ================================
+// 헤더 스타일
+// ================================
+
+/**
+ * @description 날짜 헤더 영역
+ */
+.date-detail-container__header {
+  background: $header-gradient;
+  padding: 20px;
+  color: $text-light;
+  min-height: $header-height;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/**
+ * @description 날짜 네비게이션 영역
+ */
+.date-detail-container__date-navigation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+/**
+ * @description 날짜 제목
+ */
+.date-detail-container__date-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0;
+  text-align: center;
+  flex: 1;
+
+  @media (max-width: $breakpoint-mobile) {
+    font-size: 1.2rem;
+  }
+}
+
+/**
+ * @description 날짜 네비게이션 버튼
+ */
+.date-detail-container__nav-button {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: $text-light;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: none;
+    }
+  }
+}
+
+/**
+ * @description 액션 버튼 컨테이너
+ */
+.date-detail-container__actions {
+  display: flex;
+  gap: 12px;
+
+  @media (max-width: $breakpoint-mobile) {
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
+/**
+ * @description 추가 버튼 공통 스타일
+ */
+.date-detail-container__add-button {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: $text-light;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  /**
+   * @description 일정 추가 버튼 특화 스타일
+   */
+  &--schedule {
+    &:hover {
+      background: rgba(72, 187, 120, 0.3);
+      border-color: $button-secondary;
+    }
+  }
+
+  /**
+   * @description 일기 추가 버튼 특화 스타일
+   */
+  &--diary {
+    &:hover {
+      background: rgba(102, 126, 234, 0.3);
+      border-color: $button-primary;
+    }
+  }
+}
+
+/**
+ * @description 추가 버튼 아이콘
+ */
+.date-detail-container__add-icon {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+// ================================
+// 콘텐츠 영역 스타일
+// ================================
+
+/**
+ * @description 메인 콘텐츠 영역
+ */
+.date-detail-container__content {
+  padding: 24px;
+
+  @media (max-width: $breakpoint-tablet) {
+    padding: 16px;
+  }
+
+  @media (max-width: $breakpoint-mobile) {
+    padding: 12px;
+  }
+}
+
+/**
+ * @description 섹션 간격
+ */
+.date-detail-container__section {
+  margin-bottom: 32px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  @media (max-width: $breakpoint-tablet) {
+    margin-bottom: 24px;
+  }
+
+  @media (max-width: $breakpoint-mobile) {
+    margin-bottom: 16px;
+  }
+}
+
+// ================================
+// 상태별 스타일
+// ================================
+
+/**
+ * @description 로딩 상태
+ */
+.date-detail-container__loading {
+  padding: 60px 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: $background-light;
+}
+
+/**
+ * @description 에러 상태
+ */
+.date-detail-container__error {
+  padding: 40px 24px;
+  text-align: center;
+  background: #fed7d7;
+  border: 1px solid #feb2b2;
+  border-radius: 8px;
+  margin: 24px;
+}
+
+.date-detail-container__error-message {
+  color: #c53030;
+  margin-bottom: 16px;
+  font-weight: 500;
+}
+
+.date-detail-container__error-retry {
+  background: #c53030;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background: #9c2626;
+  }
+}
+
+/**
+ * @description 빈 상태
+ */
+.date-detail-container__empty {
+  padding: 60px 24px;
+  text-align: center;
+  background: $background-light;
+  border-radius: 8px;
+  margin: 24px;
+}
+
+.date-detail-container__empty-message {
+  color: $text-secondary;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+// ================================
+// 애니메이션 및 트랜지션
+// ================================
+
+/**
+ * @description 로딩 애니메이션
+ */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/**
+ * @description 컨텐츠 등장 애니메이션
+ */
+.date-detail-container__content,
+.date-detail-container__empty,
+.date-detail-container__error {
+  animation: fadeInUp 0.3s ease-out;
+}
+
+/**
+ * @description 호버 시 그라데이션 애니메이션
+ */
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.date-detail-container__header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #667eea 100%);
+  background-size: 200% 200%;
+  animation: gradientShift 8s ease infinite;
+}
+
+// ================================
+// 접근성 개선
+// ================================
+
+/**
+ * @description 포커스 상태 스타일
+ */
+.date-detail-container__nav-button:focus,
+.date-detail-container__add-button:focus,
+.date-detail-container__error-retry:focus {
+  outline: 2px solid rgba(255, 255, 255, 0.8);
+  outline-offset: 2px;
+}
+
+/**
+ * @description 고대비 모드 지원
+ */
+@media (prefers-contrast: high) {
+  .date-detail-container {
+    border: 2px solid $text-primary;
+  }
+
+  .date-detail-container__header {
+    background: $text-primary;
+  }
+
+  .date-detail-container__nav-button,
+  .date-detail-container__add-button {
+    border: 2px solid $text-light;
+  }
+}
+
+/**
+ * @description 움직임 감소 설정 지원
+ */
+@media (prefers-reduced-motion: reduce) {
+  .date-detail-container,
+  .date-detail-container__nav-button,
+  .date-detail-container__add-button,
+  .date-detail-container__content,
+  .date-detail-container__empty,
+  .date-detail-container__error {
+    animation: none;
+    transition: none;
+  }
+
+  .date-detail-container:hover {
+    transform: none;
+  }
+}

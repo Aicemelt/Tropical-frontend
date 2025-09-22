@@ -17,8 +17,10 @@ import './EmotionSelector.scss';
  *
  * @param {Object} props - 컴포넌트 props
  * @param {string} props.selectedEmotion - 현재 선택된 감정
- * @param {Function} props.onEmotionChange - 감정 변경 콜백 함수
+
+ * @param {Function} props.onEmotionSelect - 감정 선택 콜백 함수
  * @param {boolean} props.disabled - 비활성화 여부 (기본값: false)
+ * @param {boolean} props.error - 에러 상태 (기본값: false)
  * @param {string} props.size - 크기 ('small' | 'medium' | 'large', 기본값: 'medium')
  * @param {boolean} props.showLabel - 라벨 표시 여부 (기본값: true)
  * @param {string} props.className - 추가 CSS 클래스
@@ -26,8 +28,9 @@ import './EmotionSelector.scss';
  */
 const EmotionSelector = ({
   selectedEmotion = '',
-  onEmotionChange,
+  onEmotionSelect,
   disabled = false,
+  error = false,
   size = 'medium',
   showLabel = true,
   className = ''
@@ -39,9 +42,10 @@ const EmotionSelector = ({
   const handleEmotionClick = (emotionKey) => {
     if (disabled) return;
 
-    // 이미 선택된 감정을 다시 클릭하면 선택 해제
+
+    // 선택된 감정을 콜백으로 전달 (선택 해제는 빈 문자열)
     const newEmotion = selectedEmotion === emotionKey ? '' : emotionKey;
-    onEmotionChange?.(newEmotion);
+    onEmotionSelect?.(newEmotion);
   };
 
   /**

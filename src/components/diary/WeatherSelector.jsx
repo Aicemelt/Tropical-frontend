@@ -17,7 +17,7 @@ import './WeatherSelector.scss';
  *
  * @param {Object} props - 컴포넌트 props
  * @param {string} props.selectedWeather - 현재 선택된 날씨
- * @param {Function} props.onWeatherChange - 날씨 변경 콜백 함수
+ * @param {Function} props.onWeatherSelect - 날씨 선택 콜백 함수
  * @param {boolean} props.disabled - 비활성화 여부 (기본값: false)
  * @param {string} props.size - 크기 ('small' | 'medium' | 'large', 기본값: 'medium')
  * @param {boolean} props.showLabel - 라벨 표시 여부 (기본값: true)
@@ -27,7 +27,7 @@ import './WeatherSelector.scss';
  */
 const WeatherSelector = ({
   selectedWeather = '',
-  onWeatherChange,
+  onWeatherSelect,
   disabled = false,
   size = 'medium',
   showLabel = true,
@@ -41,9 +41,9 @@ const WeatherSelector = ({
   const handleWeatherClick = (weatherKey) => {
     if (disabled) return;
 
-    // 이미 선택된 날씨를 다시 클릭하면 선택 해제
+    // 선택된 날씨를 콜백으로 전달 (선택 해제는 빈 문자열)
     const newWeather = selectedWeather === weatherKey ? '' : weatherKey;
-    onWeatherChange?.(newWeather);
+    onWeatherSelect?.(newWeather);
   };
 
   /**
