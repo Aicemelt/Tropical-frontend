@@ -1,6 +1,5 @@
 // src/components/auth/signup/TermsDetailModal.jsx
-import React, {useEffect, useState} from 'react';
-import '../../../styles/global.scss';
+import React, {useEffect, useState} from 'react';;
 import styles from '../../../styles/components/TermsDetailModal.module.scss';
 import {apiMethods} from '../../../services/api.js';
 

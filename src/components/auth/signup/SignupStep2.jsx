@@ -1,6 +1,5 @@
 // src/components/auth/signup/SignupStep2.jsx
 import React, {useState} from 'react';
-import '../../../styles/global.scss';
 import styles from '../../../styles/components/SignupStep2.module.scss';
 import ErrorMessage from './ErrorMessage.jsx';
 

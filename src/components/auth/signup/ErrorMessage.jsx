@@ -1,6 +1,5 @@
 // src/components/auth/signup/ErrorMessage.jsx
 import React from 'react';
-import '../../../styles/global.scss';
 import styles from '../../../styles/components/ErrorMessage.module.scss';
 
 /**

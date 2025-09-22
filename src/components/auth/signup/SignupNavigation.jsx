@@ -1,6 +1,5 @@
 // src/components/auth/signup/SignupNavigation.jsx
 import React from 'react';
-import '../../../styles/global.scss';
 import styles from '../../../styles/components/SignupNavigation.module.scss';
 
 /**
@@ -16,11 +15,15 @@ export default function SignupNavigation({
                                              loading,
                                              onNext,
                                              onPrev,
-                                             onSubmit
+                                             onSubmit,
+                                             progress
                                          }) {
     const isFirstStep = currentStep === 1;
     const isLastStep = currentStep === totalSteps;
-    const progressPercentage = (currentStep / totalSteps) * 100;
+    const progressPercentage =
+        typeof progress === 'number'
+            ? Math.max(0, Math.min(100, Math.round(progress)))
+            : Math.round((currentStep / totalSteps) * 100);
 
     return (
         <div className={styles.navigation}>
