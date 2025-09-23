@@ -1,32 +1,103 @@
-@use '../global';
-
 .section {
-  display:grid;
+  display: grid;
+  max-width: 640px;
+  margin: 0 auto;
   gap: 20px;
-
 }
 
 .group {
-  background: #fff;
-  border: 1px solid #e5e7eb;
   border-radius: 12px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, .06);
-  padding: 16px;
-  display:grid;
-  gap: 12px;
+  padding: 20px;
+  display: grid;
+  gap: 16px;
+  transition: all 0.2s ease;
+  min-height: 240px;
+}
 
+.group.required {
+  /* ✅ 테두리 제거 */
+  background: linear-gradient(135deg, #fef7f7 0%, #fff 100%);
+}
+
+.group.optional {
+  border: 1px solid #e5e7eb;
+  background: linear-gradient(135deg, #f9fafb 0%, #fff 100%);
+}
+
+.groupHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e5e7eb;
+  margin-bottom: 4px;
+}
+
+.selectAll {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  flex: 1;
+}
+
+.selectAllCheckbox {
+  width: 20px;
+  height: 20px;
+  accent-color: #e76f51;
 }
 
 .groupTitle {
   margin: 0;
   font-size: 16px;
   font-weight: 800;
-  color: var(--ink-900);
+  color: #1f2937;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 
+.selectAllText {
+  font-size: 14px;
+  font-weight: 500;
+  color: #6b7280;
+}
+
+.badge {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.required .badge {
+  background: #e76f51;
+  color: white;
+}
+
+.optional .badge {
+  background: #9ca3af;
+  color: #374151;
 }
 
 .list {
-  display:grid;
-  gap: 10px;
+  display: grid;
+  gap: 6px;
+}
 
+.group:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .08);
+}
+
+/* ✅ 필수 섹션 호버 효과도 제거 */
+.required:hover {
+  /* border-color 제거 */
+}
+
+.optional:hover {
+  border-color: #d1d5db;
 }

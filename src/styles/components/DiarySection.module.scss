@@ -4,3 +4,125 @@ h4 {
   align-items: center;
   gap: 8px;
 }
+
+/* 에러 상태 스타일 - 고급스러운 디자인 */
+.error {
+  padding: 24px;
+  background: linear-gradient(135deg, #fff5f5, #fef2f2);
+  border: 1px solid #fed7d7;
+  border-radius: 16px;
+  margin: 16px 0;
+  box-shadow: 0 4px 12px rgba(254, 215, 215, 0.3);
+
+  .errorContent {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 20px;
+
+    .errorIcon {
+      font-size: 24px;
+      flex-shrink: 0;
+      animation: errorPulse 2s infinite;
+    }
+
+    .errorText {
+      flex: 1;
+
+      .errorTitle {
+        margin: 0 0 8px 0;
+        font-size: 16px;
+        font-weight: 600;
+        color: #c53030;
+      }
+
+      .errorMessage {
+        margin: 0;
+        font-size: 14px;
+        color: #744210;
+        line-height: 1.5;
+      }
+    }
+  }
+
+  .retryBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #e53e3e, #c53030);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 8px rgba(197, 48, 48, 0.3);
+
+    &:hover:not(:disabled) {
+      background: linear-gradient(135deg, #c53030, #9c2a2a);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(197, 48, 48, 0.4);
+    }
+
+    &:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 8px rgba(197, 48, 48, 0.3);
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none !important;
+      box-shadow: 0 2px 8px rgba(197, 48, 48, 0.2);
+    }
+
+    .retryIcon {
+      font-size: 16px;
+      animation: retryRotate 1s linear infinite;
+    }
+
+    .retryText {
+      font-weight: 500;
+    }
+
+    &:disabled .retryIcon {
+      animation: retryRotate 2s linear infinite;
+    }
+  }
+}
+
+/* 애니메이션 효과 */
+@keyframes errorPulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+}
+
+@keyframes retryRotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* 로딩 상태 스타일 개선 */
+.loading {
+  padding: 20px;
+  text-align: center;
+  background: linear-gradient(135deg, #f7fafc, #edf2f7);
+  border-radius: 12px;
+  margin: 16px 0;
+  border: 1px solid #e2e8f0;
+}

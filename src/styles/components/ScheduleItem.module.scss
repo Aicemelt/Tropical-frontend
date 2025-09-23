@@ -1,24 +1,288 @@
-.item {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  border-radius: 16px;
-  padding: 20px;
-  background-color: #EAEAEA;
+/**
+ * @fileoverview 일정 아이템 컴포넌트 스타일 (개선된 버전)
+ * @description 요청된 디자인에 맞는 컴팩트 카드 레이아웃
+ * @author 신동준
+ * @since 2025-09-22
+ * @version 3.0.0
+ */
 
-  .time {
-    width: fit-content;
-    font-family: var(--font-english);
-    color: #fff;
-    background-color: var(--primary);
-    padding: 4px 8px;
-    font-size: var(--text-sm);
-    border-radius: 12.5px;
+/* 기존 스타일 초기화 */
+.scheduleItem {
+  background: white;
+  border: 1px solid #e1e5e9;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  position: relative;
+
+  /* 기존 스타일 오버라이드 */
+  .main, .header, .content, .meta, .actions {
+    display: none !important; /* 기존 구조 숨김 */
   }
 
-  p {
-    font-size: var(--text-xl);
-    font-weight: var(--font-semibold);
+  &:hover {
+    border-color: #4A90E2;
+    box-shadow: 0 4px 12px rgba(74, 144, 226, 0.15);
+    transform: translateY(-1px);
+  }
+
+  &--completed {
+    opacity: 0.7;
+    background: #f8f9fa;
+
+    .titleSection .title {
+      text-decoration: line-through;
+      color: #6c757d;
+    }
+  }
+
+  &--hovered {
+    .actionButtonsLeft .actions {
+      opacity: 1;
+    }
+  }
+
+  &--delete-confirm {
+    border-color: #dc3545;
+    background: #fff5f5;
+  }
+}
+
+/* 새로운 카드 컨텐츠 레이아웃 */
+.cardContent {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* 제목 섹션 */
+.titleSection {
+  .title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #2c3e50;
+    margin: 0;
+    line-height: 1.4;
+  }
+}
+
+/* 날짜/시간 가로 배치 */
+.dateTimeRow {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+
+  .dateInfo, .timeInfo {
+    font-size: 14px;
+    color: #5a6c7d;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+}
+
+/* 장소/참여자 가로 배치 */
+.locationParticipantsRow {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+
+  .locationInfo, .participantsInfo {
+    font-size: 14px;
+    color: #5a6c7d;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+}
+
+/* 메모 섹션 */
+.memoSection {
+  .memoText {
+    font-size: 14px;
+    color: #6c757d;
+    line-height: 1.5;
+    margin: 0;
+    display: flex;
+    align-items: flex-start;
+    gap: 4px;
+  }
+}
+
+/* 하단 액션 라인 */
+.bottomActions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #e9ecef;
+}
+
+.actionButtonsLeft {
+  display: flex;
+  gap: 8px;
+}
+
+.completeToggleRight {
+  margin-left: auto;
+}
+
+/* 액션 버튼들 */
+.actions {
+  display: flex;
+  gap: 8px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+
+  &Visible {
+    opacity: 1;
+  }
+}
+
+.editBtn, .deleteBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  font-size: 16px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #f8f9fa;
+    transform: scale(1.1);
+  }
+}
+
+.editBtn:hover {
+  background: #e3f2fd;
+}
+
+.deleteBtn:hover {
+  background: #ffebee;
+}
+
+/* 체크박스 스타일 */
+.checkbox {
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  .checkboxInput {
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #dee2e6;
+    border-radius: 4px;
+    background: white;
     cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:checked {
+      background: #4A90E2;
+      border-color: #4A90E2;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  .checkboxMark {
+    position: absolute;
+    left: 3px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    pointer-events: none;
+  }
+}
+
+/* 삭제 확인 */
+.deleteConfirm {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .deleteConfirmText {
+    font-size: 14px;
+    color: #dc3545;
+    font-weight: 500;
+  }
+
+  .confirmBtn, .cancelBtn {
+    padding: 4px 8px;
+    border: none;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .confirmBtn {
+    background: #dc3545;
+    color: white;
+
+    &:hover {
+      background: #c82333;
+    }
+  }
+
+  .cancelBtn {
+    background: #6c757d;
+    color: white;
+
+    &:hover {
+      background: #5a6268;
+    }
+  }
+}
+
+.updating {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(255, 255, 255, 0.95);
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #dee2e6;
+
+  .updatingText {
+    font-size: 12px;
+    color: #6c757d;
+  }
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .scheduleItem {
+    padding: 12px;
+    margin-bottom: 8px;
+  }
+
+  .titleSection .title {
+    font-size: 14px;
+  }
+
+  .dateTimeRow, .locationParticipantsRow {
+    gap: 12px;
+
+    .dateInfo, .timeInfo, .locationInfo, .participantsInfo {
+      font-size: 13px;
+    }
+  }
+
+  .bottomActions {
+    margin-top: 8px;
+    padding-top: 8px;
   }
 }

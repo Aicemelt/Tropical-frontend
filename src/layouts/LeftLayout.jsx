@@ -5,6 +5,8 @@ import SmallTalkList from "../components/smalltalk/SmallTalkList.jsx";
 import Tips from "../components/smalltalk/Tips.jsx";
 import {useSmalltalk} from "../hooks/smalltalk/useSmalltalk.js";
 import useAuthStore from "../store/authStore.js";
+import PageTransition from "../components/common/PageTransition/PageTransition.jsx";
+
 
 const LeftLayout = () => {
     const {smallTalkData, fetchSmalltalk} = useSmalltalk();
@@ -24,11 +26,13 @@ const LeftLayout = () => {
 
     return (
         <div className={leftLayout}>
+            <PageTransition>
             <LeftHeader name={nickname}/>
-            <div className={container}>
-                <SmallTalkList talks= {smallTalkData}/>
-                <Tips />
-            </div>
+                <div className={container}>
+                    <SmallTalkList talks= {smallTalkData}/>
+                    <Tips />
+                </div>
+            </PageTransition>
         </div>
     );
 };

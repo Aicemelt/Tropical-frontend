@@ -1,21 +1,23 @@
-@use '../global';
+
 
 .item {
   display: grid;
   grid-template-columns: 20px 1fr;
   gap: 12px;
   align-items: flex-start;
+  padding: 8px 0;
 }
 
 .checkbox {
   width: 18px;
   height: 18px;
   margin-top: 4px;
+  accent-color: #e76f51;
 }
 
 .body {
   display: grid;
-  gap: 6px;
+  gap: 4px;
 }
 
 .titleRow {
@@ -23,20 +25,22 @@
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
+  margin-bottom: 2px;
 }
 
 .titleText {
   font-weight: 700;
+  line-height: 1.4;
 }
 
 .required {
-  color: var(--tropical-coral);
+  color: #e76f51;
   font-weight: 800;
   margin-left: 4px;
 }
 
 .version {
-  color: var(--ink-500);
+  color: #6b7280;
   font-size: 12px;
 }
 
@@ -44,10 +48,18 @@
   all: unset;
   cursor: pointer;
   display: inline-flex;
-  color: var(--tropical-ocean);
+  color: #e76f51;
   font-weight: 700;
+  font-size: 14px;
+  padding: 2px 0;
+  line-height: 1.2;
 }
 
 .detailBtn:hover {
   text-decoration: underline;
+}
+
+.detailBtn:disabled {
+  color: #9ca3af;
+  cursor: not-allowed;
 }

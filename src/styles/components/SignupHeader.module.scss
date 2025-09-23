@@ -1,0 +1,183 @@
+/* src/styles/components/SignupHeader.module.scss */
+
+.header {
+  padding: 24px;
+  background: linear-gradient(135deg, #fef7f7 0%, #fff 100%);
+  border-bottom: 1px solid #f1f5f9;
+  display: grid;
+  gap: 20px;
+  text-align: center;
+  /* 헤더 높이 고정 - 상태 변화에 관계없이 일정한 높이 유지 */
+  min-height: 180px;
+  box-sizing: border-box;
+}
+
+/* 단계 표시기 */
+.stepIndicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  /* 인디케이터 높이 고정 */
+  height: 40px;
+}
+
+.step {
+  display: flex;
+  align-items: center;
+}
+
+.stepCircle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 2;
+}
+
+/* 단계별 스타일 */
+.step.pending .stepCircle {
+  background: #f1f5f9;
+  color: #64748b !important; /* global button 스타일 오버라이드 */
+  border: 2px solid #e2e8f0;
+}
+
+.step.active .stepCircle {
+  background: linear-gradient(135deg, #f4a261 0%, #e76f51 100%);
+  color: white !important; /* global button 스타일 오버라이드 */
+  border: 2px solid #e76f51;
+  box-shadow: 0 4px 12px rgba(231, 111, 81, 0.3);
+}
+
+.step.completed .stepCircle {
+  background: #52b788;
+  color: white !important; /* global button 스타일 오버라이드 */
+  border: 2px solid #52b788;
+}
+
+.stepNumber {
+  font-size: 14px;
+  font-weight: 700;
+  color: inherit !important; /* global button 스타일 강제 오버라이드 */
+}
+
+.checkIcon {
+  font-size: 16px;
+  font-weight: 700;
+  color: inherit !important; /* global button 스타일 강제 오버라이드 */
+}
+
+/* 단계 연결선 */
+.stepLine {
+  width: 60px;
+  height: 2px;
+  background: #e2e8f0;
+  margin: 0 8px;
+  position: relative;
+  z-index: 1;
+  transition: background 0.3s ease;
+}
+
+.step.completed .stepLine {
+  background: #52b788;
+}
+
+/* 제목 섹션 - 높이와 여백 고정 */
+.titleSection {
+  display: grid;
+  gap: 8px;
+  /* 제목 영역 높이 고정으로 텍스트 변경 시에도 레이아웃 안정성 확보 */
+  min-height: 80px;
+  align-content: center;
+}
+
+.title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 800;
+  color: #1f2937;
+  letter-spacing: -0.5px;
+  /* 제목 높이 고정 */
+  line-height: 1.2;
+  min-height: 30px;
+}
+
+.description {
+  margin: 0;
+  font-size: 16px;
+  color: #6b7280;
+  line-height: 1.5;
+  /* 설명 높이 고정 */
+  min-height: 24px;
+}
+
+/* 단계 텍스트 - 높이 고정 */
+.stepText {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-size: 14px;
+  color: #9ca3af;
+  height: 20px; /* 고정 높이 */
+}
+
+.currentStep {
+  font-weight: 700;
+  color: #e76f51;
+}
+
+.separator {
+  color: #d1d5db;
+}
+
+.totalSteps {
+  font-weight: 500;
+}
+
+/* 반응형 조정 */
+@media (max-width: 480px) {
+  .header {
+    padding: 20px;
+    gap: 16px;
+    min-height: 160px; /* 모바일에서도 고정 높이 */
+  }
+
+  .stepIndicator {
+    height: 36px;
+  }
+
+  .stepCircle {
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
+  }
+
+  .stepLine {
+    width: 40px;
+  }
+
+  .titleSection {
+    min-height: 70px;
+  }
+
+  .title {
+    font-size: 20px;
+    min-height: 26px;
+  }
+
+  .description {
+    font-size: 14px;
+    min-height: 22px;
+  }
+
+  .stepText {
+    height: 18px;
+  }
+}

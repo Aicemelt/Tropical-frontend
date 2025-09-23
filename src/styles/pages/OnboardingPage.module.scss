@@ -1,29 +1,65 @@
-@use '../global';
+/* 이미 추가했던 전역 오버라이드 유지 */
+:global(body.onboarding) #root {
+  display: block !important;
+  max-width: none !important;
+  padding-top: 0 !important;
+  margin: 0 auto !important;
+}
 
+/* 전체 레이아웃: 전체 화면 배경 */
 .container {
-  min-height: 100dvh;
-  background: linear-gradient(180deg, var(--bg-100) 0%, #fff 100%);
-  display: grid;
-  place-items: center;
+  /* ✅ 전체 화면 배경 적용 */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+
+  /* 컨텐츠는 가운데 정렬 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  box-sizing: border-box;
+  overflow-y: auto;
 }
 
 .center {
-  max-width: 720px;
+  /* ✅ 컨텐츠만 최대 너비 제한 */
   width: 100%;
-  margin: 0 auto;
-  padding: 32px 20px 40px;
-  display: grid;
-  gap: 24px;
+  max-width: 960px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
 }
 
+/* 콘텐츠 영역 */
+.content {
+  min-height: clamp(420px, 62vh, 720px);
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+}
+
+/* 로딩 스켈레톤 */
 .skeleton {
-  width: 100%;
-  max-width: 720px;
-  padding: 16px;
-  border-radius: 12px;
-  background: #fff;
-  border: 1px solid #e5e7eb;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, .06);
-  text-align: center;
-  color: var(--ink-700);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  color: #6b7280;
+  font-size: 16px;
+}
+
+/* 반응형 조정 */
+@media (max-width: 768px) {
+  .container {
+    padding: 16px;
+  }
+
+  .center {
+    max-width: 100%;
+  }
 }

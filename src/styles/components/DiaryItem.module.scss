@@ -1,56 +1,286 @@
-.diary {
+/**
+ * @fileoverview 일기 아이템 컴포넌트 스타일 (개선된 버전)
+ * @description 요청된 디자인에 맞는 컴팩트 카드 레이아웃 (일기용)
+ * @author 신동준
+ * @since 2025-09-22
+ * @version 3.0.0
+ */
+
+.diaryItem {
+  background: white;
+  border: 1px solid #e1e5e9;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  position: relative;
+
+  &:hover {
+    border-color: #4A90E2;
+    box-shadow: 0 4px 12px rgba(74, 144, 226, 0.15);
+    transform: translateY(-1px);
+  }
+
+  &--hovered {
+    .actions {
+      opacity: 1;
+    }
+  }
+
+  &--delete-confirm {
+    border-color: #dc3545;
+    background: #fff5f5;
+  }
+
+  &--expanded {
+    .expandBtn {
+      background: #e3f2fd;
+      color: #1976d2;
+    }
+  }
+
+  // 감정별 테마 색상
+  &--joy {
+    border-left: 4px solid #FFD700;
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.1) 0%, rgba(255, 215, 0, 0.05) 100%);
+  }
+
+  &--sadness {
+    border-left: 4px solid #4682B4;
+    background: linear-gradient(135deg, rgba(70, 130, 180, 0.1) 0%, rgba(70, 130, 180, 0.05) 100%);
+  }
+
+  &--anger {
+    border-left: 4px solid #DC143C;
+    background: linear-gradient(135deg, rgba(220, 20, 60, 0.1) 0%, rgba(220, 20, 60, 0.05) 100%);
+  }
+
+  &--anxiety {
+    border-left: 4px solid #9370DB;
+    background: linear-gradient(135deg, rgba(147, 112, 219, 0.1) 0%, rgba(147, 112, 219, 0.05) 100%);
+  }
+
+  &--calm {
+    border-left: 4px solid #20B2AA;
+    background: linear-gradient(135deg, rgba(32, 178, 170, 0.1) 0%, rgba(32, 178, 170, 0.05) 100%);
+  }
+}
+
+/* 새로운 카드 컨텐츠 레이아웃 */
+.cardContent {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  border-radius: 16px;
-  padding: 20px;
-  background-color: #EAEAEA;
+  gap: 10px;
+}
 
-  .infoArea {
+/* 제목과 아이콘 헤더 */
+.headerRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+
+  .title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #2c3e50;
+    margin: 0;
+    line-height: 1.4;
+    flex: 1;
+  }
+
+  .iconGroup {
     display: flex;
-    flex-direction: row;
-    gap: 8px;
+    gap: 6px;
+    flex-shrink: 0;
+
+    .emotionIcon, .weatherIcon {
+      font-size: 18px;
+      filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+    }
+  }
+}
+
+/* 날짜 정보 */
+.dateRow {
+  .dateInfo {
+    font-size: 14px;
+    color: #5a6c7d;
+    display: flex;
     align-items: center;
+    gap: 4px;
+  }
+}
 
-    span {
-      font-size: var(--text-lg);
-      font-weight: var(--font-semibold);
-    }
-
-    // 감정 아이콘 사용 시 아래 클래스 사용
-    // 아이콘은 tossFace 이모지 아이콘을 사용했습니다.
-
-    .emotion {
-      width: 40px;
-      height: 40px;
-
-      &.joy {
-        background-image: url("../../asset/joy.png");
-      }
-
-      &.sadness {
-        background-image: url("../../asset/sadness.png");
-      }
-
-      &.anger {
-        background-image: url("../../asset/anger.png");
-      }
-
-      &.calm {
-        background-image: url("../../asset/calm.png");
-      }
-
-      &.anxiety {
-        background-image: url("../../asset/anxiety.png");
-      }
-
-    }
+/* 일기 내용 섹션 */
+.contentSection {
+  .contentText {
+    font-size: 14px;
+    color: #495057;
+    line-height: 1.6;
+    margin: 0;
+    white-space: pre-wrap;
+    word-break: break-word;
   }
 
-  p {
-    font-size: var(--text-xl);
-    font-weight: var(--font-semibold);
+  .expandBtn {
+    background: none;
+    border: none;
+    color: #4A90E2;
+    font-size: 12px;
     cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    margin-top: 8px;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: #e3f2fd;
+      color: #1976d2;
+    }
+  }
+}
+
+/* 하단 액션 라인 */
+.bottomActions {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #e9ecef;
+}
+
+.actionButtonsLeft {
+  display: flex;
+  gap: 8px;
+}
+
+/* 액션 버튼들 */
+.actions {
+  display: flex;
+  gap: 8px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+
+  &Visible {
+    opacity: 1;
+  }
+}
+
+.editBtn, .deleteBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  font-size: 16px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #f8f9fa;
+    transform: scale(1.1);
+  }
+}
+
+.editBtn:hover {
+  background: #e3f2fd;
+}
+
+.deleteBtn:hover {
+  background: #ffebee;
+}
+
+/* 삭제 확인 */
+.deleteConfirm {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .deleteConfirmText {
+    font-size: 14px;
+    color: #dc3545;
+    font-weight: 500;
   }
 
+  .confirmBtn, .cancelBtn {
+    padding: 4px 8px;
+    border: none;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .confirmBtn {
+    background: #dc3545;
+    color: white;
+
+    &:hover {
+      background: #c82333;
+    }
+  }
+
+  .cancelBtn {
+    background: #6c757d;
+    color: white;
+
+    &:hover {
+      background: #5a6268;
+    }
+  }
+}
+
+/* 기존 스타일 호환성을 위한 클래스들 (필요시) */
+.infoArea {
+  display: none; // 새 디자인에서는 사용하지 않음
+}
+
+.main {
+  display: none; // 새 디자인에서는 사용하지 않음
+}
+
+.timestamp {
+  font-size: 11px;
+  color: #868e96;
+  margin-top: 8px;
+  text-align: right;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .diaryItem {
+    padding: 12px;
+    margin-bottom: 8px;
+  }
+
+  .headerRow {
+    gap: 8px;
+
+    .title {
+      font-size: 14px;
+    }
+
+    .iconGroup {
+      gap: 4px;
+
+      .emotionIcon, .weatherIcon {
+        font-size: 16px;
+      }
+    }
+  }
+
+  .dateRow .dateInfo {
+    font-size: 13px;
+  }
+
+  .contentSection .contentText {
+    font-size: 13px;
+  }
+
+  .bottomActions {
+    margin-top: 8px;
+    padding-top: 8px;
+  }
 }

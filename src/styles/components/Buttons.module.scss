@@ -1,16 +1,23 @@
 .btnArea {
-  display: flex;
-  flex-direction: row;
-  gap: 16px;
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 16px !important;
+  margin: 20px 0 !important;
 
   button {
-    height: 72px;
-    padding: 20px;
-    border-radius: 16px;
-    width: 100%;
-    text-align: left;
-    font-size: var(--text-lg);
-    font-weight: var(--font-regular);
+    height: 72px !important;
+    padding: 20px !important;
+    border-radius: 16px !important;
+    width: 100% !important;
+    text-align: left !important;
+    font-size: var(--text-lg) !important;
+    font-weight: var(--font-regular) !important;
+    cursor: pointer !important;
+
+    /* global.scss 버튼 스타일 완전 무력화 */
+    background-color: white !important;
+    color: black !important;
+    border: 1px solid #ccc !important;
 
     &::before {
       content: '';
@@ -23,16 +30,30 @@
     }
 
     &.addScheduleBtn {
-      background-color: #9E9E9E;
+      background-color: #9E9E9E !important;
+      color: white !important;
+      border: none !important;
 
       &::before {
         background-image: url("../../asset/plus-32-w.png");
       }
+
+      &:hover {
+        background-color: #757575 !important;
+      }
     }
 
     &.addDiaryBtn {
+      background-color: black !important;
+      color: white !important;
+      border: none !important;
+
       &::before {
         background-image: url("../../asset/pencil-32.png");
+      }
+
+      &:hover {
+        background-color: #333 !important;
       }
     }
   }

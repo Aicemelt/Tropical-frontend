@@ -34,7 +34,7 @@ const DatePicker = ({ onDateChange, initialDate }) => {
         const selectedDateValue = e.target.value;
         setDate(selectedDateValue);
 
-        // ✅ 부모 컴포넌트에서 전달받은 onDateChange 함수 호출
+        //  부모 컴포넌트에서 전달받은 onDateChange 함수 호출
         // 날짜를 ISO 형식의 문자열로 변환하여 전달
         if (onDateChange) {
             if (selectedDateValue) {
