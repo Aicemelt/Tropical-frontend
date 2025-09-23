@@ -141,3 +141,11 @@
   border: 1px solid rgba(255, 107, 53, 0.25) !important;
   position: relative;
 }
+/* 오늘 날짜 노란색 배경 강제 적용 */
+:global(.fc-day-today) {
+  background-color: rgba(255, 220, 40, 0.15) !important;
+}
+
+:global(.fc-daygrid-day.fc-day-today) {
+  background-color: rgba(255, 220, 40, 0.15) !important;
+}
