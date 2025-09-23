@@ -21,6 +21,8 @@ import BucketPage from "../pages/BucketPage.jsx";
 import ProtectedRoute from "../components/auth/Guards/ProtectedRoute.jsx";
 import VerifyRequiredPage from "../pages/VerifyRequiredPage.jsx";  // 활성화
 import EmailVerifiedPage from "../pages/EmailVerifiedPage.jsx";  // 활성화
+import PageTransition from "../components/common/PageTransition/PageTransition.jsx";
+
 
 const router = createBrowserRouter([
     {
@@ -75,10 +77,6 @@ const router = createBrowserRouter([
                         element: <CalendarPage/>
                     },
                     {
-                        path: 'calendar',
-                        element: <CalendarPage/>
-                    },
-                    {
                         path: 'todo',
                         element: <TodoPage/>
                     },
@@ -116,6 +114,7 @@ const router = createBrowserRouter([
                     });
                 }
             },
+
 
             // ================================
             // 404 처리

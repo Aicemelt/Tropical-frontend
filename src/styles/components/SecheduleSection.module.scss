@@ -18,7 +18,20 @@ h4 {
     height: 24px;
     background-color: transparent;
     background-image: url("../../asset/arrow-24.png");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 16px 16px;
+    border: none;
+    cursor: pointer;
     margin-left: auto;
+    transition: transform 0.2s ease;
+    opacity: 0.7;
+
+    &:hover {
+      opacity: 1;
+      background-color: rgba(0, 0, 0, 0.05);
+      border-radius: 4px;
+    }
 
     &.open {
       transform: rotate(180deg);
